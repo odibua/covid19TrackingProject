@@ -1,0 +1,8 @@
+COUNTY_NAME: Sacramento
+DATA_TYPE: Total_Cases
+
+REQUEST:
+  TYPE: GET
+  URL: https://services6.arcgis.com/yeTSZ1znt7H7iDG7/arcgis/rest/services/Cases/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&resultOffset=0&resultRecordCount=50&resultType=standard&cacheHint=true
+  HEADERS: None
+  PAYLOAD: None
