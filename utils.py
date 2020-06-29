@@ -54,13 +54,17 @@ def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List
     dt = datetime.datetime.now()
     today = datetime.date(dt.year, dt.month, dt.day)
     today_str = today.isoformat()
+    save_dir = f"{save_dir}/{today_str}"
+    if not path.isdir(save_dir):
+        os.makedirs(save_dir)
     for response, data_type_name in zip(response_list, data_type_names):
-        save_path = f"{save_dir}/{today_str}/{data_type_name}"
+        save_path = f"{save_dir}/{data_type_name}"
         text_file = open(save_path, "w")
         text_file.write(response)
         text_file.close()
 
-    failed_save_path = f"{save_dir}/{today_str}/failed_queries"
-    with open(failed_save_path, 'w') as f:
-        for failed_data_type_name in failed_data_type_names:
-            f.write(f"{failed_data_type_name}\n")
+    failed_save_path = f"{save_dir}/failed_queries"
+    if len(failed_data_type_names):
+        with open(failed_save_path, 'w') as f:
+            for failed_data_type_name in failed_data_type_names:
+                f.write(f"{failed_data_type_name}\n")
