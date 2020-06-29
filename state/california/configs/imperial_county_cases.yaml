@@ -1,0 +1,8 @@
+COUNTY_NAME: Imperial_County
+DATA_TYPE: Cases
+
+REQUEST:
+  TYPE: GET
+  URL: https://services7.arcgis.com/RomaVqqozKczDNgd/arcgis/rest/services/jtXgg/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22ETHNICITY_HISPANIC_OR_LATINO%22%2C%22outStatisticFieldName%22%3A%22ETHNICITY_HISPANIC_OR_LATINO%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22ETHNICITY_NON_x002d_HISPANIC_OR%22%2C%22outStatisticFieldName%22%3A%22ETHNICITY_NON_x002d_HISPANIC_OR%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22ETHNICITY_OTHER%22%2C%22outStatisticFieldName%22%3A%22ETHNICITY_OTHER%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22ETHNICITY_UNKNOWN%22%2C%22outStatisticFieldName%22%3A%22ETHNICITY_UNKNOWN%22%7D%5D&resultType=standard&cacheHint=true
+  HEADERS: None
+  PAYLOAD: None
