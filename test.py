@@ -8,7 +8,8 @@ from requests_html import HTMLSession
 #
 # payload = {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"c","Entity":"cases_race"}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Race_eth"},"Name":"cases_race.Race_eth"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_group"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_group"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(cases_race.Percent_group)"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_pop"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_pop"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(cases_race.Percent_pop)"}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2],"Subtotal":1}]},"DataReduction":{"DataVolume":3,"Primary":{"Window":{"Count":500}}},"Version":1}}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"cases_race\"}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Race_eth\"},\"Name\":\"cases_race.Race_eth\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_group\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_group\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(cases_race.Percent_group)\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_pop\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_pop\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(cases_race.Percent_pop)\"}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2],\"Subtotal\":1}]},\"DataReduction\":{\"DataVolume\":3,\"Primary\":{\"Window\":{\"Count\":500}}},\"Version\":1}}}]}","QueryId":"","ApplicationContext":{"DatasetId":"366bfc6b-cdb9-43a4-9208-89ffd773dfe7","Sources":[{"ReportId":"f863b97c-85d7-431e-a6bf-20549f18d10f"}]}}],"cancelQueries":[],"modelId":320392}
 #
-titles = ["riverside_cases", "imperial_county_deaths", "imperial_county_cases", "losangeles_all", "sacramento_total_cases", "sacramento_cases", "sacramento_deaths", "kern_cases", "sonoma_all", "santaclara_deaths", "santaclara_totalcases", "california_all", "alameda_deaths", "alameda_cases", "sf_deaths", "sf_cases", "santaclara_totaldeaths", "santaclara_cases"]
+titles = ["riverside_cases", "imperial_county_deaths", "imperial_county_cases", "losangeles_all", "sacramento_total_cases", "sacramento_cases",
+          "sacramento_deaths", "kern_cases", "sonoma_all", "santaclara_deaths", "santaclara_totalcases", "california_all", "alameda_deaths", "alameda_cases", "sf_deaths", "sf_cases", "santaclara_totaldeaths", "santaclara_cases"]
 methods = ["get", "get", "get", "get", "get", "get", "get", "post", "get", "post", "post", "get", "get", "get", "post", "post", "post", "post"]
 urls = [
     "https://services1.arcgis.com/pWmBUdSlVpXStHU6/arcgis/rest/services/COVID19_Race_Graph/FeatureServer/0/query?f=json&where=Race%20NOT%20IN(%27Unknown%27)%20AND%20Race%20NOT%20IN(%27Total%20Pop%27)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Rate_100K%20asc&outSR=102100&resultOffset=0&resultRecordCount=32000&resultType=standard&cacheHint=true",
@@ -38,7 +39,7 @@ payloads = [
     None,
     None,
     None,
-    {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"n","Entity":"nCoV Condition","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"nCoV17"},"Name":"nCoV Condition.nCoV17"},{"Measure":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"CurrentCaseCount"},"Name":"nCoV Condition.CurrentCaseCount"}],"Where":[{"Condition":{"Not":{"Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"AgeGroup"}}],"Values":[[{"Literal":{"Value":"null"}}]]}}}}},{"Condition":{"Not":{"Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"Region"}}],"Values":[[{"Literal":{"Value":"'Check Address'"}}],[{"Literal":{"Value":"null"}}]]}}}}},{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"nCoV11"}}],"Values":[[{"Literal":{"Value":"'Female'"}}],[{"Literal":{"Value":"'Male'"}}]]}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1]}]},"DataReduction":{"DataVolume":3,"Primary":{"Top":{}}},"Version":1}}}]},"QueryId":""}],"cancelQueries":[],"modelId":285341},
+    {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"n","Entity":"nCoV Condition","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"nCoV17"},"Name":"nCoV Condition.nCoV17"},{"Measure":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"CurrentCaseCount"},"Name":"nCoV Condition.CurrentCaseCount"}],"Where":[{"Condition":{"Not":{"Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"AgeGroup"}}],"Values":[[{"Literal":{"Value":"null"}}]]}}}}},{"Condition":{"Not":{"Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"Region"}}],"Values":[[{"Literal":{"Value":"'Check Address'"}}],[{"Literal":{"Value":"null"}}]]}}}}},{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"n"}},"Property":"nCoV11"}}],"Values":[[{"Literal":{"Value":"'Female'"}}],[{"Literal":{"Value":"'Male'"}}]]}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1]}]},"DataReduction":{"DataVolume":3,"Primary":{"Top":{}}},"Version":1},"ExecutionMetricsKind":3}}]},"QueryId":"","ApplicationContext":{"DatasetId":"d38b9ca5-7d07-482d-a458-9e6f1d5a43cb","Sources":[{"ReportId":"690ff3cf-5b9d-47de-86c7-45d6e548acb2"}]}}],"cancelQueries":[],"modelId":286040},
     None,
     {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"d","Entity":"death_race"}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Race_eth"},"Name":"death_race.Race_eth"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Counts"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Counts"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(death_race.Counts)"}],"OrderBy":[{"Direction":1,"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Race_eth"}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1]}]},"DataReduction":{"DataVolume":4,"Primary":{"Window":{"Count":1000}}},"Version":1}}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"death_race\"}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Race_eth\"},\"Name\":\"death_race.Race_eth\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Counts\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Counts\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(death_race.Counts)\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Race_eth\"}}}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1]}]},\"DataReduction\":{\"DataVolume\":4,\"Primary\":{\"Window\":{\"Count\":1000}}},\"Version\":1}}}]}","QueryId":"","ApplicationContext":{"DatasetId":"366bfc6b-cdb9-43a4-9208-89ffd773dfe7","Sources":[{"ReportId":"f863b97c-85d7-431e-a6bf-20549f18d10f"}]}}],"cancelQueries":[],"modelId":320392},
     {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"c","Entity":"counts"}],"Select":[{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Total"}},"Function":0},"Name":"Sum(counts.Total)"}],"Where":[{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Category"}}],"Values":[[{"Literal":{"Value":"'Cases'"}}]]}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0]}]},"DataReduction":{"DataVolume":3,"Primary":{"Top":{}}},"Version":1}}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"counts\"}],\"Select\":[{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Total\"}},\"Function\":0},\"Name\":\"Sum(counts.Total)\"}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Category\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'Cases'\"}}]]}}}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0]}]},\"DataReduction\":{\"DataVolume\":3,\"Primary\":{\"Top\":{}}},\"Version\":1}}}]}","QueryId":"","ApplicationContext":{"DatasetId":"366bfc6b-cdb9-43a4-9208-89ffd773dfe7","Sources":[{"ReportId":"f863b97c-85d7-431e-a6bf-20549f18d10f"}]}}],"cancelQueries":[],"modelId":320392},
@@ -61,19 +62,19 @@ headers = [
     { 'Accept': 'application/json, text/plain, */*',
                       'Accept-Encoding': 'gzip, deflate, br',
                         'Accept-Language': 'en-US,en;q=0.9',
-                        'ActivityId': 'fc9ca2a8-2117-4ff1-8b02-f37fecc2af30',
+                        'ActivityId': '3a2b9b3d-a1c0-422f-97a7-ec30fa14e82e',
                         'Connection': 'keep-alive',
                         'Content-Length': '2193',
                         'Content-Type': 'application/json;charset=UTF-8',
                         'Host': 'wabi-us-gov-iowa-api.analysis.usgovcloudapi.net',
                         'Origin': 'https://app.powerbigov.us',
                         'Referer': 'https://app.powerbigov.us/view?r=eyJrIjoiNDg0ZmE3MjgtZDg0OC00N2QxLWE4ZWQtOGNkZDFhYWM3ZTlmIiwidCI6ImUwZjJlNGI1LTA1MTUtNDAyOC05OWYyLTJlN2E0M2ZlNTM3OSJ9',
-                        'RequestId': '18265ce9-e36c-c130-35ba-213714367ed6',
+                        'RequestId': '29fb4bb9-0676-8f67-eff8-3df9215eca51',
                         'Sec-Fetch-Dest': 'empty',
                         'Sec-Fetch-Mode': 'cors',
                         'Sec-Fetch-Site': 'cross-site',
                         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-                        'X-PowerBI-ResourceKey': '7a96574e-0fea-446d-be62-603f66773f76',
+                        'X-PowerBI-ResourceKey': '0a717c4e-b7f5-4efd-be28-64908f9e0f18',
             },
     None,
     { 'Accept': 'application/json, text/plain, */*',
@@ -128,7 +129,7 @@ headers = [
                         'Sec-Fetch-Mode': 'cors',
                         'Sec-Fetch-Site': 'cross-site',
                         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-                        'X-PowerBI-ResourceKey': '1a2a4aa0-17cb-4a15-bb14-a676bf22a98df',
+                        'X-PowerBI-ResourceKey': '1a2a4aa0-17cb-4a15-bb14-a676bf22a98d',
             },
     { 'Accept': 'application/json, text/plain, */*',
                       'Accept-Encoding': 'gzip, deflate, br',
@@ -145,7 +146,7 @@ headers = [
                         'Sec-Fetch-Mode': 'cors',
                         'Sec-Fetch-Site': 'cross-site',
                         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-                        'X-PowerBI-ResourceKey': '1a2a4aa0-17cb-4a15-bb14-a676bf22a98df',
+                        'X-PowerBI-ResourceKey': '1a2a4aa0-17cb-4a15-bb14-a676bf22a98d',
             },
     { 'Accept': 'application/json, text/plain, */*',
                       'Accept-Encoding': 'gzip, deflate, br',
@@ -164,7 +165,7 @@ headers = [
                         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
                         'X-PowerBI-ResourceKey': 'e8619a1d-ea98-4d27-a860-157af0d4e93f',
             },
-        { 'Accept': 'application/json, text/plain, */*',
+        {'Accept': 'application/json, text/plain, */*',
                       'Accept-Encoding': 'gzip, deflate, br',
                         'Accept-Language': 'en-US,en;q=0.9',
                         'ActivityId': '235ea993-40b5-8975-b7de-2d182a1add43',
@@ -189,7 +190,7 @@ headers = [
 
 success_list = []
 failure_list = []
-path_to_raw = 'state/california/data/raw_pages'
+path_to_raw = 'states/california/data/raw_pages'
 today = datetime.datetime.now()
 today_str = today.isoformat()
 for title, url, method, header, payload in zip(titles, urls, methods, headers, payloads):
@@ -222,70 +223,3 @@ for title, url, method, header, payload in zip(titles, urls, methods, headers, p
 print(success_list)
 print(failure_list)
 
-
-# g = requests.get(url="https://services6.arcgis.com/yeTSZ1znt7H7iDG7/arcgis/rest/services/Cases/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&resultOffset=0&resultRecordCount=50&resultType=standard&cacheHint=true")
-# print(g.status_code)
-# print(g.text)
-
-# session = HTMLSession()
-# r = session.get('https://cofgisonline.maps.arcgis.com/apps/MapSeries/index.html?appid=1f82e8eb24c0403c90e774202c5dafea')
-# r.html.render()
-# print(r.text)
-
-# path = 'state/california/data'
-# source_data_df = pd.read_csv('state/california/data/covid_ethinic_online_data.csv')
-#
-# path_to_raw = 'state/california/data/raw_pages'
-# success_list = []
-# failure_list = []
-# cnt_list = [ 'fresno_all', 'kern_cases', 'tulane_cases', 'santa barbara_all', 'san diego_cases', 'san diego_cases']
-# for idx, row in source_data_df.iterrows():
-#     status = 403
-#     try:
-#         county = row['county'].lower()
-#         type = str(row['type']).lower()
-#     # if f"{county}_{type}" in cnt_list:
-#     #     print(row['method'])
-#         method = str(row['method']).lower()
-#         url = row['request_url']
-#         path_to_raw_county = os.path.join(path_to_raw, county)
-#         if not os.path.isdir(path_to_raw_county):
-#             os.mkdir(path_to_raw_county)
-#
-#         if method == 'get':
-#             response = requests.get(url)
-#             status = response.status_code
-#         elif method == 'post':
-#             # print(''.join(row['header'].split()))
-#             # headers = json.dumps(''.join(row['header'].split()).replace("'",'"'))
-#             headers = ast.literal_eval(''.join(row['header'].split()))
-#             if isinstance(headers, dict):
-#                 pass
-#             else:
-#                 print(isinstance(headers, dict))
-#                 print(headers)
-#             payload = ast.literal_eval(''.join(row['payload'].split()))
-#             response = requests.post(url, headers=headers, json=json.loads(json.dumps(payload)))
-#             status = response.status_code
-#             print(f"{county}_{type}")
-#             print(response.text)
-#             print(' ')
-#             # import ipdb
-#             # ipdb.set_trace()
-#     except:
-#         # print(type)
-#         pass
-#
-#     if int(status) == 200:
-#         success_list.append(f"{county}_{type}")
-#         # print(response.text)
-#     else:
-#         # print(rf"{county}_{type}")
-#         # print(status)
-#         # print(method)
-#         # if method != 'get' and method != 'post':
-#         failure_list.append(f"{county}_{type}")
-#
-# print(success_list)
-# print(len(success_list))
-# print(failure_list)
