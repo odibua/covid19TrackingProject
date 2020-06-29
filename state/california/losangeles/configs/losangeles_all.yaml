@@ -1,0 +1,16 @@
+Accept: application/json, text/plain, */*
+                      Accept-Encoding: gzip, deflate, br
+                        Accept-Language: en-US,en;q=0.9
+                        ActivityId: 3a2b9b3d-a1c0-422f-97a7-ec30fa14e82e
+                        Connection: keep-alive
+                        Content-Length: 2193
+                        Content-Type: application/json;charset=UTF-8
+                        Host: wabi-us-gov-iowa-api.analysis.usgovcloudapi.net
+                        Origin: https://app.powerbigov.us
+                        Referer: https://app.powerbigov.us/view?r=eyJrIjoiNDg0ZmE3MjgtZDg0OC00N2QxLWE4ZWQtOGNkZDFhYWM3ZTlmIiwidCI6ImUwZjJlNGI1LTA1MTUtNDAyOC05OWYyLTJlN2E0M2ZlNTM3OSJ9
+                        RequestId: 29fb4bb9-0676-8f67-eff8-3df9215eca51
+                        Sec-Fetch-Dest: empty
+                        Sec-Fetch-Mode: cors
+                        Sec-Fetch-Site: cross-site
+                        User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36
+                        X-PowerBI-ResourceKey: 0a717c4e-b7f5-4efd-be28-64908f9e0f18
