@@ -4,6 +4,7 @@
 import logging
 import os
 from os import path
+from typing import List, Tuple
 
 # --------------------------
 # Third Party Imports
@@ -16,11 +17,11 @@ import yaml as yaml
 import utils
 
 
-def get_responses_from_config_files_in_dir(config_dir: str):
+def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str]]:
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
     if len(config_files) > 0:
-        response_list, response_names, failed_response_names = utils.get_yaml_responses(config_file_list=config_files)
+        response_list, response_names, failed_response_names = utils.get_yaml_responses(config_dir=config_dir, config_file_list=config_files)
     else:
         response_list, response_names, failed_response_names = None, None, None
 

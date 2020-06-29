@@ -25,7 +25,6 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
         config_file_obj = open(path.join(config_dir, config_file))
         response_config = yaml.safe_load(config_file_obj)
 
-        status_code = -1
         data_type_name = response_config['NAME'].lower() + '_' + response_config['DATA_TYPE'].lower()
         url = response_config['REQUEST']['URL']
         request_type = response_config['REQUEST']['TYPE']
@@ -41,9 +40,27 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
             raise ValueError(f"Request only implemented for GET or POST types. Got {request_type}")
 
         if status_code == 200:
-            response_list.append(response)
+            response_list.append(response.text)
             response_names.append(data_type_name)
         else:
             logging.info(f"Response for {data_type_name} failed with status {status_code}")
             failed_response_names.append(data_type_name)
+
+        response.close()
     return response_list, response_names, failed_response_names
+
+
+def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str], failed_data_type_names: List[str]):
+    dt = datetime.datetime.now()
+    today = datetime.date(dt.year, dt.month, dt.day)
+    today_str = today.isoformat()
+    for response, data_type_name in zip(response_list, data_type_names):
+        save_path = f"{save_dir}/{today_str}/{data_type_name}"
+        text_file = open(save_path, "w")
+        text_file.write(response)
+        text_file.close()
+
+    failed_save_path = f"{save_dir}/{today_str}/failed_queries"
+    with open(failed_save_path, 'w') as f:
+        for failed_data_type_name in failed_data_type_names:
+            f.write(f"{failed_data_type_name}\n")
