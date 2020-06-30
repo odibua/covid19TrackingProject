@@ -1,0 +1,8 @@
+NAME: Alameda
+DATA_TYPE: Cases
+
+REQUEST:
+  TYPE: GET
+  URL: https://services3.arcgis.com/1iDJcsklY3l3KIjE/arcgis/rest/services/AC_cases/FeatureServer/0/query?f=json&where=Geography%3D%27Alameda%20County%27&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Hispanic_Latino%22%2C%22outStatisticFieldName%22%3A%22Hispanic_Latino%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Asian%22%2C%22outStatisticFieldName%22%3A%22Asian%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22African_American_Black%22%2C%22outStatisticFieldName%22%3A%22African_American_Black%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22White%22%2C%22outStatisticFieldName%22%3A%22White%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Pacific_Islander%22%2C%22outStatisticFieldName%22%3A%22Pacific_Islander%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Native_American%22%2C%22outStatisticFieldName%22%3A%22Native_American%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Multirace%22%2C%22outStatisticFieldName%22%3A%22Multirace%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Unknown_Race%22%2C%22outStatisticFieldName%22%3A%22Unknown_Race%22%7D%5D&resultType=standard&cacheHint=true
+  HEADERS: None
+  PAYLOAD: None

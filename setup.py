@@ -81,8 +81,8 @@ setup(
     version='0.2.0',
     packages=find_packages(
         include=[
-            'state',
-            'state.*',
+            'states',
+            'states.*',
             'iframetest',
             'iframetest.*']),
     install_requires=[
@@ -98,6 +98,7 @@ setup(
         "typing",
         'urllib3>1.25',
         'wheel',
+        'PyYAML',
     ],
     cmdclass={
         'checkpycodestyle': PyCodeStyleCommand,

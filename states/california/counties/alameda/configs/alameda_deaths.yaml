@@ -1,0 +1,8 @@
+NAME: Alameda
+DATA_TYPE: Deaths
+
+REQUEST:
+  TYPE: GET
+  URL: https://services3.arcgis.com/1iDJcsklY3l3KIjE/arcgis/rest/services/AC_deaths_rates/FeatureServer/0/query?f=json&where=Geography%3D%27Alameda%20County%27&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Deaths_Hispanic_Latino%22%2C%22outStatisticFieldName%22%3A%22Deaths_Hispanic_Latino%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Deaths_Asian%22%2C%22outStatisticFieldName%22%3A%22Deaths_Asian%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Deaths_African_American_Black%22%2C%22outStatisticFieldName%22%3A%22Deaths_African_American_Black%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Deaths_White%22%2C%22outStatisticFieldName%22%3A%22Deaths_White%22%7D%5D&resultType=standard&cacheHint=true
+  HEADERS: None
+  PAYLOAD: None
