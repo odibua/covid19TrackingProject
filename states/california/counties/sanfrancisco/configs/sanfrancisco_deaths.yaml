@@ -1,5 +1,5 @@
 NAME: SanFrancisco
-DATA_TYPE: Cases
+DATA_TYPE: Deaths
 
 REQUEST:
   TYPE: POST
