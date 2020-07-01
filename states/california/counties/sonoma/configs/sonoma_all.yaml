@@ -1,0 +1,8 @@
+NAME: Sonoma
+DATA_TYPE: All
+
+REQUEST:
+  TYPE: GET
+  URL: https://socoemergency.org/emergency/novel-coronavirus/coronavirus-cases/
+  HEADERS: None
+  PAYLOAD: None
