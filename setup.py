@@ -86,6 +86,7 @@ setup(
             'iframetest',
             'iframetest.*']),
     install_requires=[
+        'celery',
         'numpy>=1.9.0',
         'pandas',
         'pyppeteer',

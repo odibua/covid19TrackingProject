@@ -51,7 +51,7 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
 
 
 def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str], failed_data_type_names: List[str]):
-    dt = datetime.datetime.now()
+    dt = datetime.datetime.now() - datetime.timedelta(days=1)
     today = datetime.date(dt.year, dt.month, dt.day)
     today_str = today.isoformat()
     save_dir = f"{save_dir}/{today_str}"
