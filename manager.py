@@ -41,7 +41,6 @@ def main():
     for state in state_list:
         state_name = state.lower()
         logging.info(f"Processing {state_name}")
-        state_dirs = os.listdir(path.join('states', state_name))
 
         state_config_path = path.join('states', state_name, 'configs')
         logging.info("Get state level covid19 raw data with ethnicity")
