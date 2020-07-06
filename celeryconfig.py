@@ -9,6 +9,6 @@ timezone = 'US/Pacific'
 beat_schedule = {
     'add-every-30-seconds': {
         'task': 'manager.main',
-        'schedule': crontab(hour=19, minute=29),
+        'schedule': crontab(hour=7, minute=30),
     },
 }

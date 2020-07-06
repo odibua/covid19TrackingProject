@@ -88,7 +88,7 @@ def add_commit_and_push():
     cmd.check_call(["git",  "add",  "states"])
     message = f"Update states and county raw covid ethnicity data with data from {today_str}"
     cmd.check_call(["git", "commit",  "-m", f"{message}"])
-    cmd.check_call(["git", "push", "-u ", "origin", "master", "-f"])
+    cmd.check_call(["git", "push", "origin", "master"])
 
 @app.task
 def main():
