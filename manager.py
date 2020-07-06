@@ -1,14 +1,17 @@
 # --------------------------
 # Standard Python Imports
 # --------------------------
+import datetime
 import logging
 import os
 from os import path
+import subprocess as cmd
 from typing import List, Tuple
 
 # --------------------------
 # Third Party Imports
 # --------------------------
+from celery import Celery
 import yaml as yaml
 
 # --------------------------
@@ -16,6 +19,8 @@ import yaml as yaml
 # --------------------------
 import utils
 
+app = Celery()
+app.config_from_object('celeryconfig')
 
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str]]:
     config_files = os.listdir(config_dir)
@@ -27,8 +32,7 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
 
     return response_list, response_names, failed_response_names
 
-
-def main():
+def manager():
     logging.info("Open State Configuration file and get states to be processed")
     config_path = 'states/states_config.yaml'
     if not path.isfile(config_path):
@@ -74,6 +78,22 @@ def main():
         else:
             raise Warning(f"No county level data exists for {state_name}")
 
+
+#TODO(odibua@): Create and push to new branch based on date to be later merged in
+def add_commit_and_push():
+    logging.info("Add, commit, and push updates to raw data")
+    dt = datetime.datetime.now() - datetime.timedelta(days=1)
+    today = datetime.date(dt.year, dt.month, dt.day)
+    today_str = today.isoformat()
+    cmd.check_call(["git",  "add",  "states"])
+    message = f"Update states and county raw covid ethnicity data with data from {today_str}"
+    cmd.check_call(["git", "commit",  "-m", f"{message}"])
+    cmd.check_call(["git", "push", "-u ", "origin", "master", "-f"])
+
+@app.task
+def main():
+    manager()
+    add_commit_and_push()
 
 if __name__ == "__main__":
     logging.basicConfig()
