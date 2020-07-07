@@ -22,6 +22,7 @@ import utils
 app = Celery()
 app.config_from_object('celeryconfig')
 
+
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str]]:
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
@@ -31,6 +32,7 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
         response_list, response_names, failed_response_names = None, None, None
 
     return response_list, response_names, failed_response_names
+
 
 def manager():
     logging.info("Open State Configuration file and get states to be processed")
