@@ -19,6 +19,9 @@ class EthnicDataProjector(ABC):
     def __init__(self):
         self.state = None
         self.county = None
+        self.ethnicity_cases_list, self.ethnicity_case_percentages_list = [], []
+        self.ethnicity_deaths_list, self.ethnicity_deaths_percentages_list = [], []
+
 
     @abstractmethod
     @property
@@ -28,23 +31,44 @@ class EthnicDataProjector(ABC):
         """
         return []
 
-    @abstractmethod
     @property
-    def ethnicity_percentages(self) -> List[float]:
+    def ethnicity_cases_percentages(self) -> List[float]:
         """
-        Return list of percentage of ethnicities contained in an area
+        Return list of case percentages of ethnicities contained in an area
         """
-        return []
+        return self.ethnicity_case_percentages_list
+
+    @property
+    def ethnicity_cases(self) -> List[float]:
+        """
+        Return list of cases of ethnicities contained in an area
+        """
+        return self.ethnicity_cases_list
+
+    @property
+    def ethnicity_deaths_percentages(self) -> List[float]:
+        """
+        Return list of death percentages of ethnicities contained in an area
+        """
+        return self.ethnicity_deaths_percentages_list
+
+    @property
+    def ethnicity_deaths(self) -> List[float]:
+        """
+        Return list of cases of ethnicities contained in an area
+        """
+        return self.ethnicity_deaths_list
 
     @abstractmethod
-    def process_raw_pages_to_cases(self) -> Dict[str, int]:
+    def process_raw_data_to_cases(self) -> Dict[str, int]:
         """
-        Process raw page to obtain number of covid cases for each ethnicity
+        Process raw page to obtain number of covid cases for each ethnicity and note
+        totals and percentages
         """
         return {}
 
     @abstractmethod
-    def process_raw_pages_to_deaths(self) -> Dict[str, int]:
+    def process_raw_data_to_deaths(self) -> Dict[str, int]:
         """
         Process raw page to obtain number of covid deaths for each ethnicity
         """
