@@ -23,12 +23,6 @@ class EthnicDataProjector(ABC):
         self.ethnicity_cases_list, self.ethnicity_case_percentages_list = [], []
         self.ethnicity_deaths_list, self.ethnicity_deaths_percentages_list = [], []
 
-        if self.county is not None:
-            self.raw_data_dir = f"states/{self.state}/{self.county}/raw_data"
-        else:
-            self.raw_data_dir = f"states/{self.state}/raw_data"
-
-
     @abstractmethod
     @property
     def ethnicities(self) -> List[str]:

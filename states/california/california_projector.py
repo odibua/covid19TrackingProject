@@ -14,10 +14,15 @@ from typing import Dict, List
 # --------------------------
 from states.data_projectors import EthnicDataProjector
 
+
 class CaliforniaEthnicDataProjector(EthnicDataProjector):
     def __init__(self):
         super().__init__(self)
         self.state = 'california'
+        if self.county is not None:
+            self.raw_data_dir = f"states/{self.state}/{self.county}/raw_data"
+        else:
+            self.raw_data_dir = f"states/{self.state}/raw_data"
 
     @property
     def ethnicities(self) -> List[str]:
