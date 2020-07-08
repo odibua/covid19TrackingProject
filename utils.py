@@ -19,7 +19,7 @@ import yaml as yaml
 # --------------------------
 
 
-def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], List[str]]:
+def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], List[str], str]:
     response_list, response_names, failed_response_names = [], [], []
     for config_file in config_file_list:
         config_file_obj = open(path.join(config_dir, config_file))
@@ -48,10 +48,10 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
                 failed_response_names.append(data_type_name)
 
             response.close()
-    return response_list, response_names, failed_response_names
+    return response_list, response_names, failed_response_names, request_type
 
 
-def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str], failed_data_type_names: List[str]):
+def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str], failed_data_type_names: List[str], request_type: str):
     dt = datetime.datetime.now() - datetime.timedelta(days=1)
     today = datetime.date(dt.year, dt.month, dt.day)
     today_str = today.isoformat()
@@ -59,7 +59,10 @@ def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List
     if not path.isdir(save_dir):
         os.makedirs(save_dir)
     for response, data_type_name in zip(response_list, data_type_names):
-        save_path = f"{save_dir}/{data_type_name}"
+        if request_type == 'GET':
+            save_path = f"{save_dir}/{data_type_name}.html"
+        else:
+            save_path = f"{save_dir}/{data_type_name}"
         text_file = open(save_path, "w")
         text_file.write(response)
         text_file.close()

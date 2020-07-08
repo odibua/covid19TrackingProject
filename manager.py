@@ -23,15 +23,15 @@ app = Celery()
 app.config_from_object('celeryconfig')
 
 
-def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str]]:
+def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str], str]:
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
     if len(config_files) > 0:
-        response_list, response_names, failed_response_names = utils.get_yaml_responses(config_dir=config_dir, config_file_list=config_files)
+        response_list, response_names, failed_response_names, request_type = utils.get_yaml_responses(config_dir=config_dir, config_file_list=config_files)
     else:
-        response_list, response_names, failed_response_names = None, None, None
+        response_list, response_names, failed_response_names, request_type = None, None, None, None
 
-    return response_list, response_names, failed_response_names
+    return response_list, response_names, failed_response_names, request_type
 
 
 def manager():
@@ -50,7 +50,7 @@ def manager():
 
         state_config_path = path.join('states', state_name, 'configs')
         logging.info("Get state level covid19 raw data with ethnicity")
-        state_response_list, state_data_type_names, failed_state_data_type_names = get_responses_from_config_files_in_dir(config_dir=state_config_path)
+        state_response_list, state_data_type_names, failed_state_data_type_names, request_type = get_responses_from_config_files_in_dir(config_dir=state_config_path)
         if state_response_list is None:
             raise Warning(f"No state level config files exist for {state_name}")
         else:
@@ -58,14 +58,14 @@ def manager():
             raw_data_dir = path.join('states', state_name, 'raw_data')
             if not path.isdir(raw_data_dir):
                 os.makedirs(raw_data_dir)
-            utils.save_raw_data(save_dir=raw_data_dir, response_list=state_response_list, data_type_names=state_data_type_names, failed_data_type_names=failed_state_data_type_names)
+            utils.save_raw_data(save_dir=raw_data_dir, response_list=state_response_list, data_type_names=state_data_type_names, failed_data_type_names=failed_state_data_type_names, request_type=request_type)
 
         logging.info(f"Processing county level data for {state_name}")
         state_county_dirs = os.listdir(path.join('states', state_name, 'counties'))
         if len(state_county_dirs) > 0:
             for state_county_dir in state_county_dirs:
                 logging.info(f"Getting and saving raw data for state: {state_name}, county: {state_county_dir}")
-                county_response_list, county_data_type_names, failed_county_data_type_names = get_responses_from_config_files_in_dir(config_dir=path.join('states', state_name, 'counties', state_county_dir, 'configs'))
+                county_response_list, county_data_type_names, failed_county_data_type_names, request_type = get_responses_from_config_files_in_dir(config_dir=path.join('states', state_name, 'counties', state_county_dir, 'configs'))
 
                 if county_response_list is None:
                     raise Warning(f"No county level config files exist for {state_county_dir}")
@@ -76,7 +76,7 @@ def manager():
                         os.makedirs(raw_data_dir)
                     utils.save_raw_data(save_dir=raw_data_dir, response_list=county_response_list,
                                         data_type_names=county_data_type_names,
-                                        failed_data_type_names=failed_county_data_type_names)
+                                        failed_data_type_names=failed_county_data_type_names, request_type=request_type)
         else:
             raise Warning(f"No county level data exists for {state_name}")
 
@@ -90,7 +90,7 @@ def add_commit_and_push():
     cmd.check_call(["git",  "add",  "states"])
     message = f"Update states and county raw covid ethnicity data with data from {today_str}"
     cmd.check_call(["git", "commit",  "-m", f"{message}"])
-    cmd.check_call(["git", "push", "origin", "master"])
+    cmd.check_call(["git", "push"])
 
 @app.task
 def main():
