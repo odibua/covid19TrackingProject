@@ -24,29 +24,30 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
     for config_file in config_file_list:
         config_file_obj = open(path.join(config_dir, config_file))
         response_config = yaml.safe_load(config_file_obj)
+        if 'REQUEST' in response_config.keys():
+            data_type_name = response_config['NAME'].lower() + '_' + response_config['DATA_TYPE'].lower()
+            url = response_config['REQUEST']['URL']
+            request_type = response_config['REQUEST']['TYPE']
+            if request_type == 'GET':
+                headers = response_config['REQUEST']['HEADERS']
+                response = requests.get(url=url, headers=headers)
+                status_code = response.status_code
+            elif request_type == 'POST':
+                headers = response_config['REQUEST']['HEADERS']
+                payload = response_config['REQUEST']['PAYLOAD']
+                response = requests.post(url=url, headers=headers,  json=json.loads(json.dumps(payload)))
+                status_code = response.status_code
+            else:
+                raise ValueError(f"Request only implemented for GET or POST types. Got {request_type}")
 
-        data_type_name = response_config['NAME'].lower() + '_' + response_config['DATA_TYPE'].lower()
-        url = response_config['REQUEST']['URL']
-        request_type = response_config['REQUEST']['TYPE']
-        if request_type == 'GET':
-            response = requests.get(url)
-            status_code = response.status_code
-        elif request_type == 'POST':
-            headers = response_config['REQUEST']['HEADERS']
-            payload = response_config['REQUEST']['PAYLOAD']
-            response = requests.post(url=url, headers=headers,  json=json.loads(json.dumps(payload)))
-            status_code = response.status_code
-        else:
-            raise ValueError(f"Request only implemented for GET or POST types. Got {request_type}")
+            if status_code == 200:
+                response_list.append(response.text)
+                response_names.append(data_type_name)
+            else:
+                logging.info(f"ERROR: Response for {data_type_name} failed with status {status_code}")
+                failed_response_names.append(data_type_name)
 
-        if status_code == 200:
-            response_list.append(response.text)
-            response_names.append(data_type_name)
-        else:
-            logging.info(f"Response for {data_type_name} failed with status {status_code}")
-            failed_response_names.append(data_type_name)
-
-        response.close()
+            response.close()
     return response_list, response_names, failed_response_names
 
 
