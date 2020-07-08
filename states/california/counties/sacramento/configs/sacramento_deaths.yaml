@@ -4,5 +4,6 @@ DATA_TYPE: Deaths
 REQUEST:
   TYPE: GET
   URL: https://services6.arcgis.com/yeTSZ1znt7H7iDG7/arcgis/rest/services/COVID19_Deaths_by_Race_Ethnicity/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Percent_%20desc&resultOffset=0&resultRecordCount=20&resultType=standard&cacheHint=true
-  HEADERS: None
+  HEADERS:
+    User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
   PAYLOAD: None
