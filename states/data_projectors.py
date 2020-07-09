@@ -147,24 +147,6 @@ class EthnicDataProjector(ABC):
             raise ValueError("Json Keys Map not implemented for processing cases")
         return None
 
-    def get_raw_data_dates_from_dir(self) -> List[str]:
-        """
-        Get list of raw data dates from {state}/{county}/raw_data
-        """
-        date_list = os.listdir(self.raw_data_dir)
-        return date_list
-
-    def get_raw_data_dates_from_processed_csv(self) -> List[str]:
-        """
-        Get list of raw data dates from csv files contained in
-         {state}/{county}/
-        """
-        if self.raw_data_dir is None:
-            raise ValueError("Raw directory not defined")
-        processed_data = pd.read_csv(f"{self.raw_data_dir}/ethnicity.csv")
-        date_list = processed_data['date'].tolist()
-        return date_list
-
     @staticmethod
     def get_cases_deaths_using_lxml(raw_data_lxml: etree.HTML, ethnicity_xpath_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str) -> Tuple[Dict[str, int], Dict[str, float]]:
         """
