@@ -2,26 +2,31 @@
 # Standard Python Imports
 # --------------------------
 from abc import ABC, abstractmethod
+import logging
+from lxml import etree
 import os
 
 # --------------------------
 # Third Party Imports
 # --------------------------
 import pandas as pd
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
+from states import utils
 
 
 class EthnicDataProjector(ABC):
     def __init__(self):
-        self.state = None
-        self.county = None
-        self.raw_data_dir = None
+        self.valid_date_string = None
+        self.state, self.county = None, None
+        self.raw_data_dir, self.raw_data_lxml = None, None
+        self.ethnicity_xpath_map, self.ethnicitiy_json_keys_map = None, None
         self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
+        self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = {}, {}
 
     @property
     @abstractmethod
@@ -91,20 +96,26 @@ class EthnicDataProjector(ABC):
                 discrepancy_dict[key] = round(self.ethnicity_deaths_percentages_dict[key]/self.ethnicity_demographics[key], 3)
         return discrepancy_dict
 
-    @abstractmethod
     def process_raw_data_to_cases(self) -> None:
         """
         Process raw page to obtain number of covid cases for each ethnicity and define
         totals and percentages
         """
+        if self.ethnicity_xpath_map is not None:
+            self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
+        elif self.ethnicitiy_json_keys_map is not None:
+            raise ValueError("Json Keys Map not implemented for processing cases")
         return None
 
-    @abstractmethod
     def process_raw_data_to_deaths(self) -> None:
         """
         Process raw page to obtain number of covid deaths for each ethnicity and define
         totals and percentages
         """
+        if self.ethnicity_xpath_map is not None:
+            self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
+        elif self.ethnicitiy_json_keys_map is not None:
+            raise ValueError("Json Keys Map not implemented for processing cases")
         return None
 
     def get_raw_data_dates_from_dir(self) -> List[str]:
@@ -124,3 +135,29 @@ class EthnicDataProjector(ABC):
         processed_data = pd.read_csv(f"{self.raw_data_dir}/ethnicity.csv")
         date_list = processed_data['date'].tolist()
         return date_list
+
+    @staticmethod
+    def get_cases_deaths_using_lxml(raw_data_lxml: etree.HTML, ethnicity_xpath_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str) -> Tuple[Dict[str, int], Dict[str, float]]:
+        """
+        Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
+
+        Arguments:
+            raw_data_lxml: Raw lxml object
+            ethnicity_xpath_map: Map of ethnicity to xpath
+            yaml_keys_dict_keys_map: Yaml key to dictionary key map
+            valid_date_string: Date from which ethnicity to xpath map is obtained
+
+        Returns:
+            Dictionaries that give case counts and case percentages
+        """
+        logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
+        ethnicity_dict, ethnicity_percentages_dict = {}, {}
+        for key in yaml_keys_dict_keys_map.keys():
+            ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_element_int(element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
+
+        logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
+        total = utils.get_total(numerical_dict=ethnicity_dict)
+        for key in ethnicity_dict.keys():
+            ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key])/total, 3)
+
+        return ethnicity_dict, ethnicity_percentages_dict

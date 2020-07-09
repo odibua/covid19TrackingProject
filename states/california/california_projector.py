@@ -45,6 +45,16 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         raw_data_file_html = raw_data_file_object.read()
         self.raw_data_lxml = etree.HTML(raw_data_file_html)
 
+        logging.info("Define yaml keys to dictionary map")
+        self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'latino', 'WHITE_CASES': 'white', 'ASIAN_CASES': 'asian',
+                                              'BLACK_CASES': 'black', 'MULTI_RACE_CASES': 'multirace',
+                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'american_indian_alaska_native',  'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'native_hawaiian_pacific_islander',
+                                              'OTHER_CASES': 'other'}
+        self.deaths_yaml_keys_dict_keys_map = {'LATINO_DEATHS': 'latino', 'WHITE_DEATHS': 'white', 'ASIAN_DEATHS': 'asian',
+                                              'BLACK_DEATHS': 'black', 'MULTI_RACE_DEATHS': 'multirace',
+                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'american_indian_alaska_native',  'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'native_hawaiian_pacific_islander',
+                                              'OTHER_DEATHS': 'other'}
+
     @property
     def ethnicities(self) -> List[str]:
         """
@@ -58,42 +68,3 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         Return dictionary that contains percentage of each ethnicity population in california
         """
         return {'latino': 0.393, 'white': 0.366, 'asian': 0.145, 'black': 0.055, 'multirace': 0.0308, 'american_indian_alaska_native': 0.0035, 'native_hawaiian_pacific_islander': 0.0036, 'other': 0.0025}
-
-    def process_raw_data_to_cases(self) -> None:
-        """
-        Process raw page to obtain number of covid cases for each ethnicity
-        """
-        logging.info(f"Use xpaths from {self.valid_date_string} to construct California cases dictionary")
-        self.ethnicity_cases_dict['latino'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['LATINO_CASES']))
-        self.ethnicity_cases_dict['white'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['WHITE_CASES']))
-        self.ethnicity_cases_dict['asian'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['ASIAN_CASES']))
-        self.ethnicity_cases_dict['black'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['BLACK_CASES']))
-        self.ethnicity_cases_dict['multirace'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['MULTI_RACE_CASES']))
-        self.ethnicity_cases_dict['american_indian_alaska_native'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES']))
-        self.ethnicity_cases_dict['native_hawaiian_pacific_islander'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES']))
-        self.ethnicity_cases_dict['other'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['OTHER_CASES']))
-
-        logging.info("Get percentage of cases that are each ethnicity based on known ethnicities")
-        total_cases = utils.get_total(numerical_dict=self.ethnicity_cases_dict)
-        for key in self.ethnicity_cases_dict.keys():
-            self.ethnicity_cases_percentages_dict[key] = round(float(self.ethnicity_cases_dict[key])/total_cases, 3)
-
-    def process_raw_data_to_deaths(self) -> None:
-        """
-        Process raw page to obtain number of covid deaths for each ethnicity
-        """
-        logging.info(f"Use xpaths from {self.valid_date_string} to construct California cases dictionary")
-        self.ethnicity_deaths_dict['latino'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['LATINO_DEATHS']))
-        self.ethnicity_deaths_dict['white'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['WHITE_DEATHS']))
-        self.ethnicity_deaths_dict['asian'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['ASIAN_DEATHS']))
-        self.ethnicity_deaths_dict['black'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['BLACK_DEATHS']))
-        self.ethnicity_deaths_dict['multirace'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['MULTI_RACE_DEATHS']))
-        self.ethnicity_deaths_dict['american_indian_alaska_native'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS']))
-        self.ethnicity_deaths_dict['native_hawaiian_pacific_islander'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS']))
-        self.ethnicity_deaths_dict['other'] = utils.get_element_int(element=self.raw_data_lxml.xpath(self.ethnicity_xpath_map['OTHER_DEATHS']))
-
-        logging.info("Get percentage of deaths that are each ethnicity based on known ethnicities")
-        total_deaths = utils.get_total(numerical_dict=self.ethnicity_deaths_dict)
-        for key in self.ethnicity_deaths_dict.keys():
-            self.ethnicity_deaths_percentages_dict[key] = round(float(self.ethnicity_deaths_dict[key])/total_deaths, 3)
-
