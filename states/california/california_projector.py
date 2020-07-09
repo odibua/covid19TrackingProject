@@ -20,32 +20,9 @@ from states import utils
 
 
 class CaliforniaEthnicDataProjector(EthnicDataProjector):
-    def __init__(self, date_string: str):
-        super().__init__()
-        self.state = 'california'
-        self.raw_data_dir = os.path.join("states", self.state, "raw_data")
-
-        logging.info("Load california html parsing config")
-        configs_dir = os.path.join("states", self.state, "configs")
-        html_parser_config_file = open(f"{configs_dir}/california_all_html_parse.yaml")
-        html_parser_config = yaml.safe_load(html_parser_config_file)
-
-        logging.info("Get and sort californial html parsing dates")
-        html_parser_date_strings = html_parser_config["DATES"].keys()
-        html_parser_dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in html_parser_date_strings]
-        html_parser_dates.sort()
-
-        logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
-        self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
-        self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
-
-        logging.info("Load raw html data and convert it to lxml")
-        raw_data_file = f"{self.raw_data_dir}/{date_string}/california_all.html"
-        raw_data_file_object = open(raw_data_file, 'r')
-        raw_data_file_html = raw_data_file_object.read()
-        self.raw_data_lxml = etree.HTML(raw_data_file_html)
-
-        logging.info("Define yaml keys to dictionary map")
+    def __init__(self, state: str, county: str, raw_data_file: str, date_string: str, config_file_string: str, json: bool = None, lxml: bool = None):
+        super().__init__(state=state, county=county, raw_data_file=raw_data_file, date_string=date_string, config_file_string=config_file_string, lxml=lxml, json=json)
+        logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'latino', 'WHITE_CASES': 'white', 'ASIAN_CASES': 'asian',
                                               'BLACK_CASES': 'black', 'MULTI_RACE_CASES': 'multirace',
                                               'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'american_indian_alaska_native',  'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'native_hawaiian_pacific_islander',

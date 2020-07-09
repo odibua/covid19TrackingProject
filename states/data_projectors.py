@@ -2,6 +2,7 @@
 # Standard Python Imports
 # --------------------------
 from abc import ABC, abstractmethod
+from datetime import datetime
 import logging
 from lxml import etree
 import os
@@ -11,6 +12,7 @@ import os
 # --------------------------
 import pandas as pd
 from typing import Dict, List, Tuple
+import yaml as yaml
 
 # --------------------------
 # covid19Tracking Imports
@@ -19,14 +21,30 @@ from states import utils
 
 
 class EthnicDataProjector(ABC):
-    def __init__(self):
-        self.valid_date_string = None
-        self.state, self.county = None, None
-        self.raw_data_dir, self.raw_data_lxml = None, None
-        self.ethnicity_xpath_map, self.ethnicitiy_json_keys_map = None, None
+    def __init__(self, state: str, county: str, raw_data_file: str, date_string: str, config_file_string: str, json: bool=None, lxml: bool=None):
+        self.state, self.county = state, county
+        self.ethnicitiy_json_keys_map = None
         self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
         self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = {}, {}
+
+        logging.info("Load california html parsing config")
+        html_parser_config_file = open(config_file_string)
+        html_parser_config = yaml.safe_load(html_parser_config_file)
+
+        logging.info("Get and sort californial html parsing dates")
+        html_parser_date_strings = html_parser_config["DATES"].keys()
+        html_parser_dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in html_parser_date_strings]
+        html_parser_dates.sort()
+
+        logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
+        self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+        if lxml:
+            self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
+            logging.info("Load raw html data and convert it to lxml")
+            raw_data_file_object = open(raw_data_file, 'r')
+            raw_data_file_html = raw_data_file_object.read()
+            self.raw_data_lxml = etree.HTML(raw_data_file_html)
 
     @property
     @abstractmethod
@@ -148,7 +166,7 @@ class EthnicDataProjector(ABC):
             valid_date_string: Date from which ethnicity to xpath map is obtained
 
         Returns:
-            Dictionaries that give case counts and case percentages
+            Dictionaries that give counts and percentages
         """
         logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}

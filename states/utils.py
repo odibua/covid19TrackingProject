@@ -30,11 +30,13 @@ def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:
     """
     logging.info(f"Get correct html parsing based on {date_string}")
     date_format = datetime.strptime(date_string, '%Y-%m-%d')
+    valid_date_string = None
     for idx, date in enumerate(date_list[0:-1]):
         if date_format >= date_list[idx] and date_format < date_list[idx + 1]:
             valid_date_string = datetime.strftime(date_list[idx], '%Y-%m-%d')
             break
-    valid_date_string = datetime.strftime(date_list[-1], '%Y-%m-%d')
+    if valid_date_string is None:
+        valid_date_string = datetime.strftime(date_list[-1], '%Y-%m-%d')
     return valid_date_string
 
 
