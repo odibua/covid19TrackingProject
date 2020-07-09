@@ -25,7 +25,7 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'latino', 'WHITE_CASES': 'white', 'ASIAN_CASES': 'asian',
                                               'BLACK_CASES': 'black', 'MULTI_RACE_CASES': 'multirace',
-                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'american_indian_alaska_native',  'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'native_hawaiian_pacific_islander',
+                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'american_indian_alaska_native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'native_hawaiian_pacific_islander',
                                               'OTHER_CASES': 'other'}
         self.deaths_yaml_keys_dict_keys_map = {'LATINO_DEATHS': 'latino', 'WHITE_DEATHS': 'white', 'ASIAN_DEATHS': 'asian',
                                               'BLACK_DEATHS': 'black', 'MULTI_RACE_DEATHS': 'multirace',
