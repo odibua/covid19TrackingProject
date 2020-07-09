@@ -20,11 +20,11 @@ class EthnicDataProjector(ABC):
         self.state = None
         self.county = None
         self.raw_data_dir = None
-        self.ethnicity_cases_list, self.ethnicity_case_percentages_list = [], []
-        self.ethnicity_deaths_list, self.ethnicity_deaths_percentages_list = [], []
+        self.ethnicity_cases_dict, self.ethnicity_case_percentages_dict = {}, {}
+        self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
 
-    @abstractmethod
     @property
+    @abstractmethod
     def ethnicities(self) -> List[str]:
         """
         Return list of ethnicities contained in data gathered from pages
@@ -32,32 +32,32 @@ class EthnicDataProjector(ABC):
         return []
 
     @property
-    def ethnicity_cases_percentages(self) -> List[float]:
+    def ethnicity_cases_percentages(self) -> Dict[str, float]:
         """
-        Return list of case percentages of ethnicities contained in an area
+        Return dictionary of case percentages of ethnicities contained in an area
         """
-        return self.ethnicity_case_percentages_list
+        return self.ethnicity_case_percentages_dict
 
     @property
-    def ethnicity_cases(self) -> List[float]:
+    def ethnicity_cases(self) -> Dict[str, int]:
         """
-        Return list of cases of ethnicities contained in an area
+        Return dictionary of cases of ethnicities contained in an area
         """
-        return self.ethnicity_cases_list
+        return self.ethnicity_cases_dict
 
     @property
-    def ethnicity_deaths_percentages(self) -> List[float]:
+    def ethnicity_deaths_percentages(self) -> Dict[str, float]:
         """
-        Return list of death percentages of ethnicities contained in an area
+        Return dictionary of death percentages of ethnicities contained in an area
         """
-        return self.ethnicity_deaths_percentages_list
+        return self.ethnicity_deaths_percentages_dict
 
     @property
-    def ethnicity_deaths(self) -> List[float]:
+    def ethnicity_deaths(self) -> Dict[str, float]:
         """
-        Return list of cases of ethnicities contained in an area
+        Return dictionary of cases of ethnicities contained in an area
         """
-        return self.ethnicity_deaths_list
+        return self.ethnicity_deaths_dict
 
     @abstractmethod
     def process_raw_data_to_cases(self) -> None:

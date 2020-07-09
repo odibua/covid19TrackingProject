@@ -3,15 +3,18 @@
 # --------------------------
 from datetime import datetime
 import logging
-from lxml import etree
-import os
 
 # --------------------------
 # Third Party Imports
 # --------------------------
-import pandas as pd
-from typing import Dict, List
-import yaml as yaml
+from typing import Dict, List, Union
+
+
+def get_element_int(element):
+    element = element[0].text
+    element = element.replace(',', '')
+    element = element.replace('\u200b', '')
+    return int(element)
 
 
 def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:
@@ -32,3 +35,10 @@ def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:
             valid_date_string = datetime.strftime(date_list[idx], '%Y-%m-%d')
             break
     return valid_date_string
+
+
+def get_total(numerical_dict: Dict[str, Union[float, str]]):
+    total = 0
+    for key in numerical_dict.keys():
+        total = total + numerical_dict[key]
+    return total

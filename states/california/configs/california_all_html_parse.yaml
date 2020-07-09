@@ -1,5 +1,5 @@
 DATES:
-  2020-06-13:
+  '2020-06-13':
     LATINO_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[2]/td[2]
     LATINO_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[2]/td[4]
     WHITE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[3]/td[2]
@@ -16,7 +16,24 @@ DATES:
     NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[4]
     OTHER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[2]
     OTHER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[4]
-  2020-07-02:
+  '2020-06-14':
+    LATINO_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[2]/td[2]
+    LATINO_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[2]/td[4]
+    WHITE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[3]/td[2]
+    WHITE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[3]/td[4]
+    ASIAN_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[4]/td[2]
+    ASIAN_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[4]/td[4]
+    BLACK_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[5]/td[2]
+    BLACK_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[5]/td[4]
+    MULTI_RACE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[6]/td[2]
+    MULTI_RACE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[6]/td[4]
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[2]
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[4]
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[2]
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[4]
+    OTHER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[2]
+    OTHER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[4]
+  '2020-07-02':
     LATINO_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[2]/td[2]
     LATINO_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[2]/td[4]
     WHITE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[3]/td[2]
@@ -33,7 +50,7 @@ DATES:
     NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[8]/td[4]
     OTHER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[9]/td[2]
     OTHER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[9]/td[4]
-  2020-07-06:
+  '2020-07-06':
     LATINO_CASES: /html/body/form/div[3]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[2]/td[2]
     LATINO_DEATHS: /html/body/form/div[3]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[2]/td[4]
     WHITE_CASES: /html/body/form/div[3]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[3]/td[2]
