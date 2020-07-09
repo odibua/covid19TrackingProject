@@ -60,23 +60,18 @@ class EthnicDataProjector(ABC):
         return self.ethnicity_deaths_list
 
     @abstractmethod
-    def process_raw_data_to_cases(self, date: str) -> None:
+    def process_raw_data_to_cases(self) -> None:
         """
         Process raw page to obtain number of covid cases for each ethnicity and define
         totals and percentages
-
-        Arguments:
-            date: Date from which raw data will be pulled to be processed
         """
         return None
 
     @abstractmethod
-    def process_raw_data_to_deaths(self, date: str) -> None:
+    def process_raw_data_to_deaths(self) -> None:
         """
         Process raw page to obtain number of covid deaths for each ethnicity and define
         totals and percentages
-        Arguments:
-            date: Date from which raw data will be pulled to be processed
         """
         return None
 
