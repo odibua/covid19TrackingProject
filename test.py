@@ -12,10 +12,12 @@
 
 from states.california import california_projector
 
-date_string = '2020-06-13'
+date_string = '2020-07-06'
 state_projector = california_projector.CaliforniaEthnicDataProjector(date_string=date_string)
-state_projector.process_raw_data_to_cases()
-state_projector.process_raw_data_to_deaths()
+print(state_projector.process_raw_data_to_cases())
+print(state_projector.process_raw_data_to_deaths())
+print(state_projector.ethnicity_cases_discrepancies)
+print(state_projector.ethnicity_deaths_discrepancies)
 import ipdb
 
 ipdb.set_trace()

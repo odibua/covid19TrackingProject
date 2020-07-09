@@ -20,7 +20,7 @@ class EthnicDataProjector(ABC):
         self.state = None
         self.county = None
         self.raw_data_dir = None
-        self.ethnicity_cases_dict, self.ethnicity_case_percentages_dict = {}, {}
+        self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
 
     @property
@@ -32,11 +32,19 @@ class EthnicDataProjector(ABC):
         return []
 
     @property
+    @abstractmethod
+    def ethnicity_demographics(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains percentage of each ethnicity population in california
+        """
+        return {}
+
+    @property
     def ethnicity_cases_percentages(self) -> Dict[str, float]:
         """
         Return dictionary of case percentages of ethnicities contained in an area
         """
-        return self.ethnicity_case_percentages_dict
+        return self.ethnicity_cases_percentages_dict
 
     @property
     def ethnicity_cases(self) -> Dict[str, int]:
@@ -44,6 +52,18 @@ class EthnicDataProjector(ABC):
         Return dictionary of cases of ethnicities contained in an area
         """
         return self.ethnicity_cases_dict
+
+    @property
+    def ethnicity_cases_discrepancies(self) -> Dict[str, float]:
+        """
+        Return dictionary of discrepancy for each race contained quantified as ratio between case percentage and population percentage
+        in region
+        """
+        discrepancy_dict = {}
+        if self.ethnicity_cases_percentages_dict.keys() is not None and self.ethnicity_demographics.keys() is not None:
+            for key in self.ethnicity_cases_percentages_dict.keys():
+                discrepancy_dict[key] = round(self.ethnicity_cases_percentages_dict[key]/self.ethnicity_demographics[key], 3)
+        return discrepancy_dict
 
     @property
     def ethnicity_deaths_percentages(self) -> Dict[str, float]:
@@ -58,6 +78,18 @@ class EthnicDataProjector(ABC):
         Return dictionary of cases of ethnicities contained in an area
         """
         return self.ethnicity_deaths_dict
+
+    @property
+    def ethnicity_deaths_discrepancies(self) -> Dict[str, float]:
+        """
+        Return dictionary of discrepancy for each race contained quantified as ratio between case percentage and population percentage
+        in region
+        """
+        discrepancy_dict = {}
+        if self.ethnicity_deaths_percentages_dict.keys() is not None and self.ethnicity_demographics.keys() is not None:
+            for key in self.ethnicity_deaths_percentages_dict.keys():
+                discrepancy_dict[key] = round(self.ethnicity_deaths_percentages_dict[key]/self.ethnicity_demographics[key], 3)
+        return discrepancy_dict
 
     @abstractmethod
     def process_raw_data_to_cases(self) -> None:
