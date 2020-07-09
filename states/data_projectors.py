@@ -22,6 +22,17 @@ from states import utils
 
 class EthnicDataProjector(ABC):
     def __init__(self, state: str, county: str, raw_data_file: str, date_string: str, config_file_string: str, json: bool=None, lxml: bool=None):
+        """
+        Initialize the parameters necessary for projecting raw data to cases and deaths numbers
+
+        state: State for which projection will be done
+        county: County for which projection will be done
+        raw_data_file: Raw data file from which ethnic data will be parsed
+        date_string: Date of concern
+        config_file_string: Configuration file string
+        json: Boolean to state if parsing will be json or not
+        lxml: Boolean to state if lxml will be used for parsing
+        """
         self.state, self.county = state, county
         self.ethnicitiy_json_keys_map = None
         self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
