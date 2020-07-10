@@ -87,6 +87,8 @@ setup(
             'iframetest.*']),
     install_requires=[
         'celery',
+        'beautifulsoup4',
+        'html5lib',
         'numpy>=1.9.0',
         'pandas',
         'pyppeteer',

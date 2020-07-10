@@ -10,8 +10,6 @@ import os
 # --------------------------
 # Third Party Imports
 # --------------------------
-import bs4
-import pandas as pd
 from typing import Dict, List, Tuple
 import yaml as yaml
 
@@ -22,43 +20,18 @@ from states import utils
 
 
 class EthnicDataProjector(ABC):
-    def __init__(self, state: str, county: str, raw_data_file: str, date_string: str, config_file_string: str, json: bool=None, lxml: bool=None):
+    def __init__(self, state: str, county: str):
         """
         Initialize the parameters necessary for projecting raw data to cases and deaths numbers
 
         state: State for which projection will be done
         county: County for which projection will be done
-        raw_data_file: Raw data file from which ethnic data will be parsed
-        date_string: Date of concern
-        config_file_string: Configuration file string
-        json: Boolean to state if parsing will be json or not
-        lxml: Boolean to state if lxml will be used for parsing
         """
         self.state, self.county = state, county
         self.ethnicitiy_json_keys_map = None
         self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
         self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = {}, {}
-
-        logging.info("Load parsing config")
-        html_parser_config_file = open(config_file_string)
-        html_parser_config = yaml.safe_load(html_parser_config_file)
-
-        logging.info("Get and sort html parsing dates")
-        html_parser_date_strings = html_parser_config["DATES"].keys()
-        html_parser_dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in html_parser_date_strings]
-        html_parser_dates.sort()
-
-        logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
-        self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
-        if lxml:
-            self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
-            logging.info("Load raw html data and convert it to lxml")
-            raw_data_file_object = open(raw_data_file, 'r')
-            raw_data_file_html = raw_data_file_object.read()
-            soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
-            raw_data_file_html = soup.prettify()
-            self.raw_data_lxml = etree.HTML(raw_data_file_html)
 
     @property
     @abstractmethod
@@ -128,30 +101,20 @@ class EthnicDataProjector(ABC):
                 discrepancy_dict[key] = round(self.ethnicity_deaths_percentages_dict[key]/self.ethnicity_demographics[key], 3)
         return discrepancy_dict
 
+    @abstractmethod
     def process_raw_data_to_cases(self) -> bool:
         """
         Process raw page to obtain number of covid cases for each ethnicity and define
         totals and percentages
         """
-        if self.cases_yaml_keys_dict_keys_map is not None:
-            if self.ethnicity_xpath_map is not None:
-                self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
-            elif self.ethnicitiy_json_keys_map is not None:
-                raise ValueError("Json Keys Map not implemented for processing cases")
-            return True
         return False
 
+    @abstractmethod
     def process_raw_data_to_deaths(self) -> bool:
         """
         Process raw page to obtain number of covid deaths for each ethnicity and define
         totals and percentages
         """
-        if self.deaths_yaml_keys_dict_keys_map is not None:
-            if self.ethnicity_xpath_map is not None:
-                self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
-            elif self.ethnicitiy_json_keys_map is not None:
-                raise ValueError("Json Keys Map not implemented for processing cases")
-            return True
         return False
 
     @staticmethod

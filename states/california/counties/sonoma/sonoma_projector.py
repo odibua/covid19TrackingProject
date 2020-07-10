@@ -15,16 +15,15 @@ import yaml as yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from states.data_projectors import EthnicDataProjector
-from states import utils
+from states.california.california_projector import CaliforniaEthnicDataProjector
 
 
-class SonomaEthnicDataProjector(EthnicDataProjector):
+class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
     def __init__(self, state: str, county: str, raw_data_file: str, date_string: str, config_file_string: str, json: bool = None, lxml: bool = None):
         super().__init__(state=state, county=county, raw_data_file=raw_data_file, date_string=date_string, config_file_string=config_file_string, lxml=lxml, json=json)
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {'HISPANIC_CASES': 'hispanic', 'WHITE_CASES': 'white', 'ASIAN_PACIFIC_ISLANDER_CASES': 'asian_pacific_islander', 'NON_HISPANIC_CASES': 'non_hispanic'}
-
+        self.deaths_yaml_keys_dict_keys_map = None
     @property
     def ethnicities(self) -> List[str]:
         """
