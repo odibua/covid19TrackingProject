@@ -10,6 +10,7 @@ import os
 # --------------------------
 # Third Party Imports
 # --------------------------
+import bs4
 import pandas as pd
 from typing import Dict, List, Tuple
 import yaml as yaml
@@ -39,11 +40,11 @@ class EthnicDataProjector(ABC):
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
         self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = {}, {}
 
-        logging.info("Load california html parsing config")
+        logging.info("Load parsing config")
         html_parser_config_file = open(config_file_string)
         html_parser_config = yaml.safe_load(html_parser_config_file)
 
-        logging.info("Get and sort californial html parsing dates")
+        logging.info("Get and sort html parsing dates")
         html_parser_date_strings = html_parser_config["DATES"].keys()
         html_parser_dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in html_parser_date_strings]
         html_parser_dates.sort()
@@ -55,6 +56,8 @@ class EthnicDataProjector(ABC):
             logging.info("Load raw html data and convert it to lxml")
             raw_data_file_object = open(raw_data_file, 'r')
             raw_data_file_html = raw_data_file_object.read()
+            soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
+            raw_data_file_html = soup.prettify()
             self.raw_data_lxml = etree.HTML(raw_data_file_html)
 
     @property
@@ -148,7 +151,8 @@ class EthnicDataProjector(ABC):
         return None
 
     @staticmethod
-    def get_cases_deaths_using_lxml(raw_data_lxml: etree.HTML, ethnicity_xpath_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str) -> Tuple[Dict[str, int], Dict[str, float]]:
+    def get_cases_deaths_using_lxml(raw_data_lxml: etree.HTML, ethnicity_xpath_map: Dict[str, str],
+                                    yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str) -> Tuple[Dict[str, int], Dict[str, float]]:
         """
         Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
 

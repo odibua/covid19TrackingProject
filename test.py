@@ -10,17 +10,36 @@
 # print(type(text))
 # print(text.replace(',', ''))
 
-from states.california import california_projector
-import os
+# from states.california import california_projector
+#
+# import os
+#
+# date_string = '2020-06-29'
+# state = "california"
+# county = None
+# raw_data_dir = os.path.join("states", state, "raw_data")
+# raw_data_file = f"{raw_data_dir}/{date_string}/california_all.html"
+# configs_dir = os.path.join("states", state, "configs")
+# config_file_string = f"{configs_dir}/california_all_html_parse.yaml"
+# state_projector = california_projector.CaliforniaEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
+# print(state_projector.process_raw_data_to_cases())
+# print(state_projector.process_raw_data_to_deaths())
+# print(state_projector.ethnicity_cases_discrepancies)
+# print(state_projector.ethnicity_deaths_discrepancies)
 
-date_string = '2020-06-29'
+
+
+
+from states.california.counties.losangeles import losangeles_projector
+import os
+date_string = '2020-07-08'
 state = "california"
-county = None
-raw_data_dir = os.path.join("states", state, "raw_data")
-raw_data_file = f"{raw_data_dir}/{date_string}/california_all.html"
-configs_dir = os.path.join("states", state, "configs")
-config_file_string = f"{configs_dir}/california_all_html_parse.yaml"
-state_projector = california_projector.CaliforniaEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
+county = 'losangeles'
+raw_data_dir = os.path.join("states", state, "counties", "losangeles", "raw_data")
+raw_data_file = f"{raw_data_dir}/{date_string}/losangeles_all.html"
+configs_dir = os.path.join("states", state, "counties", "losangeles", "configs")
+config_file_string = f"{configs_dir}/losangeles_all_html_parse.yaml"
+state_projector = losangeles_projector.LosAngelesEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
 print(state_projector.process_raw_data_to_cases())
 print(state_projector.process_raw_data_to_deaths())
 print(state_projector.ethnicity_cases_discrepancies)
