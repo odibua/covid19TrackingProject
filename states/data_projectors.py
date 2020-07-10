@@ -128,27 +128,31 @@ class EthnicDataProjector(ABC):
                 discrepancy_dict[key] = round(self.ethnicity_deaths_percentages_dict[key]/self.ethnicity_demographics[key], 3)
         return discrepancy_dict
 
-    def process_raw_data_to_cases(self) -> None:
+    def process_raw_data_to_cases(self) -> bool:
         """
         Process raw page to obtain number of covid cases for each ethnicity and define
         totals and percentages
         """
-        if self.ethnicity_xpath_map is not None:
-            self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
-        elif self.ethnicitiy_json_keys_map is not None:
-            raise ValueError("Json Keys Map not implemented for processing cases")
-        return None
+        if self.cases_yaml_keys_dict_keys_map is not None:
+            if self.ethnicity_xpath_map is not None:
+                self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
+            elif self.ethnicitiy_json_keys_map is not None:
+                raise ValueError("Json Keys Map not implemented for processing cases")
+            return True
+        return False
 
-    def process_raw_data_to_deaths(self) -> None:
+    def process_raw_data_to_deaths(self) -> bool:
         """
         Process raw page to obtain number of covid deaths for each ethnicity and define
         totals and percentages
         """
-        if self.ethnicity_xpath_map is not None:
-            self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
-        elif self.ethnicitiy_json_keys_map is not None:
-            raise ValueError("Json Keys Map not implemented for processing cases")
-        return None
+        if self.deaths_yaml_keys_dict_keys_map is not None:
+            if self.ethnicity_xpath_map is not None:
+                self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_lxml(raw_data_lxml=self.raw_data_lxml, ethnicity_xpath_map=self.ethnicity_xpath_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.valid_date_string)
+            elif self.ethnicitiy_json_keys_map is not None:
+                raise ValueError("Json Keys Map not implemented for processing cases")
+            return True
+        return False
 
     @staticmethod
     def get_cases_deaths_using_lxml(raw_data_lxml: etree.HTML, ethnicity_xpath_map: Dict[str, str],

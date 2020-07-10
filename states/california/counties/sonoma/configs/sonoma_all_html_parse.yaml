@@ -1,0 +1,6 @@
+DATES:
+  '2020-06-14':
+    ASIAN_PACIFIC_ISLANDER_CASES: /html/body/div/div[4]/div/div/div/div/div[6]/div[1]/div/div/div[4]/div/table/tbody/tr[3]/td[1]
+    HISPANIC_CASES: /html/body/div/div[4]/div/div/div/div/div[6]/div[1]/div/div/div[4]/div/table/tbody/tr[1]/td[1]
+    WHITE_CASES: /html/body/div/div[4]/div/div/div/div/div[6]/div[1]/div/div/div[4]/div/table/tbody/tr[2]/td[1]
+    NON_HISPANIC_CASES: /html/body/div/div[4]/div/div/div/div/div[6]/div[1]/div/div/div[4]/div/table/tbody/tr[4]/td[1]

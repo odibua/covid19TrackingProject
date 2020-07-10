@@ -30,16 +30,31 @@
 
 
 
-from states.california.counties.losangeles import losangeles_projector
+# from states.california.counties.losangeles import losangeles_projector
+# import os
+# date_string = '2020-07-08'
+# state = "california"
+# county = 'losangeles'
+# raw_data_dir = os.path.join("states", state, "counties", "losangeles", "raw_data")
+# raw_data_file = f"{raw_data_dir}/{date_string}/losangeles_all.html"
+# configs_dir = os.path.join("states", state, "counties", "losangeles", "configs")
+# config_file_string = f"{configs_dir}/losangeles_all_html_parse.yaml"
+# state_projector = losangeles_projector.LosAngelesEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
+# print(state_projector.process_raw_data_to_cases())
+# print(state_projector.process_raw_data_to_deaths())
+# print(state_projector.ethnicity_cases_discrepancies)
+# print(state_projector.ethnicity_deaths_discrepancies)
+
+from states.california.counties.sonoma import sonoma_projector
 import os
-date_string = '2020-07-08'
+date_string = '2020-06-14'
 state = "california"
-county = 'losangeles'
-raw_data_dir = os.path.join("states", state, "counties", "losangeles", "raw_data")
-raw_data_file = f"{raw_data_dir}/{date_string}/losangeles_all.html"
-configs_dir = os.path.join("states", state, "counties", "losangeles", "configs")
-config_file_string = f"{configs_dir}/losangeles_all_html_parse.yaml"
-state_projector = losangeles_projector.LosAngelesEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
+county = 'sonoma'
+raw_data_dir = os.path.join("states", state, "counties", "sonoma", "raw_data")
+raw_data_file = f"{raw_data_dir}/{date_string}/sonoma_all.html"
+configs_dir = os.path.join("states", state, "counties", "sonoma", "configs")
+config_file_string = f"{configs_dir}/sonoma_all_html_parse.yaml"
+state_projector = sonoma_projector.SonomaEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
 print(state_projector.process_raw_data_to_cases())
 print(state_projector.process_raw_data_to_deaths())
 print(state_projector.ethnicity_cases_discrepancies)
