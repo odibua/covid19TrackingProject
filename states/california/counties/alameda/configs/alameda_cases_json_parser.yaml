@@ -1,0 +1,37 @@
+DATES:
+  '2020-06-14':
+    HISPANIC_LATINO_CASES:
+      - features
+      - 0
+      - attributes
+      - Hispanic_Latino
+    ASIAN:
+      - features
+      - 0
+      - attributes
+      - Asian
+    BLACK:
+      - features
+      - 0
+      - attributes
+      - African_American_Black
+    WHITE:
+      - features
+      - 0
+      - attributes
+      - White
+    PACIFIC_ISLANDER:
+      - features
+      - 0
+      - attributes
+      - Pacific_Islander
+    NATIVE_AMERICAN:
+      - features
+      - 0
+      - attributes
+      - Native_American
+    UNKNOWN_RACE:
+      - features
+      - 0
+      - attributes
+      - Unknown_Race

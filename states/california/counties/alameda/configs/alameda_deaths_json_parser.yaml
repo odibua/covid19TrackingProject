@@ -1,0 +1,22 @@
+DATES:
+  '2020-06-14':
+    HISPANIC_LATINO_CASES:
+      - features
+      - 0
+      - attributes
+      - Deaths_Hispanic_Latino
+    ASIAN:
+      - features
+      - 0
+      - attributes
+      - Deaths_Asian
+    BLACK:
+      - features
+      - 0
+      - attributes
+      - Deaths_African_American_Black
+    WHITE:
+      - features
+      - 0
+      - attributes
+      - Deaths_White
