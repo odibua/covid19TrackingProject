@@ -34,14 +34,13 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
 
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
-        if lxml:
-            self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
-            logging.info("Load raw html data and convert it to lxml")
-            raw_data_file_object = open(raw_data_file, 'r')
-            raw_data_file_html = raw_data_file_object.read()
-            soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
-            raw_data_file_html = soup.prettify()
-            self.raw_data_lxml = etree.HTML(raw_data_file_html)
+        self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
+        logging.info("Load raw html data and convert it to lxml")
+        raw_data_file_object = open(raw_data_file, 'r')
+        raw_data_file_html = raw_data_file_object.read()
+        soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
+        raw_data_file_html = soup.prettify()
+        self.raw_data_lxml = etree.HTML(raw_data_file_html)
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'latino', 'WHITE_CASES': 'white', 'ASIAN_CASES': 'asian',
