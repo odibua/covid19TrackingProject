@@ -25,7 +25,6 @@ def get_json_element_int(raw_data_json: Dict[str, Any], ethnicity_json_keys_list
 
     return dict_temp
 
-
 def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:
     """
     Get the date in date list that is greater than one element of date_list and less than the next
