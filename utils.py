@@ -35,7 +35,7 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
             elif request_type == 'POST':
                 headers = response_config['REQUEST']['HEADERS']
                 payload = response_config['REQUEST']['PAYLOAD']
-                response = requests.post(url=url, headers=headers,  json=json.loads(json.dumps(payload)))
+                response = requests.post(url=url, headers=headers, json=json.loads(json.dumps(payload)))
                 status_code = response.status_code
             else:
                 raise ValueError(f"Request only implemented for GET or POST types. Got {request_type}")
@@ -51,21 +51,25 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
     return response_list, response_names, failed_response_names, request_type
 
 
-def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str], failed_data_type_names: List[str], request_type: str):
+def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str],
+                  failed_data_type_names: List[str], request_type: str):
     dt = datetime.datetime.now() - datetime.timedelta(days=1)
     today = datetime.date(dt.year, dt.month, dt.day)
     today_str = today.isoformat()
     save_dir = f"{save_dir}/{today_str}"
     if not path.isdir(save_dir):
         os.makedirs(save_dir)
-    for response, data_type_name in zip(response_list, data_type_names):
-        if request_type == 'GET':
-            save_path = f"{save_dir}/{data_type_name}.html"
-        else:
-            save_path = f"{save_dir}/{data_type_name}"
-        text_file = open(save_path, "w")
-        text_file.write(response)
-        text_file.close()
+    save_dir_files = os.listdir(save_dir)
+    if len(save_dir_files) == 0 or 'failed_queries' in save_dir_files:
+        for response, data_type_name in zip(response_list, data_type_names):
+            if request_type == 'GET':
+                save_path = f"{save_dir}/{data_type_name}.html"
+            else:
+                save_path = f"{save_dir}/{data_type_name}"
+            text_file = open(save_path, "w")
+            text_file.write(response)
+            text_file.close()
+            os.remove(f"{save_dir}/failed_queries")
 
     failed_save_path = f"{save_dir}/failed_queries"
     if len(failed_data_type_names):

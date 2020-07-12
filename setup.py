@@ -86,6 +86,7 @@ setup(
             'iframetest',
             'iframetest.*']),
     install_requires=[
+        'autopep8',
         'celery',
         'beautifulsoup4',
         'html5lib',
@@ -113,7 +114,6 @@ setup(
             'jupyter',
             'ipdb']},
     setup_requires=[
-        'autopep8',
         'flake8',
         "ipdb",
         'pycodestyle',

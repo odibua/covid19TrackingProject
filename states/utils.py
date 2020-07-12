@@ -3,18 +3,27 @@
 # --------------------------
 from datetime import datetime
 import logging
+from lxml import etree
 
 # --------------------------
 # Third Party Imports
 # --------------------------
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 
-def get_element_int(element):
+def get_element_int(element: etree.HTML) -> int:
     element = element[0].text
     element = element.replace(',', '')
     element = element.replace('\u200b', '')
     return int(element)
+
+
+def get_json_element_int(raw_data_json: Dict[str, Any], ethnicity_json_keys_list: List[Union[str, int]]) -> int:
+    dict_temp = raw_data_json
+    for json_key in ethnicity_json_keys_list:
+        dict_temp = dict_temp[json_key]
+
+    return dict_temp
 
 
 def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:

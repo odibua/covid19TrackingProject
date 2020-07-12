@@ -5,12 +5,11 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import logging
 from lxml import etree
-import os
 
 # --------------------------
 # Third Party Imports
 # --------------------------
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 import yaml as yaml
 
 # --------------------------
@@ -28,7 +27,7 @@ class EthnicDataProjector(ABC):
         county: County for which projection will be done
         """
         self.state, self.county = state, county
-        self.ethnicitiy_json_keys_map = None
+        self.ethnicitiy_json_keys_map, self.ethnicity_xpath_map = None, None
         self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
         self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = {}, {}
@@ -72,7 +71,10 @@ class EthnicDataProjector(ABC):
         discrepancy_dict = {}
         if self.ethnicity_cases_percentages_dict.keys() is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_cases_percentages_dict.keys():
-                discrepancy_dict[key] = round(self.ethnicity_cases_percentages_dict[key]/self.ethnicity_demographics[key], 3)
+                discrepancy_dict[key] = round(
+                    self.ethnicity_cases_percentages_dict[key] /
+                    self.ethnicity_demographics[key],
+                    3)
         return discrepancy_dict
 
     @property
@@ -98,13 +100,16 @@ class EthnicDataProjector(ABC):
         discrepancy_dict = {}
         if self.ethnicity_deaths_percentages_dict.keys() is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_deaths_percentages_dict.keys():
-                discrepancy_dict[key] = round(self.ethnicity_deaths_percentages_dict[key]/self.ethnicity_demographics[key], 3)
+                discrepancy_dict[key] = round(
+                    self.ethnicity_deaths_percentages_dict[key] /
+                    self.ethnicity_demographics[key],
+                    3)
         return discrepancy_dict
 
     @abstractmethod
     def process_raw_data_to_cases(self) -> bool:
         """
-        Process raw page to obtain number of covid cases for each ethnicity and define
+        Process raw data to obtain number of covid cases for each ethnicity and define
         totals and percentages
         """
         return False
@@ -112,7 +117,7 @@ class EthnicDataProjector(ABC):
     @abstractmethod
     def process_raw_data_to_deaths(self) -> bool:
         """
-        Process raw page to obtain number of covid deaths for each ethnicity and define
+        Process raw data to obtain number of covid deaths for each ethnicity and define
         totals and percentages
         """
         return False
@@ -135,11 +140,50 @@ class EthnicDataProjector(ABC):
         logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
-            ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_element_int(element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
+            ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_element_int(
+                element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():
-            ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key])/total, 3)
+            ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key]) / total, 3)
 
         return ethnicity_dict, ethnicity_percentages_dict
+
+    @staticmethod
+    def get_cases_deaths_using_json(raw_data_json: Dict[str, Any], ethnicity_json_keys_map: Dict[str, str],
+                                    yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str) -> Tuple[Dict[str, int], Dict[str, float]]:
+        """
+        Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
+
+        Arguments:
+            raw_data_lxml: Raw lxml object
+            ethnicity_xpath_map: Map of ethnicity to xpath
+            yaml_keys_dict_keys_map: Yaml key to dictionary key map
+            valid_date_string: Date from which ethnicity to xpath map is obtained
+
+        Returns:
+            Dictionaries that give counts and percentages
+        """
+        logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
+        ethnicity_dict, ethnicity_percentages_dict = {}, {}
+        for key in yaml_keys_dict_keys_map.keys():
+            ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_json_element_int(
+                raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key])
+
+        logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
+        total = utils.get_total(numerical_dict=ethnicity_dict)
+        for key in ethnicity_dict.keys():
+            ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key]) / total, 3)
+
+        return ethnicity_dict, ethnicity_percentages_dict
+
+    @staticmethod
+    def load_yaml(yaml_file: str) -> yaml:
+        yaml_file_object = open(yaml_file)
+        return yaml.safe_load(yaml_file_object)
+
+    @staticmethod
+    def get_sorted_dates_from_strings(date_string_list: List[str]):
+        dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in date_string_list]
+        return dates.sort()
