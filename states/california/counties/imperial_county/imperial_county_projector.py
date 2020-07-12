@@ -14,13 +14,13 @@ import yaml as yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from states.data_projectors import EthnicDataProjector
+from states.california.counties.alameda.alameda_projector import AlamedaEthnicDataProjector
 from states import utils
 
 
-class ImperialCountyEthnicDataProjector(EthnicDataProjector):
+class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
-        super().__init__(state=state, county=county)
+        self.state, self.county = state, county
         logging.info("Initialize imperial county raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
         raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/imperial_county_cases", f"{raw_data_dir}/{date_string}/imperial_county_cases.html"
@@ -81,27 +81,3 @@ class ImperialCountyEthnicDataProjector(EthnicDataProjector):
 
         """
         return {'hispanic': 0.85, 'nonhispanic': 0.15, 'other': 0}
-
-    def process_raw_data_to_cases(self) -> bool:
-        """
-        Process raw data to obtain number of covid cases for each ethnicity and define
-        totals and percentages
-        """
-        if self.cases_yaml_keys_dict_keys_map is not None:
-            if self.ethnicity_json_keys_map is not None:
-                self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_cases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
-                return True
-        return False
-
-    def process_raw_data_to_deaths(self) -> bool:
-        """
-        Process raw data to obtain number of covid deaths for each ethnicity and define
-        totals and percentages
-        """
-        if self.deaths_yaml_keys_dict_keys_map is not None:
-            if self.ethnicity_json_keys_map is not None:
-                self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_deaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
-                return True
-        return False
