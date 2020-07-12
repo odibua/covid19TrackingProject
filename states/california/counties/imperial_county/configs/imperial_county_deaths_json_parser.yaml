@@ -1,0 +1,17 @@
+DATES:
+  '2020-06-14':
+    HISPANIC_LATINO_DEATHS:
+      - features
+      - 0
+      - attributes
+      - value
+    NON_HISPANIC_LATINO_DEATHS:
+      - features
+      - 1
+      - attributes
+      - value
+    UNKNOWN_RACE_DEATHS:
+      - features
+      - 2
+      - attributes
+      - value

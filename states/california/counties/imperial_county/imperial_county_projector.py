@@ -18,17 +18,17 @@ from states.data_projectors import EthnicDataProjector
 from states import utils
 
 
-class AlamedaEthnicDataProjector(EthnicDataProjector):
+class ImperialCountyEthnicDataProjector(EthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         super().__init__(state=state, county=county)
-        logging.info("Initialize Alameda raw and config file strings")
+        logging.info("Initialize imperial county raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
-        raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/alameda_cases", f"{raw_data_dir}/{date_string}/alameda_cases.html"
-        raw_data_deaths_file, raw_data_deaths_file_html = f"{raw_data_dir}/{date_string}/alameda_deaths", f"{raw_data_dir}/{date_string}/alameda_deaths.html"
+        raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/imperial_county_cases", f"{raw_data_dir}/{date_string}/imperial_county_cases.html"
+        raw_data_deaths_file, raw_data_deaths_file_html = f"{raw_data_dir}/{date_string}/imperial_county_deaths", f"{raw_data_dir}/{date_string}/imperial_county_deaths.html"
 
         configs_dir = os.path.join("states", state, 'counties', county, "configs")
-        cases_config_file_string = f"{configs_dir}/alameda_cases_json_parser.yaml"
-        deaths_config_file_string = f"{configs_dir}/alameda_deaths_json_parser.yaml"
+        cases_config_file_string = f"{configs_dir}/imperial_county_cases_json_parser.yaml"
+        deaths_config_file_string = f"{configs_dir}/imperial_county_deaths_json_parser.yaml"
 
         logging.info("Load cases and deaths parsing config")
         json_parser_cases_config = self.load_yaml(cases_config_file_string)
@@ -59,25 +59,17 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
             'HISPANIC_LATINO_CASES': 'hispanic',
-            'WHITE_CASES': 'white',
-            'ASIAN_CASES': 'asian',
-            'BLACK_CASES': 'black',
-            'PACIFIC_ISLANDER_CASES': 'pacific_islander',
-            'NATIVE_AMERICAN_CASES': 'native_american',
-            'MULTI_RACE_CASES': 'multirace'}
+            'NON_HISPANIC_LATINO_CASES': 'nonhispanic'}
         self.deaths_yaml_keys_dict_keys_map = {
             'HISPANIC_LATINO_DEATHS': 'hispanic',
-            'WHITE_DEATHS': 'white',
-            'ASIAN_DEATHS': 'asian',
-            'BLACK_DEATHS': 'black',
-            'WHITE_DEATHS': 'white'}
+            'NON_HISPANIC_LATINO_DEATHS': 'nonhispanic'}
 
     @property
     def ethnicities(self) -> List[str]:
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ['white', 'black', 'native_american', 'asian', 'pacific_islander', 'hispanic', 'multirace']
+        return ['hispanic', 'nonhispanic', 'other', 'unknown']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
@@ -85,10 +77,10 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         Return dictionary that contains percentage of each ethnicity population in Sonoma County. Obtained from
         census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
 
-        Obtained from here: https://www.census.gov/quickfacts/alamedacountycalifornia
+        Obtained from here: https://www.census.gov/quickfacts/imperial_countycountycalifornia
 
         """
-        return {'white': 0.306, 'black': 0.110, 'native_american': 0.011, 'asian': 0.323, 'pacific_islander': 0.009, 'hispanic': 0.223, 'multirace': 0.054}
+        return {'hispanic': 0.85, 'nonhispanic': 0.15, 'other': 0}
 
     def process_raw_data_to_cases(self) -> bool:
         """

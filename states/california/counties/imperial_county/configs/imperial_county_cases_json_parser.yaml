@@ -1,0 +1,22 @@
+DATES:
+  '2020-06-14':
+    HISPANIC_LATINO_CASES:
+      - features
+      - 0
+      - attributes
+      - ETHNICITY_HISPANIC_OR_LATINO
+    NON_HISPANIC_LATINO_CASES:
+      - features
+      - 0
+      - attributes
+      - ETHNICITY_NON_x002d_HISPANIC_OR
+    OTHER_CASES:
+      - features
+      - 0
+      - attributes
+      - ETHNICITY_OTHER
+    UNKNOWN_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - ETHNICITY_UNKNOWN
