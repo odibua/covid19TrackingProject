@@ -82,8 +82,7 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
         """
-        Return dictionary that contains percentage of each ethnicity population in Sonoma County. Obtained from
-        census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
+        Return dictionary that contains percentage of each ethnicity population in Alameda County.
 
         Obtained from here: https://www.census.gov/quickfacts/alamedacountycalifornia
 

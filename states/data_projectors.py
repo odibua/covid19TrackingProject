@@ -28,9 +28,9 @@ class EthnicDataProjector(ABC):
         """
         self.state, self.county = state, county
         self.ethnicitiy_json_keys_map, self.ethnicity_xpath_map = None, None
-        self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = {}, {}
-        self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = {}, {}
-        self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = {}, {}
+        self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = None, None
+        self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = None, None
+        self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = None, None
 
     @property
     @abstractmethod
@@ -69,7 +69,7 @@ class EthnicDataProjector(ABC):
         in region
         """
         discrepancy_dict = {}
-        if self.ethnicity_cases_percentages_dict.keys() is not None and self.ethnicity_demographics.keys() is not None:
+        if self.cases_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_cases_percentages_dict.keys():
                 discrepancy_dict[key] = round(
                     self.ethnicity_cases_percentages_dict[key] /
@@ -98,7 +98,7 @@ class EthnicDataProjector(ABC):
         in region
         """
         discrepancy_dict = {}
-        if self.ethnicity_deaths_percentages_dict.keys() is not None and self.ethnicity_demographics.keys() is not None:
+        if self.deaths_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_deaths_percentages_dict.keys():
                 discrepancy_dict[key] = round(
                     self.ethnicity_deaths_percentages_dict[key] /

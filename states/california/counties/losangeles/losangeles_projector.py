@@ -69,7 +69,9 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
         """
-        Return dictionary that contains percentage of each ethnicity population in california
+        Return dictionary that contains percentage of each ethnicity population in Los Angeles
+
+        Obtained from here: https://www.census.gov/quickfacts/losangelescitycalifornia
         """
-        return {'hispanic': 0.475, 'white': 0.524, 'asian': 0.138, 'black': 0.086,
-                'american_indian_alaska_native': 0.005, 'native_hawaiian_pacific_islander': 0.003, 'other': 0.245}
+        return {'hispanic': 0.486, 'white': 0.524, 'asian': 0.116, 'black': 0.089,
+                'american_indian_alaska_native': 0.007, 'native_hawaiian_pacific_islander': 0.002, 'other': 0.036}

@@ -1,0 +1,72 @@
+DATES:
+  '2020-06-14':
+    HISPANIC_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 2
+      - C
+      - 1
+    BLACK_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 0
+      - C
+      - 1
+    ASIAN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 1
+      - C
+      - 1
+    WHITE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 4
+      - C
+      - 1
+    OTHER_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 3
+      - C
+      - 1
