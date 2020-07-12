@@ -23,8 +23,8 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         super().__init__(state=state, county=county)
         logging.info("Initialize Alameda raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
-        raw_data_cases_file = f"{raw_data_dir}/{date_string}/alameda_cases"
-        raw_data_deaths_file = f"{raw_data_dir}/{date_string}/alameda_deaths"
+        raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/alameda_cases", f"{raw_data_dir}/{date_string}/alameda_cases.html"
+        raw_data_deaths_file, raw_data_deaths_file_html = f"{raw_data_dir}/{date_string}/alameda_deaths", f"{raw_data_dir}/{date_string}/alameda_deaths.html"
 
         configs_dir = os.path.join("states", state, 'counties', county, "configs")
         cases_config_file_string = f"{configs_dir}/alameda_cases_json_parser.yaml"
@@ -35,38 +35,49 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         json_parser_deaths_config = self.load_yaml(deaths_config_file_string)
 
         logging.info("Get and sort json parsing dates")
-        json_parser_cases_date_strings = list(json_parser_cases_config["DATES"].keys())
-        json_parser_deaths_date_strings = list(json_parser_deaths_config["DATES"].keys())
+        json_parser_cases_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_cases_config["DATES"].keys()))
+        json_parser_deaths_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_deaths_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
         self.cases_valid_date_string = utils.get_valid_date_string(
-            date_list=json_parser_cases_date_strings, date_string=date_string)
+            date_list=json_parser_cases_dates, date_string=date_string)
         self.deaths_valid_date_string = utils.get_valid_date_string(
-            date_list=json_parser_deaths_date_strings, date_string=date_string)
+            date_list=json_parser_deaths_dates, date_string=date_string)
         self.cases_ethnicity_json_keys_map = json_parser_cases_config['DATES'][self.cases_valid_date_string]
         self.deaths_ethnicity_json_keys_map = json_parser_deaths_config['DATES'][self.deaths_valid_date_string]
         self.ethnicity_json_keys_map = {**self.cases_ethnicity_json_keys_map, **self.deaths_ethnicity_json_keys_map}
 
         logging.info("Load raw json data")
-        cases_file_obj = open(raw_data_cases_file, 'r')
-        deaths_file_obj = open(raw_data_deaths_file, 'r')
+        try:
+            cases_file_obj, deaths_file_obj= open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
+        except:
+            cases_file_obj, deaths_file_obj= open(raw_data_cases_file_html, 'r'), open(raw_data_deaths_file_html, 'r')
+
         self.raw_data_cases_json = json.load(cases_file_obj)
         self.raw_data_deaths_json = json.load(deaths_file_obj)
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
-            'HISPANIC_CASES': 'hispanic',
+            'HISPANIC_LATINO_CASES': 'hispanic',
             'WHITE_CASES': 'white',
-            'ASIAN_PACIFIC_ISLANDER_CASES': 'asian_pacific_islander',
-            'NON_HISPANIC_CASES': 'non_hispanic'}
-        self.deaths_yaml_keys_dict_keys_map = None
+            'ASIAN_CASES': 'asian',
+            'BLACK_CASES': 'black',
+            'PACIFIC_ISLANDER_CASES': 'pacific_islander',
+            'NATIVE_AMERICAN_CASES': 'native_american',
+            'MULTI_RACE_CASES': 'multirace'}
+        self.deaths_yaml_keys_dict_keys_map = {
+            'HISPANIC_LATINO_DEATHS': 'hispanic',
+            'WHITE_DEATHS': 'white',
+            'ASIAN_DEATHS': 'asian',
+            'BLACK_DEATHS': 'black',
+            'WHITE_DEATHS': 'white'}
 
     @property
     def ethnicities(self) -> List[str]:
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ['hispanic', "white", "asian_pacific_islander", "black", "non_hispanic"]
+        return ['white', 'black', 'native_american', 'asian', 'pacific_islander', 'hispanic', 'multirace']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
@@ -74,8 +85,10 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         Return dictionary that contains percentage of each ethnicity population in Sonoma County. Obtained from
         census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
 
+        Obtained from here: https://www.census.gov/quickfacts/alamedacountycalifornia
+
         """
-        return {'hispanic': 0.273, 'white': 0.629, 'asian_pacific_islander': 0.05, 'non_hispanic': 0.048}
+        return {'white': 0.493, 'black': 0.110, 'native_american': 0.011, 'asian': 0.323, 'pacific_islander': 0.009, 'hispanic': 0.223, 'multirace': 0.054}
 
     def process_raw_data_to_cases(self) -> bool:
         """
@@ -83,10 +96,10 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         totals and percentages
         """
         if self.cases_yaml_keys_dict_keys_map is not None:
-            if self.ethnicitiy_json_keys_map is not None:
+            if self.ethnicity_json_keys_map is not None:
                 self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_json(
                     raw_data_json=self.raw_data_cases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
-            return True
+                return True
         return False
 
     def process_raw_data_to_deaths(self) -> bool:
@@ -95,8 +108,8 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         totals and percentages
         """
         if self.deaths_yaml_keys_dict_keys_map is not None:
-            if self.ethnicitiy_json_keys_map is not None:
+            if self.ethnicity_json_keys_map is not None:
                 self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_json(
                     raw_data_json=self.raw_data_deaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
-            return True
+                return True
         return False

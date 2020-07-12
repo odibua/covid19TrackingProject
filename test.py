@@ -47,22 +47,15 @@
 # print(state_projector.ethnicity_deaths_discrepancies)
 
 import ipdb
-from states.california.counties.sonoma import sonoma_projector
+from states.california.counties.alameda import alameda_projector
 import os
-date_string = '2020-06-14'
+date_string = '2020-07-10'
 state = "california"
-county = 'sonoma'
-raw_data_dir = os.path.join("states", state, "counties", "alameda", "raw_data")
-raw_data_cases_file = f"{raw_data_dir}/{date_string}/alameda_cases"
-raw_data_deaths_file = f"{raw_data_dir}/{date_string}/alameda_deaths"
-
-cases = open(raw_data_cases_file, 'r')
-deaths = open(raw_data_deaths_file, 'r')
-# configs_dir = os.path.join("states", state, "counties", "alameda", "configs")
-# config_file_string = f"{configs_dir}/sonoma_all_html_parse.yaml"
-# state_projector = sonoma_projector.SonomaEthnicDataProjector(state=state, county=county, raw_data_file=raw_data_file, config_file_string=config_file_string, date_string=date_string, lxml=True)
-# print(state_projector.process_raw_data_to_cases())
-# print(state_projector.process_raw_data_to_deaths())
-# print(state_projector.ethnicity_cases_discrepancies)
-# print(state_projector.ethnicity_deaths_discrepancies)
+county = 'alameda'
+state_projector = alameda_projector.AlamedaEthnicDataProjector(state=state, county=county, date_string=date_string)
+print(state_projector.process_raw_data_to_cases())
+print(state_projector.process_raw_data_to_deaths())
+print(state_projector.ethnicity_cases_discrepancies)
+print(state_projector.ethnicity_deaths_discrepancies)
+import ipdb
 ipdb.set_trace()
