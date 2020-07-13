@@ -1,0 +1,279 @@
+DATES:
+  '2020-06-14':
+    MULTI_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Cases
+    WHITE_CASES:
+      - features
+      - 1
+      - attributes
+      - Cases
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+      - features
+      - 2
+      - attributes
+      - Cases
+    BLACK_CASES:
+      - features
+      - 3
+      - attributes
+      - Cases
+    ASIAN_PACIFIC_ISLANDER_CASES:
+      - features
+      - 4
+      - attributes
+      - Cases
+    HISPANIC_LATINO_CASES:
+      - features
+      - 5
+      - attributes
+      - Cases
+  '2020-06-22':
+    MULTI_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Cases
+    WHITE_CASES:
+      - features
+      - 1
+      - attributes
+      - Cases
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+      - features
+      - 2
+      - attributes
+      - Cases
+    BLACK_CASES:
+      - features
+      - 4
+      - attributes
+      - Cases
+    ASIAN_PACIFIC_ISLANDER_CASES:
+      - features
+      - 3
+      - attributes
+      - Cases
+    HISPANIC_LATINO_CASES:
+      - features
+      - 5
+      - attributes
+      - Cases
+  '2020-06-24':
+    MULTI_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Cases
+    WHITE_CASES:
+      - features
+      - 2
+      - attributes
+      - Cases
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+      - features
+      - 1
+      - attributes
+      - Cases
+    BLACK_CASES:
+      - features
+      - 4
+      - attributes
+      - Cases
+    ASIAN_CASES:
+      - features
+      - 3
+      - attributes
+      - Cases
+    HISPANIC_LATINO_CASES:
+      - features
+      - 5
+      - attributes
+      - Cases
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER:
+      - features
+      - 6
+      - attributes
+      - Cases
+    '2020-06-24':
+      MULTI_RACE_CASES:
+        - features
+        - 0
+        - attributes
+        - Cases
+      WHITE_CASES:
+        - features
+        - 2
+        - attributes
+        - Cases
+      AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+        - features
+        - 1
+        - attributes
+        - Cases
+      BLACK_CASES:
+        - features
+        - 4
+        - attributes
+        - Cases
+      ASIAN_CASES:
+        - features
+        - 3
+        - attributes
+        - Cases
+      HISPANIC_LATINO_CASES:
+        - features
+        - 5
+        - attributes
+        - Cases
+      NATIVE_HAWAIIAN_PACIFIC_ISLANDER:
+        - features
+        - 6
+        - attributes
+        - Cases
+    '2020-06-25':
+      MULTI_RACE_CASES:
+        - features
+        - 0
+        - attributes
+        - Cases
+      WHITE_CASES:
+        - features
+        - 1
+        - attributes
+        - Cases
+      AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+        - features
+        - 2
+        - attributes
+        - Cases
+      BLACK_CASES:
+        - features
+        - 4
+        - attributes
+        - Cases
+      ASIAN_CASES:
+        - features
+        - 3
+        - attributes
+        - Cases
+      HISPANIC_LATINO_CASES:
+        - features
+        - 5
+        - attributes
+        - Cases
+      NATIVE_HAWAIIAN_PACIFIC_ISLANDER:
+        - features
+        - 6
+        - attributes
+        - Cases
+    '2020-07-03':
+      MULTI_RACE_CASES:
+        - features
+        - 0
+        - attributes
+        - Cases
+      WHITE_CASES:
+        - features
+        - 1
+        - attributes
+        - Cases
+      AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+        - features
+        - 3
+        - attributes
+        - Cases
+      BLACK_CASES:
+        - features
+        - 4
+        - attributes
+        - Cases
+      ASIAN_CASES:
+        - features
+        - 2
+        - attributes
+        - Cases
+      HISPANIC_LATINO_CASES:
+        - features
+        - 5
+        - attributes
+        - Cases
+      NATIVE_HAWAIIAN_PACIFIC_ISLANDER:
+        - features
+        - 6
+        - attributes
+        - Cases
+    '2020-07-06':
+      MULTI_RACE_CASES:
+        - features
+        - 0
+        - attributes
+        - Cases
+      WHITE_CASES:
+        - features
+        - 1
+        - attributes
+        - Cases
+      AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+        - features
+        - 3
+        - attributes
+        - Cases
+      BLACK_CASES:
+        - features
+        - 4
+        - attributes
+        - Cases
+      ASIAN_CASES:
+        - features
+        - 2
+        - attributes
+        - Cases
+      HISPANIC_LATINO_CASES:
+        - features
+        - 6
+        - attributes
+        - Cases
+      NATIVE_HAWAIIAN_PACIFIC_ISLANDER:
+        - features
+        - 5
+        - attributes
+        - Cases
+    '2020-07-09':
+      MULTI_RACE_CASES:
+        - features
+        - 0
+        - attributes
+        - Cases
+      WHITE_CASES:
+        - features
+        - 1
+        - attributes
+        - Cases
+      AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES:
+        - features
+        - 3
+        - attributes
+        - Cases
+      BLACK_CASES:
+        - features
+        - 4
+        - attributes
+        - Cases
+      ASIAN_CASES:
+        - features
+        - 2
+        - attributes
+        - Cases
+      HISPANIC_LATINO_CASES:
+        - features
+        - 5
+        - attributes
+        - Cases
+      NATIVE_HAWAIIAN_PACIFIC_ISLANDER:
+        - features
+        - 6
+        - attributes
+        - Cases

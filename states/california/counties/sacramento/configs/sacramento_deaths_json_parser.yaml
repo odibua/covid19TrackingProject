@@ -1,0 +1,116 @@
+DATES:
+  '2020-06-14':
+    WHITE_DEATHS:
+      - features
+      - 0
+      - attributes
+      - Cases
+    HISPANIC_DEATHS:
+      - features
+      - 3
+      - attributes
+      - Cases
+    ASIAN_DEATHS:
+      - features
+      - 2
+      - attributes
+      - Cases
+    BLACK_DEATHS:
+      - features
+      - 1
+      - attributes
+      - Cases
+  '2020-06-29':
+    WHITE_DEATHS:
+      - features
+      - 0
+      - attributes
+      - Cases
+    HISPANIC_DEATHS:
+      - features
+      - 2
+      - attributes
+      - Cases
+    ASIAN_DEATHS:
+      - features
+      - 4
+      - attributes
+      - Cases
+    BLACK_DEATHS:
+      - features
+      - 1
+      - attributes
+      - Cases
+  '2020-07-02':
+    WHITE_DEATHS:
+      - features
+      - 0
+      - attributes
+      - Cases
+    HISPANIC_DEATHS:
+      - features
+      - 1
+      - attributes
+      - Cases
+    ASIAN_DEATHS:
+      - features
+      - 3
+      - attributes
+      - Cases
+    BLACK_DEATHS:
+      - features
+      - 2
+      - attributes
+      - Cases
+  '2020-07-08':
+    WHITE_DEATHS:
+      - features
+      - 0
+      - attributes
+      - Cases
+    HISPANIC_DEATHS:
+      - features
+      - 1
+      - attributes
+      - Cases
+    ASIAN_DEATHS:
+      - features
+      - 3
+      - attributes
+      - Cases
+    BLACK_DEATHS:
+      - features
+      - 2
+      - attributes
+      - Cases
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS:
+      - features
+      - 4
+      - attributes
+      - Cases
+  '2020-07-10':
+    WHITE_DEATHS:
+      - features
+      - 0
+      - attributes
+      - Cases
+    HISPANIC_DEATHS:
+      - features
+      - 1
+      - attributes
+      - Cases
+    ASIAN_DEATHS:
+      - features
+      - 2
+      - attributes
+      - Cases
+    BLACK_DEATHS:
+      - features
+      - 3
+      - attributes
+      - Cases
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS:
+      - features
+      - 4
+      - attributes
+      - Cases

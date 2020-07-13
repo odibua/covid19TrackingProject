@@ -58,18 +58,18 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
-            'HISPANIC_LATINO_CASES': 'hispanic',
-            'NON_HISPANIC_LATINO_CASES': 'nonhispanic'}
+            'HISPANIC_LATINO_CASES': 'Hispanic',
+            'NON_HISPANIC_LATINO_CASES': 'Non-Hispanic'}
         self.deaths_yaml_keys_dict_keys_map = {
-            'HISPANIC_LATINO_DEATHS': 'hispanic',
-            'NON_HISPANIC_LATINO_DEATHS': 'nonhispanic'}
+            'HISPANIC_LATINO_DEATHS': 'Hispanic',
+            'NON_HISPANIC_LATINO_DEATHS': 'Non-Hispanic'}
 
     @property
     def ethnicities(self) -> List[str]:
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ['hispanic', 'nonhispanic', 'other', 'unknown']
+        return ['Hispanic', 'Non-Hispanic', 'Other']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
@@ -79,4 +79,4 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
         Obtained from here: https://www.census.gov/quickfacts/imperial_countycountycalifornia
 
         """
-        return {'hispanic': 0.85, 'nonhispanic': 0.15, 'other': 0}
+        return {'Hispanic': 0.85, 'Non-Hispanic': 0.15, 'Other': 0}

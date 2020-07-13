@@ -14,21 +14,21 @@ import yaml as yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from states.data_projectors import EthnicDataProjector
+from states.california.counties.alameda.alameda_projector import AlamedaEthnicDataProjector
 from states import utils
 
 
-class AlamedaEthnicDataProjector(EthnicDataProjector):
+class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
-        super().__init__(state=state, county=county)
-        logging.info("Initialize Alameda raw and config file strings")
+        self.state, self.county = state, county
+        logging.info("Initialize imperial county raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
-        raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/alameda_cases", f"{raw_data_dir}/{date_string}/alameda_cases.html"
-        raw_data_deaths_file, raw_data_deaths_file_html = f"{raw_data_dir}/{date_string}/alameda_deaths", f"{raw_data_dir}/{date_string}/alameda_deaths.html"
+        raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/sacramento_cases", f"{raw_data_dir}/{date_string}/sacramento_cases.html"
+        raw_data_deaths_file, raw_data_deaths_file_html = f"{raw_data_dir}/{date_string}/sacramento_deaths", f"{raw_data_dir}/{date_string}/sacramento_deaths.html"
 
         configs_dir = os.path.join("states", state, 'counties', county, "configs")
-        cases_config_file_string = f"{configs_dir}/alameda_cases_json_parser.yaml"
-        deaths_config_file_string = f"{configs_dir}/alameda_deaths_json_parser.yaml"
+        cases_config_file_string = f"{configs_dir}/sacramento_cases_json_parser.yaml"
+        deaths_config_file_string = f"{configs_dir}/sacramento_deaths_json_parser.yaml"
 
         logging.info("Load cases and deaths parsing config")
         json_parser_cases_config = self.load_yaml(cases_config_file_string)
@@ -58,57 +58,34 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
-            'HISPANIC_LATINO_CASES': 'Hispanic',
             'WHITE_CASES': 'White',
+            'HISPANIC_CASES': 'Hispanic',
             'ASIAN_CASES': 'Asian',
             'BLACK_CASES': 'Black',
-            'PACIFIC_ISLANDER_CASES': 'Pacific Islander',
-            'NATIVE_AMERICAN_CASES': 'Native American',
-            'MULTI_RACE_CASES': 'Multi-Race'}
+            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander',
+            'AMERICAN_INDIAN_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native'
+        }
         self.deaths_yaml_keys_dict_keys_map = {
-            'HISPANIC_LATINO_DEATHS': 'Hispanic',
             'WHITE_DEATHS': 'White',
+            'HISPANIC_DEATHS': 'Hispanic',
             'ASIAN_DEATHS': 'Asian',
             'BLACK_DEATHS': 'Black',
-            'WHITE_DEATHS': 'White'}
+            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander'
+        }
 
     @property
     def ethnicities(self) -> List[str]:
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ['White', 'Black', 'Native American', 'Asian', 'Pacific Islander', 'Hispanic', 'Multi-Race']
+        return ['White', 'Hispanic', 'Asian', 'Black', 'Native Hawaiian/Pacific Islander', 'American Indian/Alaska Native']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
         """
-        Return dictionary that contains percentage of each ethnicity population in Alameda County.
+        Return dictionary that contains percentage of each ethnicity population in Sacramento County
 
-        Obtained from here: https://www.census.gov/quickfacts/alamedacountycalifornia
+        Obtained from here: https://www.census.gov/quickfacts/sacramentocountycalifornia
 
         """
-        return {'White': 0.306, 'Black': 0.110, 'Native American': 0.011, 'Asian': 0.323, 'Pacific Islander': 0.009, 'Hispanic': 0.223, 'Multi-Race': 0.054}
-
-    def process_raw_data_to_cases(self) -> bool:
-        """
-        Process raw data to obtain number of covid cases for each ethnicity and define
-        totals and percentages
-        """
-        if self.cases_yaml_keys_dict_keys_map is not None:
-            if self.ethnicity_json_keys_map is not None:
-                self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_cases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
-                return True
-        return False
-
-    def process_raw_data_to_deaths(self) -> bool:
-        """
-        Process raw data to obtain number of covid deaths for each ethnicity and define
-        totals and percentages
-        """
-        if self.deaths_yaml_keys_dict_keys_map is not None:
-            if self.ethnicity_json_keys_map is not None:
-                self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_deaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
-                return True
-        return False
+        return {'White': 0.628, 'Hispanic': 0.236, 'Asian': 0.170, 'Black': 0.109, 'Native Hawaiian/Pacific Islander': 0.013,  'American Indian/Alaska Native': 0.015}

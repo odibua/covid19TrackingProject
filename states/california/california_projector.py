@@ -48,30 +48,30 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         self.raw_data_lxml = etree.HTML(raw_data_file_html)
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
-        self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'latino', 'WHITE_CASES': 'white', 'ASIAN_CASES': 'asian',
-                                              'BLACK_CASES': 'black', 'MULTI_RACE_CASES': 'multirace',
-                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'american_indian_alaska_native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'native_hawaiian_pacific_islander',
-                                              'OTHER_CASES': 'other'}
-        self.deaths_yaml_keys_dict_keys_map = {'LATINO_DEATHS': 'latino', 'WHITE_DEATHS': 'white', 'ASIAN_DEATHS': 'asian',
-                                               'BLACK_DEATHS': 'black', 'MULTI_RACE_DEATHS': 'multirace',
-                                               'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'american_indian_alaska_native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'native_hawaiian_pacific_islander',
-                                               'OTHER_DEATHS': 'other'}
+        self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'Hispanic', 'WHITE_CASES': 'White', 'ASIAN_CASES': 'Asian',
+                                              'BLACK_CASES': 'Black', 'MULTI_RACE_CASES': 'Multi-Race',
+                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander',
+                                              'OTHER_CASES': 'Other'}
+        self.deaths_yaml_keys_dict_keys_map = {'LATINO_DEATHS': 'Hispanic', 'WHITE_DEATHS': 'White', 'ASIAN_DEATHS': 'Asian',
+                                              'BLACK_DEATHS': 'Black', 'MULTI_RACE_DEATHS': 'Multi-Race',
+                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander',
+                                              'OTHER_DEATHS': 'Other'}
 
     @property
     def ethnicities(self) -> List[str]:
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ["latino", "white", "asian", "black", "multirace",
-                "american_indian_alaska_native", "native_hawaiian_pacific_islander", "other"]
+        return ["Hispanic", "White", "Asian", "Black", "Multi-Race",
+                "American Indian/Alaska Native", "Native Hawaiian/Pacific Islander", "Other"]
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
         """
         Return dictionary that contains percentage of each ethnicity population in california
         """
-        return {'latino': 0.393, 'white': 0.366, 'asian': 0.145, 'black': 0.055, 'multirace': 0.0308,
-                'american_indian_alaska_native': 0.0035, 'native_hawaiian_pacific_islander': 0.0036, 'other': 0.0025}
+        return {'Hispanic': 0.393, 'White': 0.366, 'Asian': 0.145, 'Black': 0.055, 'Multi-Race': 0.0308,
+                'American Indian/Alaska Native': 0.0035, 'Native Hawaiian/Pacific Islander': 0.0036, 'Other': 0.0025}
 
     def process_raw_data_to_cases(self) -> bool:
         """

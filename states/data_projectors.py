@@ -140,8 +140,9 @@ class EthnicDataProjector(ABC):
         logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
-            ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_element_int(
-                element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
+            if key in ethnicity_xpath_map:
+                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_element_int(
+                    element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils.get_total(numerical_dict=ethnicity_dict)
@@ -157,8 +158,8 @@ class EthnicDataProjector(ABC):
         Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
 
         Arguments:
-            raw_data_lxml: Raw lxml object
-            ethnicity_xpath_map: Map of ethnicity to xpath
+            raw_data_json: Raw json object
+            ethnicity_json_keys_map: Map of ethnicity to JSON keys
             yaml_keys_dict_keys_map: Yaml key to dictionary key map
             valid_date_string: Date from which ethnicity to xpath map is obtained
 
@@ -168,8 +169,9 @@ class EthnicDataProjector(ABC):
         logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
-            ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_json_element_int(
-                raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key])
+            if key in ethnicity_json_keys_map:
+                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_json_element_int(
+                    raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key])
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils.get_total(numerical_dict=ethnicity_dict)

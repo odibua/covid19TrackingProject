@@ -46,16 +46,54 @@
 # print(state_projector.ethnicity_cases_discrepancies)
 # print(state_projector.ethnicity_deaths_discrepancies)
 
-import ipdb
-from states.california.counties.alameda import alameda_projector
+# import os
+# import json
+# date_string_list = os.listdir('states/california/counties/sacramento/raw_data')
+# date_string_list.sort()
+# county_dir = "states/california/counties/sacramento/raw_data/"
+# case_file = f"{county_dir}/{date_string_list[0]}/sacramento_deaths"
+# case_obj = open(case_file, 'r')
+# case_obj_dict = json.load(case_obj)
+# idx_list = list(range(6))
+# keys = ['features', 0, 'attributes', 'Race']
+# for idx in idx_list:
+#     if idx < len(case_obj_dict['features']):
+#         print(f"Race: {case_obj_dict['features'][idx]['attributes']['Race_Ethnicity']} Keys: {['features', idx, 'attributes', 'Race_Ethnicity']}")
+# for date_string in date_string_list[1:]:
+#     try:
+#         case_file = f"{county_dir}/{date_string}/sacramento_deaths"
+#         tmp_obj = open(case_file, 'r')
+#         tmp_dict = json.load(tmp_obj)
+#     except:
+#         case_file = f"{county_dir}/{date_string}/sacramento_deaths.html"
+#         tmp_obj = open(case_file, 'r')
+#         tmp_dict = json.load(tmp_obj)
+#     change_bool = False
+#     for idx in idx_list:
+#         if idx < len(case_obj_dict['features']):
+#             if case_obj_dict['features'][idx]['attributes']['Race_Ethnicity'] != tmp_dict['features'][idx]['attributes']['Race_Ethnicity']:
+#                 change_bool = True
+#                 break;
+#     if len(case_obj_dict['features']) != len(tmp_dict['features']):
+#         change_bool = True
+#     if change_bool:
+#         print(date_string)
+#         for idx in idx_list:
+#             if idx < len(tmp_dict['features']):
+#                 print(f"Race: {tmp_dict['features'][idx]['attributes']['Race_Ethnicity']} Keys: {['features', idx, 'attributes','Race_Ethnicity']}")
+#     case_obj_dict = tmp_dict
+
+from states.california.counties.sacramento import sacramento_projector
 import os
-date_string = '2020-07-10'
+date_string = '2020-06-20'
 state = "california"
-county = 'alameda'
-state_projector = alameda_projector.AlamedaEthnicDataProjector(state=state, county=county, date_string=date_string)
+county = 'sacramento'
+state_projector = sacramento_projector.SacramentoEthnicDataProjector(state=state, county=county, date_string=date_string)
 print(state_projector.process_raw_data_to_cases())
 print(state_projector.process_raw_data_to_deaths())
 print(state_projector.ethnicity_cases_discrepancies)
+print(state_projector.ethnicity_cases)
 print(state_projector.ethnicity_deaths_discrepancies)
+print(state_projector.ethnicity_deaths)
 import ipdb
 ipdb.set_trace()

@@ -69,7 +69,8 @@ def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List
             text_file = open(save_path, "w")
             text_file.write(response)
             text_file.close()
-            os.remove(f"{save_dir}/failed_queries")
+            if path.isfile(f"{save_dir}/failed_queries"):
+                os.remove(f"{save_dir}/failed_queries")
 
     failed_save_path = f"{save_dir}/failed_queries"
     if len(failed_data_type_names):
