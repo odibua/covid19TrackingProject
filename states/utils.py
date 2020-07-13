@@ -51,5 +51,9 @@ def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:
 def get_total(numerical_dict: Dict[str, Union[float, str]]):
     total = 0
     for key in numerical_dict.keys():
-        total = total + numerical_dict[key]
+        try:
+            total = total + float(numerical_dict[key])
+        except:
+            import ipdb
+            ipdb.set_trace()
     return total
