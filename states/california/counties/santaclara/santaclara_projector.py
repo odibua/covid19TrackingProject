@@ -87,6 +87,10 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
             'OTHER_DEATHS': 'Other',
             'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander'
         }
+        self.totals_yaml_keys_dict_keys_map = {
+            'TOTAL_CASES': 'Total Cases',
+            'TOTAL_DEATHS': 'Total Deaths'
+        }
 
     @property
     def ethnicities(self) -> List[str]:
