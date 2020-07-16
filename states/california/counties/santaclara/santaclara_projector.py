@@ -8,7 +8,7 @@ import os
 # --------------------------
 # Third Party Imports
 # --------------------------
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 import yaml as yaml
 
 # --------------------------
@@ -18,19 +18,20 @@ from states.california.counties.alameda.alameda_projector import AlamedaEthnicDa
 from states import utils
 
 
-class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
+class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         self.state, self.county = state, county
+        self.total_cases_int, self.total_deaths_int = None, None
         logging.info("Initialize imperial county raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
         raw_data_cases_file, raw_data_totalcases_file = f"{raw_data_dir}/{date_string}/santaclara_cases", f"{raw_data_dir}/{date_string}/santaclara_totalcases"
         raw_data_deaths_file, raw_data_totaldeaths_file = f"{raw_data_dir}/{date_string}/santaclara_deaths", f"{raw_data_dir}/{date_string}/santaclara_totaldeaths"
 
         configs_dir = os.path.join("states", state, 'counties', county, "configs")
-        cases_config_file_string = f"{configs_dir}/sacramento_cases_json_parser.yaml"
-        deaths_config_file_string = f"{configs_dir}/sacramento_deaths_json_parser.yaml"
-        totalcases_config_file_string = f"{configs_dir}/sacramento_totalcases_json_parser.yaml"
-        totaldeaths_config_file_string = f"{configs_dir}/sacramento_totaldeaths_json_parser.yaml"
+        cases_config_file_string = f"{configs_dir}/santaclara_cases_json_parser.yaml"
+        deaths_config_file_string = f"{configs_dir}/santaclara_deaths_json_parser.yaml"
+        totalcases_config_file_string = f"{configs_dir}/santaclara_totalcases_json_parser.yaml"
+        totaldeaths_config_file_string = f"{configs_dir}/santaclara_totaldeaths_json_parser.yaml"
 
         logging.info("Load cases and deaths parsing config")
         json_parser_cases_config = self.load_yaml(cases_config_file_string)
@@ -87,10 +88,13 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
             'OTHER_DEATHS': 'Other',
             'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander'
         }
-        self.totals_yaml_keys_dict_keys_map = {
+        self.totals_cases_yaml_keys_dict_keys_map = {
             'TOTAL_CASES': 'Total Cases',
+        }
+        self.totals_deaths_yaml_keys_dict_keys_map = {
             'TOTAL_DEATHS': 'Total Deaths'
         }
+
 
     @property
     def ethnicities(self) -> List[str]:
@@ -109,6 +113,14 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
         """
         return {'White': 0.524, 'Hispanic': 0.250, 'Asian': 0.390, 'Black': 0.028, 'Native Hawaiian/Pacific Islander': 0.005,  'Other': 0.054}
 
+    @property
+    def total_cases(self) -> int:
+        return self.total_cases_int
+
+    @property
+    def total_deaths(self) -> int:
+        return self.total_deaths_int
+
     def process_raw_data_to_cases(self) -> bool:
         """
         Process raw data to obtain number of covid cases for each ethnicity and define
@@ -116,8 +128,9 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
         """
         if self.cases_yaml_keys_dict_keys_map is not None:
             if self.ethnicity_json_keys_map is not None:
-                self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = self.get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_cases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
+                self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict, self.total_cases_int = self.santa_clara_get_cases_deaths_using_json(
+                    raw_data_json=self.raw_data_cases_json, total_raw_data_json=self.raw_data_totalcases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map,  total_ethnicity_json_keys_map=self.totalcases_ethnicity_json_keys_map,
+                    yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_cases_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string, total_valid_date_string=self.totalcases_valid_date_string)
                 return True
         return False
 
@@ -128,7 +141,42 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
         """
         if self.deaths_yaml_keys_dict_keys_map is not None:
             if self.ethnicity_json_keys_map is not None:
-                self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = self.get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_deaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string)
+                self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict, self.total_deaths_int = self.santa_clara_get_cases_deaths_using_json(
+                    raw_data_json=self.raw_data_deaths_json, total_raw_data_json=self.raw_data_totaldeaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map,  total_ethnicity_json_keys_map=self.totaldeaths_ethnicity_json_keys_map,
+                    yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_deaths_yaml_keys_dict_keys_map, valid_date_string=self.deaths_valid_date_string, total_valid_date_string=self.totaldeaths_valid_date_string)
                 return True
         return False
+
+    @staticmethod
+    def santa_clara_get_cases_deaths_using_json(raw_data_json: Dict[str, Any], total_raw_data_json: Dict[str, Any], ethnicity_json_keys_map: Dict[str, str],
+                                    total_ethnicity_json_keys_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], total_yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str, total_valid_date_string: str) -> Tuple[
+        Dict[str, int], Dict[str, float], int]:
+        """
+        Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
+
+        Arguments:
+            raw_data_json: Raw json object
+            ethnicity_json_keys_map: Map of ethnicity to JSON keys
+            yaml_keys_dict_keys_map: Yaml key to dictionary key map
+            valid_date_string: Date from which ethnicity to xpath map is obtained
+
+        Returns:
+            Dictionaries that give counts and percentages
+        """
+        logging.info(f"Use json from {valid_date_string} to construct percentages of cases or deaths dictionary")
+        ethnicity_dict, ethnicity_percentages_dict, total_dict = {}, {}, {}
+        for key in yaml_keys_dict_keys_map.keys():
+            if key in ethnicity_json_keys_map:
+                ethnicity_percentages_dict[yaml_keys_dict_keys_map[key]] = float(utils.get_json_element_int(
+                    raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key]))
+
+        logging.info(f"Use json from {total_valid_date_string} to construct total cases or deaths dictionary")
+        key = list(total_yaml_keys_dict_keys_map.keys())[0]
+        total = float(utils.get_json_element_int(
+                    raw_data_json=total_raw_data_json, ethnicity_json_keys_list=total_ethnicity_json_keys_map[key]))
+
+        logging.info("Get cases or deaths that are each ethnicity based on known ethnicities")
+        for key in ethnicity_percentages_dict.keys():
+            ethnicity_dict[key] = int(total * float(ethnicity_percentages_dict[key]))
+
+        return ethnicity_dict, ethnicity_percentages_dict, total

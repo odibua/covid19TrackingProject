@@ -166,7 +166,7 @@ class EthnicDataProjector(ABC):
         Returns:
             Dictionaries that give counts and percentages
         """
-        logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
+        logging.info(f"Use json from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
             if key in ethnicity_json_keys_map:
