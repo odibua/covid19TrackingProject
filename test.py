@@ -83,60 +83,101 @@
 #                 print(f"Race: {tmp_dict['features'][idx]['attributes']['Race_Ethnicity']} Keys: {['features', idx, 'attributes','Race_Ethnicity']}")
 #     case_obj_dict = tmp_dict
 
-import os
-import json
-date_string_list = os.listdir('states/california/counties/santaclara/raw_data')
-date_string_list.sort()
-date_string_list = date_string_list[9:]
-county_dir = "states/california/counties/santaclara/raw_data/"
-case_file = f"{county_dir}/{date_string_list[0]}/santaclara_totaldeaths"
-case_obj = open(case_file, 'r')
-case_obj_dict = json.load(case_obj)
-idx_list = list(range(1))
-
-
-for idx in idx_list:
-    print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys()} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',0]}")
-    # if idx < len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
-    #     print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',idx,'C', 0]}")
-for date_string in date_string_list[1:]:
-    try:
-        case_file = f"{county_dir}/{date_string}/santaclara_totaldeaths"
-        tmp_obj = open(case_file, 'r')
-        tmp_dict = json.load(tmp_obj)
-        change_bool = False
-        if case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys() != tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys():
-            change_bool = True
-        if change_bool:
-            print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys()}")
-        # for idx in idx_list:
-        #     if idx < len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
-        #         if case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0] != \
-        #                 tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]:
-        #             change_bool = True
-        #             break;
-        # if len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']) != len(tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
-        #     change_bool = True
-        # if change_bool:
-        #     print(date_string)
-        #     for idx in idx_list:
-        #         if idx < len(tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
-        #             print(f"Race: {tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',idx,'C', 0]}")
-        # case_obj_dict = tmp_dict
-    except:
-        pass
-
-# from states.california.counties.sanfrancisco import sanfrancisco_projector
 # import os
-# date_string = '2020-07-11'
-# state = "california"
-# county = 'sanfrancisco'
-# state_projector = sanfrancisco_projector.SanFranciscoEthnicDataProjector(state=state, county=county, date_string=date_string)
-# print(state_projector.process_raw_data_to_cases())
-# print(state_projector.process_raw_data_to_deaths())
-# print(state_projector.ethnicity_cases_discrepancies)
-# print(state_projector.ethnicity_cases)
-# print(state_projector.ethnicity_deaths_discrepancies)
-# print(state_projector.ethnicity_deaths)
-# import ipdb
-# ipdb.set_trace()
+# import json
+# date_string_list = os.listdir('states/california/counties/santaclara/raw_data')
+# date_string_list.sort()
+# date_string_list = date_string_list[9:]
+# county_dir = "states/california/counties/santaclara/raw_data/"
+# case_file = f"{county_dir}/{date_string_list[0]}/santaclara_totaldeaths"
+# case_obj = open(case_file, 'r')
+# case_obj_dict = json.load(case_obj)
+# idx_list = list(range(1))
+#
+#
+# for idx in idx_list:
+#     print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys()} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',0]}")
+#     # if idx < len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#     #     print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',idx,'C', 0]}")
+# for date_string in date_string_list[1:]:
+#     try:
+#         case_file = f"{county_dir}/{date_string}/santaclara_totaldeaths"
+#         tmp_obj = open(case_file, 'r')
+#         tmp_dict = json.load(tmp_obj)
+#         change_bool = False
+#         if case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys() != tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys():
+#             change_bool = True
+#         if change_bool:
+#             print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][0].keys()}")
+#         # for idx in idx_list:
+#         #     if idx < len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#         #         if case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0] != \
+#         #                 tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]:
+#         #             change_bool = True
+#         #             break;
+#         # if len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']) != len(tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#         #     change_bool = True
+#         # if change_bool:
+#         #     print(date_string)
+#         #     for idx in idx_list:
+#         #         if idx < len(tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#         #             print(f"Race: {tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',idx,'C', 0]}")
+#         # case_obj_dict = tmp_dict
+#     except:
+#         pass
+
+# import os
+# import json
+# date_string_list = os.listdir('states/california/counties/santaclara/raw_data')
+# date_string_list.sort()
+# date_string_list = date_string_list[9:]
+# county_dir = "states/california/counties/santaclara/raw_data/"
+# case_file = f"{county_dir}/{date_string_list[0]}/santaclara_cases"
+# case_obj = open(case_file, 'r')
+# case_obj_dict = json.load(case_obj)
+# idx_list = list(range(10))
+#
+# for idx in idx_list:
+#     if idx < len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#         print(f"Race: {case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',idx,'C', 0]}")
+# for date_string in date_string_list[1:]:
+#     try:
+#         case_file = f"{county_dir}/{date_string}/santaclara_cases"
+#         tmp_obj = open(case_file, 'r')
+#         tmp_dict = json.load(tmp_obj)
+#         change_bool = False
+#         for idx in idx_list:
+#             if idx < len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#                 if case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0] != \
+#                         tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]:
+#                     change_bool = True
+#                     break;
+#         if len(case_obj_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']) != len(tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#             change_bool = True
+#         if change_bool:
+#             print(date_string)
+#             for idx in idx_list:
+#                 if idx < len(tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0']):
+#                     print(f"Race: {tmp_dict['results'][0]['result']['data']['dsr']['DS'][0]['PH'][0]['DM0'][idx]['C'][0]} Keys: {['results',0,'result','data','dsr','DS',0,'PH',0,'DM0',idx,'C', 0]}")
+#         case_obj_dict = tmp_dict
+#     except:
+#         pass
+
+from states.california.counties.santaclara import santaclara_projector
+date_string = '2020-06-14'
+state = "california"
+county = 'santaclara'
+state_projector = santaclara_projector.SantaClaraEthnicDataProjector(state=state, county=county, date_string=date_string)
+print(state_projector.process_raw_data_to_cases())
+print(state_projector.process_raw_data_to_deaths())
+print(state_projector.ethnicity_cases_discrepancies)
+print(state_projector.ethnicity_cases)
+print(state_projector.total_cases)
+print(state_projector.ethnicity_cases_percentages)
+print(state_projector.ethnicity_deaths_discrepancies)
+print(state_projector.ethnicity_deaths)
+print(state_projector.ethnicity_deaths_percentages)
+print(state_projector.total_deaths)
+
+import ipdb
+ipdb.set_trace()
