@@ -16,7 +16,16 @@ from typing import List
 # covid19Tracking Imports
 # --------------------------
 
-race_ethnic_categories = ["Latino", "White", "Asian", "African American/Black", "Multi-Race", "American Indian or Alaska Native", "Native Hawaiian and other Pacific Islander", "Other", "Unknown"]
+race_ethnic_categories = [
+    "Latino",
+    "White",
+    "Asian",
+    "African American/Black",
+    "Multi-Race",
+    "American Indian or Alaska Native",
+    "Native Hawaiian and other Pacific Islander",
+    "Other",
+    "Unknown"]
 age_case_categories = ["0-17 cases", "18-34 cases", "35-49 cases", "50-64 cases", "65-79 cases", "80+ cases"]
 age_death_categories = ["0-17 deaths", "18-34 deaths", "35-49 deaths", "50-64 deaths", "65-79 deaths", "80+ deaths"]
 
@@ -53,4 +62,3 @@ for race_ethnicity in race_ethnic_categories:
     ax2.title.set_text(f"{race_ethnicity} Deaths")
     race_ethnicity = race_ethnicity.replace('/', ' or ')
     fig.savefig(os.path.join(plot_dir, race_ethnicity + ".png"), format='png')
-

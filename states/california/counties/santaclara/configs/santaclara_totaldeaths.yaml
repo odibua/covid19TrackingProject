@@ -1,5 +1,6 @@
 NAME: SantaClara
 DATA_TYPE: TotalDeaths
+IFRAME: https://app.powerbigov.us/view?r=eyJrIjoiYzBiYTA0YTAtOWYyYS00NzExLTk2ZjAtOGMxOWQ4YzhlODgwIiwidCI6IjBhYzMyMDJmLWMzZTktNGY1Ni04MzBkLTAxN2QwOWQxNmIzZiJ9
 
 REQUEST:
   TYPE: POST
@@ -8,17 +9,17 @@ REQUEST:
     Accept: application/json, text/plain, */*
     Accept-Encoding: gzip, deflate, br
     Accept-Language: en-US,en;q=0.9
-    ActivityId: 235ea993-40b5-8975-b7de-2d182a1add43
+    ActivityId: fa852016-0bfa-4258-b7ee-3f45ac7c1223
     Connection: keep-alive
-    Content-Length: '1463'
+    Content-Length: '1034'
     Content-Type: application/json;charset=UTF-8
     Host: wabi-us-gov-virginia-api.analysis.usgovcloudapi.net
     Origin: https://app.powerbigov.us
-    Referer: https://app.powerbigov.us/view?r=eyJrIjoiZTg2MTlhMWQtZWE5OC00ZDI3LWE4NjAtMTU3YWYwZDRlOTNmIiwidCI6IjBhYzMyMDJmLWMzZTktNGY1Ni04MzBkLTAxN2QwOWQxNmIzZiJ9
-    RequestId: 0f27d1d9-adfe-45c9-8b69-e3b5ddcb1cea
+    Referer: https://app.powerbigov.us/view?r=eyJrIjoiYzBiYTA0YTAtOWYyYS00NzExLTk2ZjAtOGMxOWQ4YzhlODgwIiwidCI6IjBhYzMyMDJmLWMzZTktNGY1Ni04MzBkLTAxN2QwOWQxNmIzZiJ9
+    RequestId: f1c842bd-a95e-063b-b686-95d9bb5fb422
     Sec-Fetch-Dest: empty
     Sec-Fetch-Mode: cors
     Sec-Fetch-Site: cross-site
     User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36
-    X-PowerBI-ResourceKey: e8619a1d-ea98-4d27-a860-157af0d4e93f
-  PAYLOAD: {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"c","Entity":"counts"}],"Select":[{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Total"}},"Function":0},"Name":"Sum(counts.Total)"}],"Where":[{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Category"}}],"Values":[[{"Literal":{"Value":"'Deaths'"}}]]}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0]}]},"DataReduction":{"DataVolume":3,"Primary":{"Top":{}}},"Version":1}}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"counts\"}],\"Select\":[{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Total\"}},\"Function\":0},\"Name\":\"Sum(counts.Total)\"}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Category\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'Deaths'\"}}]]}}}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0]}]},\"DataReduction\":{\"DataVolume\":3,\"Primary\":{\"Top\":{}}},\"Version\":1}}}]}","QueryId":"","ApplicationContext":{"DatasetId":"366bfc6b-cdb9-43a4-9208-89ffd773dfe7","Sources":[{"ReportId":"f863b97c-85d7-431e-a6bf-20549f18d10f"}]}}],"cancelQueries":[],"modelId":320392}
+    X-PowerBI-ResourceKey: c0ba04a0-9f2a-4711-96f0-8c19d8c8e880
+  PAYLOAD: {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"c","Entity":"counts","Type":0},{"Name":"c1","Entity":"cases_race","Type":0}],"Select":[{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Total"}},"Function":0},"Name":"Sum(counts.Total)"}],"Where":[{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Category"}}],"Values":[[{"Literal":{"Value":"'Deaths'"}}]]}}},{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c1"}},"Property":"Race_eth"}}],"Values":[[{"Literal":{"Value":"'Asian'"}}]]}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0]}]},"DataReduction":{"DataVolume":3,"Primary":{"Top":{}}},"Version":1},"ExecutionMetricsKind":3}}]},"QueryId":"","ApplicationContext":{"DatasetId":"9f953fbe-cd3f-4764-be79-e8d95223222f","Sources":[{"ReportId":"bb6481c0-2521-4a1e-8db6-e886e81e81c7"}]}}],"cancelQueries":[],"modelId":344052}

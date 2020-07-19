@@ -4,5 +4,6 @@ DATA_TYPE: Deaths
 REQUEST:
   TYPE: GET
   URL: https://services7.arcgis.com/RomaVqqozKczDNgd/arcgis/rest/services/s0vvL/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&groupByFieldsForStatistics=ETHNICITY&outStatistics=%5B%7B%22statisticType%22%3A%22count%22%2C%22onStatisticField%22%3A%22ID%22%2C%22outStatisticFieldName%22%3A%22value%22%7D%5D&resultType=standard&cacheHint=true
-  HEADERS: None
+  HEADERS:
+    User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
   PAYLOAD: None
