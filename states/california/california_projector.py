@@ -53,9 +53,9 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
                                               'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander',
                                               'OTHER_CASES': 'Other'}
         self.deaths_yaml_keys_dict_keys_map = {'LATINO_DEATHS': 'Hispanic', 'WHITE_DEATHS': 'White', 'ASIAN_DEATHS': 'Asian',
-                                              'BLACK_DEATHS': 'Black', 'MULTI_RACE_DEATHS': 'Multi-Race',
-                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander',
-                                              'OTHER_DEATHS': 'Other'}
+                                               'BLACK_DEATHS': 'Black', 'MULTI_RACE_DEATHS': 'Multi-Race',
+                                               'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander',
+                                               'OTHER_DEATHS': 'Other'}
 
     @property
     def ethnicities(self) -> List[str]:

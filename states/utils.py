@@ -23,7 +23,7 @@ def get_json_element_int(raw_data_json: Dict[str, Any], ethnicity_json_keys_list
         dict_temp = raw_data_json
         for json_key in ethnicity_json_keys_list:
             dict_temp = dict_temp[json_key]
-    except:
+    except BaseException:
         import ipdb
         ipdb.set_trace()
     return dict_temp
@@ -57,7 +57,7 @@ def get_total(numerical_dict: Dict[str, Union[float, str]]):
     for key in numerical_dict.keys():
         try:
             total = total + float(numerical_dict[key])
-        except:
+        except BaseException:
             import ipdb
             ipdb.set_trace()
     return total

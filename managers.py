@@ -144,6 +144,8 @@ def raw_to_csv_manager():
             raise Warning(f"No county level data exists for {state_name}")
 
 # TODO(odibua@): Create and push to new branch based on date to be later merged in
+
+
 def add_commit_and_push():
     logging.info("Add, commit, and push updates to raw data")
     dt = datetime.datetime.now() - datetime.timedelta(days=1)

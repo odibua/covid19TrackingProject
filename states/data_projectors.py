@@ -187,6 +187,5 @@ class EthnicDataProjector(ABC):
 
     @staticmethod
     def get_sorted_dates_from_strings(date_string_list: List[str]):
-        dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in date_string_list]
-        dates.sort()
+        dates = sorted([datetime.strptime(date_string, '%Y-%m-%d') for date_string in date_string_list])
         return dates

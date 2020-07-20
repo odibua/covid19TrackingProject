@@ -35,8 +35,10 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
         json_parser_deaths_config = self.load_yaml(deaths_config_file_string)
 
         logging.info("Get and sort json parsing dates")
-        json_parser_cases_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_cases_config["DATES"].keys()))
-        json_parser_deaths_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_deaths_config["DATES"].keys()))
+        json_parser_cases_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_cases_config["DATES"].keys()))
+        json_parser_deaths_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_deaths_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
         self.cases_valid_date_string = utils.get_valid_date_string(
@@ -49,9 +51,9 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
 
         logging.info("Load raw json data")
         try:
-            cases_file_obj, deaths_file_obj= open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
-        except:
-            cases_file_obj, deaths_file_obj= open(raw_data_cases_file_html, 'r'), open(raw_data_deaths_file_html, 'r')
+            cases_file_obj, deaths_file_obj = open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
+        except BaseException:
+            cases_file_obj, deaths_file_obj = open(raw_data_cases_file_html, 'r'), open(raw_data_deaths_file_html, 'r')
 
         self.raw_data_cases_json = json.load(cases_file_obj)
         self.raw_data_deaths_json = json.load(deaths_file_obj)

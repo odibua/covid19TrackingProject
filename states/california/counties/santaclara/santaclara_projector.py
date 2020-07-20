@@ -40,10 +40,14 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         json_parser_totaldeaths_config = self.load_yaml(totaldeaths_config_file_string)
 
         logging.info("Get and sort json parsing dates")
-        json_parser_cases_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_cases_config["DATES"].keys()))
-        json_parser_deaths_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_deaths_config["DATES"].keys()))
-        json_parser_totalcases_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_totalcases_config["DATES"].keys()))
-        json_parser_totaldeaths_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_totaldeaths_config["DATES"].keys()))
+        json_parser_cases_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_cases_config["DATES"].keys()))
+        json_parser_deaths_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_deaths_config["DATES"].keys()))
+        json_parser_totalcases_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_totalcases_config["DATES"].keys()))
+        json_parser_totaldeaths_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_totaldeaths_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
         self.cases_valid_date_string = utils.get_valid_date_string(
@@ -61,15 +65,19 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
 
         self.totalcases_ethnicity_json_keys_map = json_parser_totalcases_config['DATES'][self.totalcases_valid_date_string]
         self.totaldeaths_ethnicity_json_keys_map = json_parser_totaldeaths_config['DATES'][self.totaldeaths_valid_date_string]
-        self.totals_json_keys_map = {**self.totalcases_ethnicity_json_keys_map, **self.totaldeaths_ethnicity_json_keys_map}
+        self.totals_json_keys_map = {
+            **self.totalcases_ethnicity_json_keys_map,
+            **self.totaldeaths_ethnicity_json_keys_map}
 
         logging.info("Load raw json data")
-        cases_file_obj, deaths_file_obj= open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
-        totalcases_file_obj, totaldeaths_file_obj= open(raw_data_totalcases_file, 'r'), open(raw_data_totaldeaths_file, 'r')
+        cases_file_obj, deaths_file_obj = open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
+        totalcases_file_obj, totaldeaths_file_obj = open(
+            raw_data_totalcases_file, 'r'), open(
+            raw_data_totaldeaths_file, 'r')
 
-
-        self.raw_data_cases_json, self.raw_data_deaths_json  = json.load(cases_file_obj), json.load(deaths_file_obj)
-        self.raw_data_totalcases_json, self.raw_data_totaldeaths_json = json.load(totalcases_file_obj), json.load(totaldeaths_file_obj)
+        self.raw_data_cases_json, self.raw_data_deaths_json = json.load(cases_file_obj), json.load(deaths_file_obj)
+        self.raw_data_totalcases_json, self.raw_data_totaldeaths_json = json.load(
+            totalcases_file_obj), json.load(totaldeaths_file_obj)
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
@@ -95,7 +103,6 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
             'TOTAL_DEATHS': 'Total Deaths'
         }
 
-
     @property
     def ethnicities(self) -> List[str]:
         """
@@ -111,7 +118,8 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         Obtained from here: https://www.census.gov/quickfacts/santaclaracountycalifornia
 
         """
-        return {'White': 0.524, 'Hispanic': 0.250, 'Asian': 0.390, 'Black': 0.028, 'Native Hawaiian/Pacific Islander': 0.005,  'Other': 0.054}
+        return {'White': 0.524, 'Hispanic': 0.250, 'Asian': 0.390, 'Black': 0.028,
+                'Native Hawaiian/Pacific Islander': 0.005, 'Other': 0.054}
 
     @property
     def total_cases(self) -> int:
@@ -129,7 +137,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         if self.cases_yaml_keys_dict_keys_map is not None:
             if self.ethnicity_json_keys_map is not None:
                 self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict, self.total_cases_int = self.santa_clara_get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_cases_json, total_raw_data_json=self.raw_data_totalcases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map,  total_ethnicity_json_keys_map=self.totalcases_ethnicity_json_keys_map,
+                    raw_data_json=self.raw_data_cases_json, total_raw_data_json=self.raw_data_totalcases_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, total_ethnicity_json_keys_map=self.totalcases_ethnicity_json_keys_map,
                     yaml_keys_dict_keys_map=self.cases_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_cases_yaml_keys_dict_keys_map, valid_date_string=self.cases_valid_date_string, total_valid_date_string=self.totalcases_valid_date_string)
                 return True
         return False
@@ -142,15 +150,15 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         if self.deaths_yaml_keys_dict_keys_map is not None:
             if self.ethnicity_json_keys_map is not None:
                 self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict, self.total_deaths_int = self.santa_clara_get_cases_deaths_using_json(
-                    raw_data_json=self.raw_data_deaths_json, total_raw_data_json=self.raw_data_totaldeaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map,  total_ethnicity_json_keys_map=self.totaldeaths_ethnicity_json_keys_map,
+                    raw_data_json=self.raw_data_deaths_json, total_raw_data_json=self.raw_data_totaldeaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, total_ethnicity_json_keys_map=self.totaldeaths_ethnicity_json_keys_map,
                     yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_deaths_yaml_keys_dict_keys_map, valid_date_string=self.deaths_valid_date_string, total_valid_date_string=self.totaldeaths_valid_date_string)
                 return True
         return False
 
     @staticmethod
     def santa_clara_get_cases_deaths_using_json(raw_data_json: Dict[str, Any], total_raw_data_json: Dict[str, Any], ethnicity_json_keys_map: Dict[str, str],
-                                    total_ethnicity_json_keys_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], total_yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str, total_valid_date_string: str) -> Tuple[
-        Dict[str, int], Dict[str, float], int]:
+                                                total_ethnicity_json_keys_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], total_yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str, total_valid_date_string: str) -> Tuple[
+            Dict[str, int], Dict[str, float], int]:
         """
         Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
 
@@ -173,7 +181,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         logging.info(f"Use json from {total_valid_date_string} to construct total cases or deaths dictionary")
         key = list(total_yaml_keys_dict_keys_map.keys())[0]
         total = float(utils.get_json_element_int(
-                    raw_data_json=total_raw_data_json, ethnicity_json_keys_list=total_ethnicity_json_keys_map[key]))
+            raw_data_json=total_raw_data_json, ethnicity_json_keys_list=total_ethnicity_json_keys_map[key]))
 
         logging.info("Get cases or deaths that are each ethnicity based on known ethnicities")
         for key in ethnicity_percentages_dict.keys():

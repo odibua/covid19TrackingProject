@@ -163,11 +163,13 @@
 #     except:
 #         pass
 
+import ipdb
 from states.california.counties.santaclara import santaclara_projector
 date_string = '2020-06-14'
 state = "california"
 county = 'santaclara'
-state_projector = santaclara_projector.SantaClaraEthnicDataProjector(state=state, county=county, date_string=date_string)
+state_projector = santaclara_projector.SantaClaraEthnicDataProjector(
+    state=state, county=county, date_string=date_string)
 print(state_projector.process_raw_data_to_cases())
 print(state_projector.process_raw_data_to_deaths())
 print(state_projector.ethnicity_cases_discrepancies)
@@ -179,5 +181,4 @@ print(state_projector.ethnicity_deaths)
 print(state_projector.ethnicity_deaths_percentages)
 print(state_projector.total_deaths)
 
-import ipdb
 ipdb.set_trace()
