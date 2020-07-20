@@ -35,7 +35,7 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     return response_list, response_names, failed_response_names, request_type
 
 
-def manager():
+def scrape_manager():
     logging.info("Open State Configuration file and get states to be processed")
     config_path = 'states/states_config.yaml'
     if not path.isfile(config_path):
@@ -103,7 +103,7 @@ def add_commit_and_push():
 
 @app.task
 def main():
-    manager()
+    scrape_manager()
     add_commit_and_push()
 
 

@@ -6,7 +6,7 @@ import json
 import logging
 import os
 from os import path
-from typing import List, Tuple
+from typing import Dict, List, Tuple, Union
 
 # --------------------------
 # Third Party Imports
@@ -17,6 +17,10 @@ import yaml as yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
+
+def parse_responses_with_projectors(state_county_dir: str) -> Dict[str, Union[int, float]]:
+    state_county_dir_list = os.listdir(state_county_dir)
+    state_county_projector_list = [state_county_projector for state_county_projector in state_county_dir_list if state_county_projector.find('projector')]
 
 
 def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], List[str], str]:
