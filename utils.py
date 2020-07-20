@@ -11,6 +11,7 @@ from typing import Dict, List, Tuple, Union
 # --------------------------
 # Third Party Imports
 # --------------------------
+import pandas as pd
 import requests
 import yaml as yaml
 
@@ -19,13 +20,42 @@ import yaml as yaml
 # --------------------------
 
 
-def parse_responses_with_projectors(state_county_dir: str) -> Dict[str, Union[int, float]]:
-    state_county_dir_list = os.listdir(state_county_dir)()
+def parse_responses_with_projectors(state: str, county: str, state_county_dir: str) -> Dict[str, Union[int, float]]:
+    logging.info("Get state/county projector")
+    state_county_dir_list = os.listdir(state_county_dir)
     state_county_projector_list = [
         state_county_projector for state_county_projector in state_county_dir_list if state_county_projector.find('projector')]
     if len(state_county_projector_list) != 1:
         raise ValueError(
-            f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir} ")
+            f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir}")
+
+    logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
+                 "Load if they do exist")
+    state_county_cases_csv = os.path.join(state_county_dir,"ethnicity_cases.csv")
+    state_county_deaths_csv = os.path.join(state_county_dir,"ethnicity_deaths.csv")
+    state_county_cases_df, state_county_deaths_df = None, None
+
+    if not os.path.isfile(state_county_cases_csv):
+        open(state_county_cases_csv , "w+")
+    else:
+        state_county_cases_df = pd.read_csv(state_county_cases_csv)
+    if not os.path.isfile(state_county_deaths_csv):
+        open(state_county_deaths_csv, 'w+')
+    else:
+        state_county_deaths_df = pd.read_csv(state_county_deaths_csv)
+
+    logging.info(f"Load raw data directories for state: {state}, county: {county}")
+    raw_data_dir = os.path.join(state_county_dir, "raw_data")
+    raw_data_dates = os.listdir(raw_data_dir)
+
+    if state_county_cases_df is not None:
+        raw_data_cases_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_cases_df['Date'].tolist()]
+    if state_county_deaths_df is not None:
+        raw_data_deaths_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_deaths_df['Date'].tolist()]
+
+
+
+
 
 
 def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], List[str], str]:
