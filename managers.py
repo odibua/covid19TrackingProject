@@ -1,6 +1,7 @@
 # --------------------------
 # Standard Python Imports
 # --------------------------
+import argparse
 import datetime
 import logging
 import os
@@ -160,8 +161,15 @@ def add_commit_and_push():
 
 @app.task
 def main():
-    scrape_manager()
-    add_commit_and_push()
+    parser = argparse.ArgumentParser(description='Process mode')
+    parser.add_argument('--mode', help='Mode that will determine which managers run')
+    args = parser.parse_args()
+
+    if args.mode == 'scrape':
+        scrape_manager()
+        add_commit_and_push()
+    elif args.mode == 'project':
+        raw_to_etnicity_csv_manager()
 
 
 if __name__ == "__main__":
