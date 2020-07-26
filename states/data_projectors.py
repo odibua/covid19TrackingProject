@@ -177,7 +177,7 @@ class EthnicDataProjector(ABC):
         total = utils.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():
             ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key]) / total, 3)
-
+        ethnicity_dict['date'] = valid_date_string
         return ethnicity_dict, ethnicity_percentages_dict
 
     @staticmethod

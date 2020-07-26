@@ -185,5 +185,6 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         logging.info("Get cases or deaths that are each ethnicity based on known ethnicities")
         for key in ethnicity_percentages_dict.keys():
             ethnicity_dict[key] = int(total * float(ethnicity_percentages_dict[key]))
+        ethnicity_dict['date'] = valid_date_string
 
         return ethnicity_dict, ethnicity_percentages_dict, total
