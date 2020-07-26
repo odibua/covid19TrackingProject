@@ -2,11 +2,14 @@
 # Standard Python Imports
 # --------------------------
 import datetime
+import importlib
+import inspect
 import json
 import logging
 import os
 from os import path
-from typing import Dict, List, Tuple, Union
+import sys
+from typing import Callable, Dict, List, Tuple, Union
 
 # --------------------------
 # Third Party Imports
@@ -20,7 +23,49 @@ import yaml as yaml
 # --------------------------
 
 
-def parse_responses_with_projectors(state: str, county: str, state_county_dir: str) -> Dict[str, Union[int, float]]:
+def get_class_in_projector_module(module: sys.modules) -> Callable:
+    """
+    Get class in projector module
+
+    Arguments:
+        module: Module to import class from
+
+    Return:
+        obj: Projector class
+    """
+    obj_list = []
+    for name, obj in inspect.getmembers(module):
+        if inspect.isclass(obj):
+            obj_list.append(obj)
+
+    if len(obj_list) == 0:
+        raise ValueError(f"No class found in {module}")
+    if len(obj_list) > 1:
+        raise ValueError(f"More than one class found {module}. Projector module should only have on projector class")
+    return obj_list[0]
+
+
+def project_cases(state: str, county: str, date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+    ethnicity_cases_list, ethnicity_cases_discrepancies_list = [], []
+    for date_string in date_strings:
+        projector_instance = projector_class(state=state, county=county, date_string=date_string)
+        projector_instance.process_raw_data_to_cases()
+        ethnicity_cases_list.append(projector_instance.ethnicity_cases)
+        ethnicity_cases_discrepancies_list.append(projector_instance.ethnicity_cases_discrepancies)
+    return ethnicity_cases_list, ethnicity_cases_discrepancies_list
+
+
+def project_deaths(state: str, county: str, date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+    ethnicity_deaths_list, ethnicity_deaths_discrepancies_list = [], []
+    for date_string in date_strings:
+        projector_instance = projector_class(state=state, county=county, date_string=date_string)
+        projector_instance.process_raw_data_to_deaths()
+        ethnicity_deaths_list.append(projector_instance.ethnicity_cases)
+        ethnicity_deaths_discrepancies_list.append(projector_instance.ethnicity_cases_discrepancies)
+    return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list
+
+
+def parse_cases_responses_with_projectors(state: str, county: str, state_county_dir: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
     logging.info("Get state/county projector")
     state_county_dir_list = os.listdir(state_county_dir)
     state_county_projector_list = [
@@ -31,14 +76,46 @@ def parse_responses_with_projectors(state: str, county: str, state_county_dir: s
 
     logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
                  "Load if they do exist")
-    state_county_cases_csv = os.path.join(state_county_dir,"ethnicity_cases.csv")
-    state_county_deaths_csv = os.path.join(state_county_dir,"ethnicity_deaths.csv")
-    state_county_cases_df, state_county_deaths_df = None, None
+    state_county_cases_csv = os.path.join(state_county_dir, "ethnicity_cases.csv")
+    state_county_cases_df = None
 
     if not os.path.isfile(state_county_cases_csv):
-        open(state_county_cases_csv , "w+")
+        open(state_county_cases_csv, "w+")
     else:
         state_county_cases_df = pd.read_csv(state_county_cases_csv)
+
+    logging.info(f"Load raw data directories for state: {state}, county: {county}")
+    raw_data_dir = os.path.join(state_county_dir, "raw_data")
+
+    logging.info(f"Get raw data dates if not already in cases data frames.")
+    raw_data_dates = os.listdir(raw_data_dir)
+    raw_data_cases_dates = []
+    if state_county_cases_df is not None:
+        raw_data_cases_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_cases_df['Date'].tolist()]
+
+    logging.info(f"Get projector class for state: {state}, county: {county}")
+    state_county_projector_module = importlib.import_module(state_county_projector_list[0])
+    projector_class = get_class_in_projector_module(module=state_county_projector_module)
+
+    logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
+    ethnicity_cases_list, ethnicity_cases_discrepancies_list = project_cases(state=state, county=county, date_strings=raw_data_cases_dates, projector_class=projector_class)
+    return ethnicity_cases_list, ethnicity_cases_discrepancies_list
+
+
+def parse_deaths_responses_with_projectors(state: str, county: str, state_county_dir: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+    logging.info("Get state/county projector")
+    state_county_dir_list = os.listdir(state_county_dir)
+    state_county_projector_list = [
+        state_county_projector for state_county_projector in state_county_dir_list if state_county_projector.find('projector')]
+    if len(state_county_projector_list) != 1:
+        raise ValueError(
+            f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir}")
+
+    logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
+                 "Load if they do exist")
+    state_county_deaths_csv = os.path.join(state_county_dir, "ethnicity_deaths.csv")
+    state_county_cases_df, state_county_deaths_df = None, None
+
     if not os.path.isfile(state_county_deaths_csv):
         open(state_county_deaths_csv, 'w+')
     else:
@@ -46,16 +123,20 @@ def parse_responses_with_projectors(state: str, county: str, state_county_dir: s
 
     logging.info(f"Load raw data directories for state: {state}, county: {county}")
     raw_data_dir = os.path.join(state_county_dir, "raw_data")
-    raw_data_dates = os.listdir(raw_data_dir)
 
-    if state_county_cases_df is not None:
-        raw_data_cases_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_cases_df['Date'].tolist()]
+    logging.info(f"Get raw data dates if not already in the deathsdata frames.")
+    raw_data_dates = os.listdir(raw_data_dir)
+    raw_data_deaths_dates = []
     if state_county_deaths_df is not None:
         raw_data_deaths_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_deaths_df['Date'].tolist()]
 
+    logging.info(f"Get projector class for state: {state}, county: {county}")
+    state_county_projector_module = importlib.import_module(state_county_projector_list[0])
+    projector_class = get_class_in_projector_module(module=state_county_projector_module)
 
-
-
+    logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
+    ethnicity_dates_list, ethnicity_deaths_discrepancies_list = project_cases(state=state, county=county, date_strings=raw_data_deaths_dates, projector_class=projector_class)
+    return ethnicity_dates_list, ethnicity_deaths_discrepancies_list
 
 
 def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], List[str], str]:

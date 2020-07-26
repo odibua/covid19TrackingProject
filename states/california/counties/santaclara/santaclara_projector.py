@@ -74,7 +74,6 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         totalcases_file_obj, totaldeaths_file_obj = open(
             raw_data_totalcases_file, 'r'), open(
             raw_data_totaldeaths_file, 'r')
-
         self.raw_data_cases_json, self.raw_data_deaths_json = json.load(cases_file_obj), json.load(deaths_file_obj)
         self.raw_data_totalcases_json, self.raw_data_totaldeaths_json = json.load(
             totalcases_file_obj), json.load(totaldeaths_file_obj)
