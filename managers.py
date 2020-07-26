@@ -12,6 +12,7 @@ from typing import List, Tuple
 # Third Party Imports
 # --------------------------
 from celery import Celery
+import pandas as pd
 import yaml as yaml
 
 # --------------------------
@@ -89,7 +90,7 @@ def scrape_manager():
             raise Warning(f"No county level data exists for {state_name}")
 
 
-def raw_to_csv_manager():
+def raw_to_etnicity_csv_manager():
     logging.info("Open State Configuration file and get states to be processed")
     config_path = 'states/states_config.yaml'
     if not path.isfile(config_path):
@@ -97,30 +98,24 @@ def raw_to_csv_manager():
     config_file = open(config_path)
     config = yaml.safe_load(config_file)
     state_list = config['STATES']
+    cases_csv_filename, deaths_csv_filename = 'ethnicity_cases.csv', 'ethnicity_deaths.csv'
 
     logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
     for state in state_list:
         state_name = state.lower()
         logging.info(f"Processing {state_name}")
+        state_county_dir = os.path.join('states', state_name)
 
-        state_config_path = path.join('states', state_name, 'configs')
-        logging.info("Get state level covid19 raw data with ethnicity")
+        logging.info(f"Get state ethnicity cases and deaths counts and discrepancies")
+        state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list = utils.parse_cases_responses_with_projectors(state=state_name, county=None, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
+        state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list = utils.parse_deaths_responses_with_projectors(state=state_name, county=None, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
+        state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
+        state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
 
-        state_response_list, state_data_type_names, failed_state_data_type_names, request_type = get_responses_from_config_files_in_dir(
-            config_dir=state_config_path)
-        if state_response_list is None:
-            raise Warning(f"No state level config files exist for {state_name}")
-        else:
-            logging.info("Save state level raw covid 19 data with ethnicity")
-            raw_data_dir = path.join('states', state_name, 'raw_data')
-            if not path.isdir(raw_data_dir):
-                os.makedirs(raw_data_dir)
-            utils.save_raw_data(
-                save_dir=raw_data_dir,
-                response_list=state_response_list,
-                data_type_names=state_data_type_names,
-                failed_data_type_names=failed_state_data_type_names,
-                request_type=request_type)
+        state_ethnicity_full_cases_df = state_ethnicity_cases_df.join(state_ethnicity_cases_discrepancies_df, on='date', how='inner')
+        state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.join(state_ethnicity_deaths_discrepancies_df, on='date', how='inner')
+        state_ethnicity_full_cases_df.to_csv(cases_csv_filename, mode='a')
+        state_ethnicity_full_deaths_df.to_csv(deaths_csv_filename, mode='a')
 
         logging.info(f"Processing county level data for {state_name}")
         state_county_dirs = os.listdir(path.join('states', state_name, 'counties'))
