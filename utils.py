@@ -30,9 +30,10 @@ def get_projector_module(state: str, county: str, projector_name: str) -> str:
     else:
         return f"states.{state}.{county}.{projector_name}"
 
+
 def filter_dates_from_df(date_list: List[str], df: pd.DataFrame):
     return [
-            date for date in date_list if date not in df['date'].tolist()]
+        date for date in date_list if date not in df['date'].tolist()]
 
 
 def filter_projector_module(projector_candidate_list: List[str]):
@@ -73,7 +74,7 @@ def project_cases(state: str, county: str,
             projector_instance.process_raw_data_to_cases()
             ethnicity_cases_list.append(projector_instance.ethnicity_cases)
             ethnicity_cases_discrepancies_list.append(projector_instance.ethnicity_cases_discrepancies)
-        except:
+        except BaseException:
             failed_dates.append(date_string)
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates
 
@@ -87,7 +88,7 @@ def project_deaths(state: str, county: str,
             projector_instance.process_raw_data_to_deaths()
             ethnicity_deaths_list.append(projector_instance.ethnicity_cases)
             ethnicity_deaths_discrepancies_list.append(projector_instance.ethnicity_cases_discrepancies)
-        except:
+        except BaseException:
             failed_dates.append(date_string)
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, failed_dates
 
@@ -130,8 +131,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
     raw_data_dates = os.listdir(raw_data_dir)
     raw_data_cases_dates = []
     if state_county_cases_df is not None:
-        raw_data_cases_dates = filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df)
-        raw_data_cases_dates.sort()
+        raw_data_cases_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df))
 
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
     ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = project_cases(
@@ -180,8 +180,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
     raw_data_dates = os.listdir(raw_data_dir)
     raw_data_deaths_dates = []
     if state_county_deaths_df is not None:
-        raw_data_deaths_dates = filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df)
-        raw_data_deaths_dates.sort()
+        raw_data_deaths_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df))
 
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
     ethnicity_dates_list, ethnicity_deaths_discrepancies_list, failed_dates = project_cases(
