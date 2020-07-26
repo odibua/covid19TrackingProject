@@ -107,13 +107,19 @@ def raw_to_etnicity_csv_manager():
         state_county_dir = os.path.join('states', state_name)
 
         logging.info(f"Get state ethnicity cases and deaths counts and discrepancies")
-        state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list = utils.parse_cases_responses_with_projectors(state=state_name, county=None, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
-        state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list = utils.parse_deaths_responses_with_projectors(state=state_name, county=None, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
-        state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
-        state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
+        state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list = utils.parse_cases_responses_with_projectors(
+            state=state_name, county=None, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
+        state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list = utils.parse_deaths_responses_with_projectors(
+            state=state_name, county=None, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
+        state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
+            state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
+        state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
+            state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
 
-        state_ethnicity_full_cases_df = state_ethnicity_cases_df.join(state_ethnicity_cases_discrepancies_df, on='date', how='inner')
-        state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.join(state_ethnicity_deaths_discrepancies_df, on='date', how='inner')
+        state_ethnicity_full_cases_df = state_ethnicity_cases_df.join(
+            state_ethnicity_cases_discrepancies_df, on='date', how='inner')
+        state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.join(
+            state_ethnicity_deaths_discrepancies_df, on='date', how='inner')
         state_ethnicity_full_cases_df.to_csv(cases_csv_filename, mode='a')
         state_ethnicity_full_deaths_df.to_csv(deaths_csv_filename, mode='a')
 

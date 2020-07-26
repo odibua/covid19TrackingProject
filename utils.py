@@ -46,7 +46,8 @@ def get_class_in_projector_module(module: sys.modules) -> Callable:
     return obj_list[0]
 
 
-def project_cases(state: str, county: str, date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+def project_cases(state: str, county: str,
+                  date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
     ethnicity_cases_list, ethnicity_cases_discrepancies_list = [], []
     for date_string in date_strings:
         projector_instance = projector_class(state=state, county=county, date_string=date_string)
@@ -56,7 +57,8 @@ def project_cases(state: str, county: str, date_strings: List[str], projector_cl
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list
 
 
-def project_deaths(state: str, county: str, date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+def project_deaths(state: str, county: str,
+                   date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
     ethnicity_deaths_list, ethnicity_deaths_discrepancies_list = [], []
     for date_string in date_strings:
         projector_instance = projector_class(state=state, county=county, date_string=date_string)
@@ -66,7 +68,8 @@ def project_deaths(state: str, county: str, date_strings: List[str], projector_c
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list
 
 
-def parse_cases_responses_with_projectors(state: str, county: str, state_county_dir: str, cases_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+def parse_cases_responses_with_projectors(state: str, county: str, state_county_dir: str,
+                                          cases_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
     logging.info("Get state/county projector")
     state_county_dir_list = os.listdir(state_county_dir)
     state_county_projector_list = [
@@ -84,6 +87,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
     state_county_projector_module = importlib.import_module(state_county_projector_list[0])
     projector_class = get_class_in_projector_module(module=state_county_projector_module)
 
+    logging.info("Load cases ethnicities csv if it does not exist. Create if it does not.")
     if not os.path.isfile(state_county_cases_csv):
         headers = projector_class.ethnicities + ['date']
         f_obj = open(state_county_cases_csv, 'w+')
@@ -100,14 +104,17 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
     raw_data_dates = os.listdir(raw_data_dir)
     raw_data_cases_dates = []
     if state_county_cases_df is not None:
-        raw_data_cases_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_cases_df['Date'].tolist()]
+        raw_data_cases_dates = [
+            raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_cases_df['Date'].tolist()]
 
-    logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
-    ethnicity_cases_list, ethnicity_cases_discrepancies_list = project_cases(state=state, county=county, date_strings=raw_data_cases_dates, projector_class=projector_class)
+    logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
+    ethnicity_cases_list, ethnicity_cases_discrepancies_list = project_cases(
+        state=state, county=county, date_strings=raw_data_cases_dates, projector_class=projector_class)
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list
 
 
-def parse_deaths_responses_with_projectors(state: str, county: str, state_county_dir: str, deaths_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+def parse_deaths_responses_with_projectors(state: str, county: str, state_county_dir: str,
+                                           deaths_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
     logging.info("Get state/county projector")
     state_county_dir_list = os.listdir(state_county_dir)
     state_county_projector_list = [
@@ -125,6 +132,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
     state_county_deaths_csv = os.path.join(state_county_dir, deaths_csv_filename)
     state_county_cases_df, state_county_deaths_df = None, None
 
+    logging.info("Load deaths ethnicities csv if it does not exist. Create if it does not.")
     if not os.path.isfile(state_county_deaths_csv):
         headers = projector_class.ethnicities + ['date']
         f_obj = open(state_county_deaths_csv, 'w+')
@@ -141,10 +149,12 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
     raw_data_dates = os.listdir(raw_data_dir)
     raw_data_deaths_dates = []
     if state_county_deaths_df is not None:
-        raw_data_deaths_dates = [raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_deaths_df['Date'].tolist()]
+        raw_data_deaths_dates = [
+            raw_data_date for raw_data_date in raw_data_dates if raw_data_date not in state_county_deaths_df['Date'].tolist()]
 
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
-    ethnicity_dates_list, ethnicity_deaths_discrepancies_list = project_cases(state=state, county=county, date_strings=raw_data_deaths_dates, projector_class=projector_class)
+    ethnicity_dates_list, ethnicity_deaths_discrepancies_list = project_cases(
+        state=state, county=county, date_strings=raw_data_deaths_dates, projector_class=projector_class)
     return ethnicity_dates_list, ethnicity_deaths_discrepancies_list
 
 
