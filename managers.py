@@ -160,19 +160,18 @@ def add_commit_and_push():
 
 
 @app.task
-def main():
-    parser = argparse.ArgumentParser(description='Process mode')
-    parser.add_argument('--mode', help='Mode that will determine which managers run')
-    args = parser.parse_args()
-
-    if args.mode == 'scrape':
+def main(mode: str):
+    if mode == 'scrape':
         scrape_manager()
         add_commit_and_push()
-    elif args.mode == 'project':
+    elif mode == 'project':
         raw_to_etnicity_csv_manager()
 
 
 if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
-    main()
+    parser = argparse.ArgumentParser(description='Process mode')
+    parser.add_argument('--mode', help='Mode that will determine which managers run')
+    args = parser.parse_args()
+    main(mode=args.mode)
