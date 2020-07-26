@@ -75,6 +75,7 @@ class EthnicDataProjector(ABC):
                     self.ethnicity_cases_percentages_dict[key] /
                     self.ethnicity_demographics[key],
                     3)
+        discrepancy_dict['date'] = self.cases_valid_date_string
         return discrepancy_dict
 
     @property
@@ -104,6 +105,7 @@ class EthnicDataProjector(ABC):
                     self.ethnicity_deaths_percentages_dict[key] /
                     self.ethnicity_demographics[key],
                     3)
+        discrepancy_dict['date'] = self.deaths_valid_date_string
         return discrepancy_dict
 
     @abstractmethod
