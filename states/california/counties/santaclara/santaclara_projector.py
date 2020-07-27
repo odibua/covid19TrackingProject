@@ -50,6 +50,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
             date_string_list=list(json_parser_totaldeaths_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
+        self.date_string = date_string
         self.cases_valid_date_string = utils.get_valid_date_string(
             date_list=json_parser_cases_dates, date_string=date_string)
         self.deaths_valid_date_string = utils.get_valid_date_string(
@@ -185,6 +186,5 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         logging.info("Get cases or deaths that are each ethnicity based on known ethnicities")
         for key in ethnicity_percentages_dict.keys():
             ethnicity_dict[key] = int(total * float(ethnicity_percentages_dict[key]))
-        ethnicity_dict['date'] = valid_date_string
 
         return ethnicity_dict, ethnicity_percentages_dict, total

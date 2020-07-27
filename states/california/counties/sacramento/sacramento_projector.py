@@ -41,6 +41,7 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
             date_string_list=list(json_parser_deaths_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
+        self.date_string = date_string
         self.cases_valid_date_string = utils.get_valid_date_string(
             date_list=json_parser_cases_dates, date_string=date_string)
         self.deaths_valid_date_string = utils.get_valid_date_string(

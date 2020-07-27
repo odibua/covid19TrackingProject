@@ -37,6 +37,7 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
         html_parser_dates = self.get_sorted_dates_from_strings(date_string_list=html_parser_date_strings)
 
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
+        self.date_string = date_string
         self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
 

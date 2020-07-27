@@ -91,7 +91,7 @@ def scrape_manager():
             raise Warning(f"No county level data exists for {state_name}")
 
 
-def raw_to_etnicity_csv_manager():
+def raw_to_ethnicity_csv_manager():
     logging.info("Open State Configuration file and get states to be processed")
     config_path = 'states/states_config.yaml'
     if not path.isfile(config_path):
@@ -107,43 +107,17 @@ def raw_to_etnicity_csv_manager():
         logging.info(f"Processing {state_name}")
         state_county_dir = os.path.join('states', state_name)
 
-        logging.info(f"Get state ethnicity cases and deaths counts and discrepancies")
-        import ipdb
-        ipdb.set_trace()
-        state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list = utils.parse_cases_responses_with_projectors(
-            state=state_name, county=None, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
-        state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list = utils.parse_deaths_responses_with_projectors(
-            state=state_name, county=None, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
-        state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
-            state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
-        state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
-            state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
-
-        state_ethnicity_full_cases_df = state_ethnicity_cases_df.join(
-            state_ethnicity_cases_discrepancies_df, on='date', how='inner')
-        state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.join(
-            state_ethnicity_deaths_discrepancies_df, on='date', how='inner')
-        state_ethnicity_full_cases_df.to_csv(cases_csv_filename, mode='a')
-        state_ethnicity_full_deaths_df.to_csv(deaths_csv_filename, mode='a')
+        utils.run_ethnicity_to_csv(
+            state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
 
         logging.info(f"Processing county level data for {state_name}")
-        state_county_dirs = os.listdir(path.join('states', state_name, 'counties'))
-        if len(state_county_dirs) > 0:
-            for state_county_dir in state_county_dirs:
-                logging.info(f"Getting and saving raw data for state: {state_name}, county: {state_county_dir}")
-                county_response_list, county_data_type_names, failed_county_data_type_names, request_type = get_responses_from_config_files_in_dir(
-                    config_dir=path.join('states', state_name, 'counties', state_county_dir, 'configs'))
-
-                if county_response_list is None:
-                    raise Warning(f"No county level config files exist for {state_county_dir}")
-                else:
-                    logging.info("Save county level raw covid 19 data with ethnicity")
-                    raw_data_dir = path.join('states', state_name, 'counties', state_county_dir, 'raw_data')
-                    if not path.isdir(raw_data_dir):
-                        os.makedirs(raw_data_dir)
-                    utils.save_raw_data(save_dir=raw_data_dir, response_list=county_response_list,
-                                        data_type_names=county_data_type_names,
-                                        failed_data_type_names=failed_county_data_type_names, request_type=request_type)
+        county_dirs = os.listdir(path.join('states', state_name, 'counties'))
+        county_dirs.sort()
+        if len(county_dirs) > 0:
+            for county in county_dirs:
+                state_county_dir = path.join('states', state_name, 'counties', county)
+                utils.run_ethnicity_to_csv(
+                    state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
         else:
             raise Warning(f"No county level data exists for {state_name}")
 
@@ -167,7 +141,7 @@ def main(mode: str):
         scrape_manager()
         add_commit_and_push()
     elif mode == 'project':
-        raw_to_etnicity_csv_manager()
+        raw_to_ethnicity_csv_manager()
 
 
 if __name__ == "__main__":
