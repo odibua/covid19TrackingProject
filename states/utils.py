@@ -19,13 +19,9 @@ def get_element_int(element: etree.HTML) -> int:
 
 
 def get_json_element_int(raw_data_json: Dict[str, Any], ethnicity_json_keys_list: List[Union[str, int]]) -> int:
-    try:
-        dict_temp = raw_data_json
-        for json_key in ethnicity_json_keys_list:
-            dict_temp = dict_temp[json_key]
-    except:
-        import ipdb
-        ipdb.set_trace()
+    dict_temp = raw_data_json
+    for json_key in ethnicity_json_keys_list:
+        dict_temp = dict_temp[json_key]
     return dict_temp
 
 
@@ -55,9 +51,5 @@ def get_valid_date_string(date_list: List[datetime], date_string: str) -> str:
 def get_total(numerical_dict: Dict[str, Union[float, str]]):
     total = 0
     for key in numerical_dict.keys():
-        try:
-            total = total + float(numerical_dict[key])
-        except:
-            import ipdb
-            ipdb.set_trace()
+        total = total + float(numerical_dict[key])
     return total

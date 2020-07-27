@@ -38,14 +38,18 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         html_parser_dates = self.get_sorted_dates_from_strings(date_string_list=html_parser_date_strings)
 
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
+        self.date_string = date_string
         self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
         logging.info("Load raw html data and convert it to lxml")
-        raw_data_file_object = open(raw_data_file, 'r')
-        raw_data_file_html = raw_data_file_object.read()
-        soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
-        raw_data_file_html = soup.prettify()
-        self.raw_data_lxml = etree.HTML(raw_data_file_html)
+        try:
+            raw_data_file_object = open(raw_data_file, 'r')
+            raw_data_file_html = raw_data_file_object.read()
+            soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
+            raw_data_file_html = soup.prettify()
+            self.raw_data_lxml = etree.HTML(raw_data_file_html)
+        except:
+            pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'Hispanic', 'WHITE_CASES': 'White', 'ASIAN_CASES': 'Asian',
@@ -53,9 +57,9 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
                                               'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander',
                                               'OTHER_CASES': 'Other'}
         self.deaths_yaml_keys_dict_keys_map = {'LATINO_DEATHS': 'Hispanic', 'WHITE_DEATHS': 'White', 'ASIAN_DEATHS': 'Asian',
-                                              'BLACK_DEATHS': 'Black', 'MULTI_RACE_DEATHS': 'Multi-Race',
-                                              'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander',
-                                              'OTHER_DEATHS': 'Other'}
+                                               'BLACK_DEATHS': 'Black', 'MULTI_RACE_DEATHS': 'Multi-Race',
+                                               'AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS': 'American Indian/Alaska Native', 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS': 'Native Hawaiian/Pacific Islander',
+                                               'OTHER_DEATHS': 'Other'}
 
     @property
     def ethnicities(self) -> List[str]:

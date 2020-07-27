@@ -1,0 +1,12 @@
+.eggs/
+.idea/
+__init__.py
+__pycache__/
+build/
+celerybeat-schedule
+celerybeat.pid
+covid19Tracking.egg-info/
+dist/
+files.txt
+venv/
+iframetest/*

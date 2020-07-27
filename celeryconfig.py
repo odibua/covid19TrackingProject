@@ -8,7 +8,7 @@ accept_content = ['json']
 timezone = 'US/Pacific'
 beat_schedule = {
     'add-every-30-seconds': {
-        'task': 'manager.main',
+        'task': 'managers.main',
         'schedule': crontab(hour=7, minute=30),
     },
 }

@@ -53,14 +53,18 @@ class EthnicDataProjector(ABC):
         """
         Return dictionary of case percentages of ethnicities contained in an area
         """
-        return self.ethnicity_cases_percentages_dict
+        dict_with_date = self.ethnicity_cases_percentages_dict
+        dict_with_date['date'] = self.date_string
+        return dict_with_date
 
     @property
     def ethnicity_cases(self) -> Dict[str, int]:
         """
         Return dictionary of cases of ethnicities contained in an area
         """
-        return self.ethnicity_cases_dict
+        dict_with_date = self.ethnicity_cases_dict
+        dict_with_date['date'] = self.date_string
+        return dict_with_date
 
     @property
     def ethnicity_cases_discrepancies(self) -> Dict[str, float]:
@@ -71,10 +75,12 @@ class EthnicDataProjector(ABC):
         discrepancy_dict = {}
         if self.cases_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_cases_percentages_dict.keys():
-                discrepancy_dict[key] = round(
-                    self.ethnicity_cases_percentages_dict[key] /
-                    self.ethnicity_demographics[key],
-                    3)
+                if key != 'date':
+                    discrepancy_dict[key] = round(
+                        self.ethnicity_cases_percentages_dict[key] /
+                        self.ethnicity_demographics[key],
+                        3)
+        discrepancy_dict['date'] = self.date_string
         return discrepancy_dict
 
     @property
@@ -82,14 +88,18 @@ class EthnicDataProjector(ABC):
         """
         Return dictionary of death percentages of ethnicities contained in an area
         """
-        return self.ethnicity_deaths_percentages_dict
+        dict_with_date = self.ethnicity_deaths_percentages_dict
+        dict_with_date['date'] = self.date_string
+        return dict_with_date
 
     @property
     def ethnicity_deaths(self) -> Dict[str, float]:
         """
         Return dictionary of cases of ethnicities contained in an area
         """
-        return self.ethnicity_deaths_dict
+        dict_with_date = self.ethnicity_deaths_dict
+        dict_with_date['date'] = self.date_string
+        return dict_with_date
 
     @property
     def ethnicity_deaths_discrepancies(self) -> Dict[str, float]:
@@ -100,10 +110,12 @@ class EthnicDataProjector(ABC):
         discrepancy_dict = {}
         if self.deaths_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_deaths_percentages_dict.keys():
-                discrepancy_dict[key] = round(
-                    self.ethnicity_deaths_percentages_dict[key] /
-                    self.ethnicity_demographics[key],
-                    3)
+                if key != 'date':
+                    discrepancy_dict[key] = round(
+                        self.ethnicity_deaths_percentages_dict[key] /
+                        self.ethnicity_demographics[key],
+                        3)
+        discrepancy_dict['date'] = self.date_string
         return discrepancy_dict
 
     @abstractmethod
@@ -148,7 +160,6 @@ class EthnicDataProjector(ABC):
         total = utils.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():
             ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key]) / total, 3)
-
         return ethnicity_dict, ethnicity_percentages_dict
 
     @staticmethod
@@ -177,7 +188,6 @@ class EthnicDataProjector(ABC):
         total = utils.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():
             ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key]) / total, 3)
-
         return ethnicity_dict, ethnicity_percentages_dict
 
     @staticmethod
@@ -187,6 +197,5 @@ class EthnicDataProjector(ABC):
 
     @staticmethod
     def get_sorted_dates_from_strings(date_string_list: List[str]):
-        dates = [datetime.strptime(date_string, '%Y-%m-%d') for date_string in date_string_list]
-        dates.sort()
+        dates = sorted([datetime.strptime(date_string, '%Y-%m-%d') for date_string in date_string_list])
         return dates

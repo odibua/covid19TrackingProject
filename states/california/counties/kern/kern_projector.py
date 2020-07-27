@@ -33,17 +33,23 @@ class KernEthnicDataProjector(AlamedaEthnicDataProjector):
         json_parser_cases_config = self.load_yaml(cases_config_file_string)
 
         logging.info("Get and sort json parsing dates")
-        json_parser_cases_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_cases_config["DATES"].keys()))
+        json_parser_cases_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_cases_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
+        self.date_string = date_string
         self.cases_valid_date_string = utils.get_valid_date_string(
             date_list=json_parser_cases_dates, date_string=date_string)
-        self.cases_ethnicity_json_keys_map,  self.deaths_yaml_keys_dict_keys_map = json_parser_cases_config['DATES'][self.cases_valid_date_string], None
+        self.cases_ethnicity_json_keys_map, self.deaths_yaml_keys_dict_keys_map = json_parser_cases_config[
+            'DATES'][self.cases_valid_date_string], None
         self.ethnicity_json_keys_map = self.cases_ethnicity_json_keys_map
 
         logging.info("Load raw json data")
-        cases_file_obj = open(raw_data_cases_file, 'r')
-        self.raw_data_cases_json = json.load(cases_file_obj)
+        try:
+            cases_file_obj = open(raw_data_cases_file, 'r')
+            self.raw_data_cases_json = json.load(cases_file_obj)
+        except:
+            pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {

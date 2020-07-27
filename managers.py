@@ -1,6 +1,7 @@
 # --------------------------
 # Standard Python Imports
 # --------------------------
+import argparse
 import datetime
 import logging
 import os
@@ -12,6 +13,7 @@ from typing import List, Tuple
 # Third Party Imports
 # --------------------------
 from celery import Celery
+import pandas as pd
 import yaml as yaml
 
 # --------------------------
@@ -35,8 +37,8 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     return response_list, response_names, failed_response_names, request_type
 
 
-def manager():
-    logging.info("Open State Configuration file and get states to be processed")
+def scrape_manager():
+    logging.info("Open State Configuration file and get states to be scraped")
     config_path = 'states/states_config.yaml'
     if not path.isfile(config_path):
         raise ValueError(f"states_config.yaml not found in states directory")
@@ -89,7 +91,40 @@ def manager():
             raise Warning(f"No county level data exists for {state_name}")
 
 
+def raw_to_ethnicity_csv_manager():
+    logging.info("Open State Configuration file and get states to be processed")
+    config_path = 'states/states_config.yaml'
+    if not path.isfile(config_path):
+        raise ValueError(f"states_config.yaml not found in states directory")
+    config_file = open(config_path)
+    config = yaml.safe_load(config_file)
+    state_list = config['STATES']
+    cases_csv_filename, deaths_csv_filename = 'ethnicity_cases.csv', 'ethnicity_deaths.csv'
+
+    logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
+    for state in state_list:
+        state_name = state.lower()
+        logging.info(f"Processing {state_name}")
+        state_county_dir = os.path.join('states', state_name)
+
+        utils.run_ethnicity_to_csv(
+            state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+
+        logging.info("\n")
+        logging.info(f"Processing county level data for {state_name}")
+        county_dirs = os.listdir(path.join('states', state_name, 'counties'))
+        county_dirs.sort()
+        if len(county_dirs) > 0:
+            for county in county_dirs:
+                state_county_dir = path.join('states', state_name, 'counties', county)
+                utils.run_ethnicity_to_csv(
+                    state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+        else:
+            raise Warning(f"No county level data exists for {state_name}")
+
 # TODO(odibua@): Create and push to new branch based on date to be later merged in
+
+
 def add_commit_and_push():
     logging.info("Add, commit, and push updates to raw data")
     dt = datetime.datetime.now() - datetime.timedelta(days=1)
@@ -102,12 +137,18 @@ def add_commit_and_push():
 
 
 @app.task
-def main():
-    manager()
-    add_commit_and_push()
+def main(mode: str):
+    if mode == 'scrape':
+        scrape_manager()
+        add_commit_and_push()
+    elif mode == 'project':
+        raw_to_ethnicity_csv_manager()
 
 
 if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
-    main()
+    parser = argparse.ArgumentParser(description='Process mode')
+    parser.add_argument('--mode', help='Mode that will determine which managers run')
+    args = parser.parse_args()
+    main(mode=args.mode)

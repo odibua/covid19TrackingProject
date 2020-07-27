@@ -37,10 +37,13 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
         json_parser_deaths_config = self.load_yaml(deaths_config_file_string)
 
         logging.info("Get and sort json parsing dates")
-        json_parser_cases_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_cases_config["DATES"].keys()))
-        json_parser_deaths_dates = self.get_sorted_dates_from_strings(date_string_list=list(json_parser_deaths_config["DATES"].keys()))
+        json_parser_cases_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_cases_config["DATES"].keys()))
+        json_parser_deaths_dates = self.get_sorted_dates_from_strings(
+            date_string_list=list(json_parser_deaths_config["DATES"].keys()))
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
+        self.date_string = date_string
         self.cases_valid_date_string = utils.get_valid_date_string(
             date_list=json_parser_cases_dates, date_string=date_string)
         self.deaths_valid_date_string = utils.get_valid_date_string(
@@ -64,7 +67,7 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
                 'WHITE_CASES': 'White',
                 'HISPANIC_CASES': 'Hispanic'
             }
-        except:
+        except BaseException:
             pass
 
         try:
@@ -78,7 +81,7 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
                 'ASIAN_DEATHS': 'Asian',
                 'BLACK_DEATHS': 'Black',
             }
-        except:
+        except BaseException:
             pass
 
     @property
@@ -86,7 +89,8 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ['Native American', 'Native Hawaiian/Pacific Islander', 'Multi-Race', 'Black', 'Asian', 'White', 'Hispanic']
+        return ['Native American', 'Native Hawaiian/Pacific Islander',
+                'Multi-Race', 'Black', 'Asian', 'White', 'Hispanic']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
@@ -96,4 +100,5 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
         Obtained from here: https://www.census.gov/quickfacts/sanfranciscoocountycalifornia
 
         """
-        return {'Native American': 0.013, 'Native Hawaiian/Pacific Islander': 0.002, 'Multi-Race': 0.028, 'Black': 0.134, 'Asian': 0.059, 'White': 0.763, 'Hispanic': 0.185}
+        return {'Native American': 0.013, 'Native Hawaiian/Pacific Islander': 0.002,
+                'Multi-Race': 0.028, 'Black': 0.134, 'Asian': 0.059, 'White': 0.763, 'Hispanic': 0.185}
