@@ -1,0 +1,1 @@
+ERROR IN CASE PROJECTION FOR STATE: california COUNTY: sanfrancisco Num Failed Dates:10 Failed dates: ['2020-06-14', '2020-06-15', '2020-06-16', '2020-06-17', '2020-06-18', '2020-06-19', '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-28']

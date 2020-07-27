@@ -47,9 +47,14 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
         try:
             cases_file_obj = open(raw_data_cases_file, 'r')
         except BaseException:
-            cases_file_obj = open(raw_data_cases_file_html, 'r')
-
-        self.raw_data_cases_json = json.load(cases_file_obj)
+            try:
+                cases_file_obj = open(raw_data_cases_file_html, 'r')
+            except:
+                pass
+        try:
+            self.raw_data_cases_json = json.load(cases_file_obj)
+        except:
+            pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {

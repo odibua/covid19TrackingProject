@@ -32,9 +32,11 @@ def get_projector_module(state: str, county: str, projector_name: str) -> str:
 
 
 def filter_dates_from_df(date_list: List[str], df: pd.DataFrame):
-    return [
-        date for date in date_list if date not in df['date'].tolist()]
-
+    if df is not None:
+        return [
+            date for date in date_list if date not in df['date'].tolist()]
+    else:
+        return date_list
 
 def filter_projector_module(projector_candidate_list: List[str]):
     return [
@@ -84,8 +86,8 @@ def project_deaths(state: str, county: str,
         try:
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_deaths()
-            ethnicity_deaths_list.append(projector_instance.ethnicity_cases)
-            ethnicity_deaths_discrepancies_list.append(projector_instance.ethnicity_cases_discrepancies)
+            ethnicity_deaths_list.append(projector_instance.ethnicity_deaths)
+            ethnicity_deaths_discrepancies_list.append(projector_instance.ethnicity_deaths_discrepancies)
         except BaseException:
             failed_dates.append(date_string)
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, failed_dates
@@ -128,12 +130,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
 
     logging.info(f"Get raw data dates if not already in cases data frames.")
     raw_data_dates = os.listdir(raw_data_dir)
-    raw_data_cases_dates = []
-    if state_county_cases_df is not None:
-        import ipdb
-        ipdb.set_trace()
-        raw_data_cases_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df))
-
+    raw_data_cases_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df))
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
     ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = project_cases(
         state=state, county=county, date_strings=raw_data_cases_dates, projector_class=projector_class)
@@ -157,7 +154,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
     logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
                  "Load if they do exist")
     state_county_deaths_csv = os.path.join(state_county_dir, deaths_csv_filename)
-    state_county_cases_df, state_county_deaths_df = None, None
+    state_county_deaths_df = None
 
     logging.info("Load deaths ethnicities csv if it does not exist. Create if it does not.")
     if not os.path.isfile(state_county_deaths_csv):
@@ -176,10 +173,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
 
     logging.info(f"Get raw data dates if not already in the deathsdata frames.")
     raw_data_dates = os.listdir(raw_data_dir)
-    raw_data_deaths_dates = []
-    if state_county_deaths_df is not None:
-        raw_data_deaths_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df))
-
+    raw_data_deaths_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df))
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
     ethnicity_dates_list, ethnicity_deaths_discrepancies_list, failed_dates = project_deaths(
         state=state, county=county, date_strings=raw_data_deaths_dates, projector_class=projector_class)
@@ -227,9 +221,15 @@ def run_ethnicity_to_csv(state_county_dir: str, state: str, county: Union[str, N
         state=state, county=county, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
 
     if len(failed_cases_dates_list) > 0:
-        logging.info(f"ERROR IN CASE PROJECTION FOR STATE: {state} Failed dates: {failed_cases_dates_list}")
+        msg = f"ERROR IN CASE PROJECTION FOR STATE: {state} COUNTY: {county} Num Failed Dates:{len(failed_cases_dates_list)} Failed dates: {failed_cases_dates_list}"
+        logging.info(msg)
+        f_obj = open(f"{state_county_dir}/failed_cases_projection.txt", 'w')
+        f_obj.write(msg)
     if len(failed_deaths_dates_list) > 0:
-        logging.info(f"ERROR IN DEATH PROJECTION FOR STATE: {state} Failed dates: {failed_deaths_dates_list}")
+        msg = f"ERROR IN DEATH PROJECTION FOR STATE: {state} COUNTY: {county} Num Failed Dates:{len(failed_deaths_dates_list)} Failed dates: {failed_deaths_dates_list}"
+        logging.info(msg)
+        f_obj = open(f"{state_county_dir}/failed_deaths_projection.txt", 'w')
+        f_obj.write(msg)
 
     state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
         state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
@@ -240,14 +240,16 @@ def run_ethnicity_to_csv(state_county_dir: str, state: str, county: Union[str, N
     try:
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
             state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+        state_ethnicity_full_cases_df.to_csv(f"{state_county_dir}/{cases_csv_filename}")
+    except:
+        pass
+
+    try:
         state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
             state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+        state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}")
     except:
-        import ipdb
-        ipdb.set_trace()
-
-    state_ethnicity_full_cases_df.to_csv(f"{state_county_dir}/{cases_csv_filename}")
-    state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}")
+        pass
 
 
 def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str],

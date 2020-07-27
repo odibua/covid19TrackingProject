@@ -110,6 +110,7 @@ def raw_to_ethnicity_csv_manager():
         utils.run_ethnicity_to_csv(
             state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
 
+        logging.info("\n")
         logging.info(f"Processing county level data for {state_name}")
         county_dirs = os.listdir(path.join('states', state_name, 'counties'))
         county_dirs.sort()
