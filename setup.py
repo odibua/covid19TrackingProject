@@ -87,9 +87,11 @@ setup(
             'iframetest.*']),
     install_requires=[
         'autopep8',
+        'bokeh',
         'celery',
         'beautifulsoup4',
         'html5lib',
+        'mypy>=0.720',
         'numpy>=1.9.0',
         'pandas',
         'pyppeteer',
