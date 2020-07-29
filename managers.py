@@ -112,8 +112,7 @@ def raw_to_ethnicity_csv_manager():
 
         logging.info("\n")
         logging.info(f"Processing county level data for {state_name}")
-        county_dirs = os.listdir(path.join('states', state_name, 'counties'))
-        county_dirs.sort()
+        county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
         if len(county_dirs) > 0:
             for county in county_dirs:
                 state_county_dir = path.join('states', state_name, 'counties', county)
@@ -148,7 +147,8 @@ def main(mode: str):
 if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
-    parser = argparse.ArgumentParser(description='Process mode')
-    parser.add_argument('--mode', help='Mode that will determine which managers run')
-    args = parser.parse_args()
-    main(mode=args.mode)
+    # parser = argparse.ArgumentParser(description='Process mode')
+    # parser.add_argument('--mode', help='Mode that will determine which managers run')
+    # args = parser.parse_args()
+    # main(mode=args.mode)
+    main(mode='scrape')

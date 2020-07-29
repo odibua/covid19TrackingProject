@@ -55,13 +55,15 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
             cases_file_obj, deaths_file_obj = open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
         except BaseException:
             try:
-                cases_file_obj, deaths_file_obj = open(raw_data_cases_file_html, 'r'), open(raw_data_deaths_file_html, 'r')
-            except:
+                cases_file_obj, deaths_file_obj = open(
+                    raw_data_cases_file_html, 'r'), open(
+                    raw_data_deaths_file_html, 'r')
+            except BaseException:
                 pass
         try:
             self.raw_data_cases_json = json.load(cases_file_obj)
             self.raw_data_deaths_json = json.load(deaths_file_obj)
-        except:
+        except BaseException:
             pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")

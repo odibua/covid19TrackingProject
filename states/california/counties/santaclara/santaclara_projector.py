@@ -79,7 +79,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
             self.raw_data_cases_json, self.raw_data_deaths_json = json.load(cases_file_obj), json.load(deaths_file_obj)
             self.raw_data_totalcases_json, self.raw_data_totaldeaths_json = json.load(
                 totalcases_file_obj), json.load(totaldeaths_file_obj)
-        except:
+        except BaseException:
             pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")

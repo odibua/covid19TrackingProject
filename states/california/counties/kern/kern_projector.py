@@ -48,7 +48,7 @@ class KernEthnicDataProjector(AlamedaEthnicDataProjector):
         try:
             cases_file_obj = open(raw_data_cases_file, 'r')
             self.raw_data_cases_json = json.load(cases_file_obj)
-        except:
+        except BaseException:
             pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")

@@ -38,6 +38,7 @@ def filter_dates_from_df(date_list: List[str], df: pd.DataFrame):
     else:
         return date_list
 
+
 def filter_projector_module(projector_candidate_list: List[str]):
     return [
         projector_candidate for projector_candidate in projector_candidate_list if 'projector' in projector_candidate]
@@ -213,7 +214,8 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
     return response_list, response_names, failed_response_names, request_type
 
 
-def run_ethnicity_to_csv(state_county_dir: str, state: str, county: Union[str, None], cases_csv_filename: str, deaths_csv_filename: str):
+def run_ethnicity_to_csv(state_county_dir: str, state: str,
+                         county: Union[str, None], cases_csv_filename: str, deaths_csv_filename: str):
     logging.info(f"Get state ethnicity cases and deaths counts and discrepancies")
     state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list, failed_cases_dates_list = parse_cases_responses_with_projectors(
         state=state, county=county, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
@@ -236,19 +238,18 @@ def run_ethnicity_to_csv(state_county_dir: str, state: str, county: Union[str, N
     state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
         state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
 
-
     try:
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
             state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         state_ethnicity_full_cases_df.to_csv(f"{state_county_dir}/{cases_csv_filename}")
-    except:
+    except BaseException:
         pass
 
     try:
         state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
             state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}")
-    except:
+    except BaseException:
         pass
 
 
