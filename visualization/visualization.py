@@ -83,6 +83,7 @@ def run_plot_cases_deaths(fig_names: List[str], cases_df: pd.DataFrame,
 
 
 # TODO(odibua@): Make hover tool read dates. Note inconsistent dates so parsing can be fixed
+# TODO(odibua@): Log error if change is too large based on dates
 def visualize_per_county_stats():
     logging.info("Open State Configuration file and get states to be plotted")
     config_path = 'states/states_config.yaml'
