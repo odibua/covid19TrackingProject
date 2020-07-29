@@ -39,8 +39,12 @@ def split_pandas_into_case_discrepancy(df: pd.DataFrame) -> Tuple[pd.DataFrame, 
     columns = df.columns.tolist()
     discrepancy_columns = [column for column in columns if 'discrepancy' in column or column ==
                            'date' or column == 'Unnamed: 0']
-    columns = [column.split('_')[0] for column in columns if 'discrepancy' not in column or column == 'date']
-
+    columns = [column for column in columns if 'discrepancy' not in column or column == 'date']
+    try:
+        df[columns], df[discrepancy_columns]
+    except:
+        import ipdb
+        ipdb.set_trace()
     return df[columns], df[discrepancy_columns]
 
 
@@ -78,6 +82,7 @@ def run_plot_cases_deaths(fig_names: List[str], cases_df: pd.DataFrame,
     return layout
 
 
+# TODO(odibua@): Make hover tool read dates. Note inconsistent dates so parsing can be fixed
 def visualize_per_county_stats():
     logging.info("Open State Configuration file and get states to be plotted")
     config_path = 'states/states_config.yaml'
@@ -95,7 +100,7 @@ def visualize_per_county_stats():
         'Ethnicity Case Disparity',
         'Ethnicity Death Count',
         'Ethnicity Death Disparity']
-    tab_names = []
+    tab_list, tab_names = [], []
     logging.info(f"Load deaths and cases csvs for relevant states and all counties in config")
     for state in state_list:
         state_name = state.lower()
@@ -107,7 +112,6 @@ def visualize_per_county_stats():
         ethnicity_cases_df, ethnicity_deaths_df = convert_date_str_to_datetime(
             df_list=[ethnicity_cases_df, ethnicity_deaths_df])
 
-        tab_names.append(state_name)
         ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(df=ethnicity_cases_df)
         ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
             df=ethnicity_deaths_df)
@@ -118,18 +122,43 @@ def visualize_per_county_stats():
             cases_discrepancy_df=ethnicity_cases_discrepancy_df,
             deaths_df=ethnicity_deaths_df,
             deaths_discrepancy_df=ethnicity_deaths_discrepancy_df)
-        state_tab = Panel(child=state_layout, title=state_name)
+        tab_list.append(Panel(child=state_layout, title=state_name))
+        tab_names.append(state_name)
+
 
         logging.info("\n")
         logging.info(f"Processing county level data for {state_name}")
         county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
-        tabs = Tabs(tabs=[state_tab])
 
+        if len(county_dirs) > 0:
+            for county in county_dirs:
+                logging.info(f"County {county}")
+                state_county_dir = path.join('states', state_name, 'counties', county)
+
+                ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
+                ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
+                ethnicity_cases_df, ethnicity_deaths_df = convert_date_str_to_datetime(
+                    df_list=[ethnicity_cases_df, ethnicity_deaths_df])
+
+                ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
+                    df=ethnicity_cases_df)
+                ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+                    df=ethnicity_deaths_df)
+
+                state_county_layout = run_plot_cases_deaths(
+                    fig_names=fig_names,
+                    cases_df=ethnicity_cases_df,
+                    cases_discrepancy_df=ethnicity_cases_discrepancy_df,
+                    deaths_df=ethnicity_deaths_df,
+                    deaths_discrepancy_df=ethnicity_deaths_discrepancy_df)
+                tab_name = f"{state_name}: {county}"
+                tab_list.append(Panel(child=state_county_layout, title=tab_name))
+                tab_names.append(tab_name)
+
+        tabs = Tabs(tabs=tab_list)
         show(tabs)
-        # if len(county_dirs) > 0:
-        #     for county in county_dirs:
-        #         pass
-
 
 if __name__ == '__main__':
+    logging.basicConfig()
+    logging.root.setLevel(logging.NOTSET)
     visualize_per_county_stats()
