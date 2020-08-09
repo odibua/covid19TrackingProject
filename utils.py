@@ -24,6 +24,10 @@ import yaml as yaml
 # --------------------------
 
 
+def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[str, float], dict2: Dict[str, float]) -> bool:
+    projector_exception_config =
+
+
 def get_projector_module(state: str, county: str, projector_name: str) -> str:
     if county is None:
         return f"states.{state}.{projector_name}"
@@ -34,7 +38,7 @@ def get_projector_module(state: str, county: str, projector_name: str) -> str:
 def filter_dates_from_df(date_list: List[str], df: pd.DataFrame):
     if df is not None:
         return [
-            date for date in date_list if date not in df['date'].tolist()]
+            date for date in date_list if date not in df['date'].tolist()], set(df['date'].tolist())
     else:
         return date_list
 
@@ -67,28 +71,47 @@ def get_class_in_projector_module(module: sys.modules, module_name: str) -> Call
 
 
 def project_cases(state: str, county: str,
-                  date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
+                  date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
     ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = [], [], []
     for date_string in date_strings:
         try:
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_cases()
-            ethnicity_cases_list.append(projector_instance.ethnicity_cases)
-            ethnicity_cases_discrepancies_list.append(projector_instance.ethnicity_cases_discrepancies)
+            ethnicity_cases = projector_instance.ethnicity_cases
+            ethnicity_cases_discrepancies = projector_instance.ethnicity_cases_discrepancies
+            valid_change_bool = check_valid_change(state=state, county=county, dict1=ethnicity_cases, dict2=most_recent_entry)
+            if not valid_change_bool:
+                msg = f"Change in number of cases for date {date_string} state: {state}, county: {county} anomalous. Check and add to exception"
+                failed_dates.append(msg)
+                break
+            else:
+                most_recent_entry = ethnicity_cases
+            ethnicity_cases_list.append(ethnicity_cases)
+            ethnicity_cases_discrepancies_list.append(ethnicity_cases_discrepancies)
         except BaseException:
             failed_dates.append(date_string)
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates
 
 
 def project_deaths(state: str, county: str,
-                   date_strings: List[str], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
+                   date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
     ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, failed_dates = [], [], []
     for date_string in date_strings:
         try:
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_deaths()
-            ethnicity_deaths_list.append(projector_instance.ethnicity_deaths)
-            ethnicity_deaths_discrepancies_list.append(projector_instance.ethnicity_deaths_discrepancies)
+
+            ethnicity_deaths = projector_instance.ethnicity_deaths
+            ethnicity_deaths_discrepancies = projector_instance.ethnicity_deaths_discrepancies
+            valid_change_bool = check_valid_change(state=state, county=county, dict1=ethnicity_deaths , dict2=most_recent_entry)
+            if not valid_change_bool:
+                msg = f"Change in number of cases for date {date_string} state: {state}, county: {county} anomalous. Check and add to exception"
+                failed_dates.append(msg)
+                break
+            else:
+                most_recent_entry = ethnicity_deaths
+            ethnicity_deaths_list.append(ethnicity_deaths )
+            ethnicity_deaths_discrepancies_list.append(ethnicity_deaths_discrepancies)
         except BaseException:
             failed_dates.append(date_string)
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, failed_dates
@@ -131,10 +154,16 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
 
     logging.info(f"Get raw data dates if not already in cases data frames.")
     raw_data_dates = os.listdir(raw_data_dir)
-    raw_data_cases_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df))
+    raw_data_cases_dates, raw_data_cases_old_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df))
+    raw_data_cases_old_dates.sort()
+
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
+    if state_county_cases_df is not None:
+        most_recent_entry = state_county_cases_df[state_county_cases_df.date.eq(raw_data_cases_old_dates[-1])].to_dict()
+    else:
+        most_recent_entry = None
     ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = project_cases(
-        state=state, county=county, date_strings=raw_data_cases_dates, projector_class=projector_class)
+        state=state, county=county, date_strings=raw_data_cases_dates, most_recent_entry=most_recent_entry, projector_class=projector_class)
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates
 
 
@@ -174,10 +203,16 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
 
     logging.info(f"Get raw data dates if not already in the deathsdata frames.")
     raw_data_dates = os.listdir(raw_data_dir)
-    raw_data_deaths_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df))
+    raw_data_deaths_dates, raw_data_deaths_old_dates = sorted(filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df))
+    raw_data_deaths_old_dates.sort()
+
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
+    if state_county_deaths_df is not None:
+        most_recent_entry = state_county_deaths_df[state_county_deaths_df.date.eq(raw_data_deaths_old_dates[-1])].to_dict()
+    else:
+        most_recent_entry = None
     ethnicity_dates_list, ethnicity_deaths_discrepancies_list, failed_dates = project_deaths(
-        state=state, county=county, date_strings=raw_data_deaths_dates, projector_class=projector_class)
+        state=state, county=county, date_strings=raw_data_deaths_dates, most_recent_entry=most_recent_entry, projector_class=projector_class)
 
     return ethnicity_dates_list, ethnicity_deaths_discrepancies_list, failed_dates
 
@@ -207,8 +242,9 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
                 response_list.append(response.text)
                 response_names.append(data_type_name)
             else:
-                logging.info(f"ERROR: Response for {data_type_name} failed with status {status_code}")
-                failed_response_names.append(data_type_name)
+                msg = f"ERROR: Response for {data_type_name} failed with status {status_code}"
+                logging.info(msg)
+                failed_response_names.append(msg)
 
             response.close()
     return response_list, response_names, failed_response_names, request_type
@@ -258,7 +294,7 @@ def save_errors(save_dir: str, failure_list: List[str], mode: str='scrape'):
     dt = datetime.datetime.now() - datetime.timedelta(days=1)
     today = datetime.date(dt.year, dt.month, dt.day)
     today_str = today.isoformat()
-    save_dir = f"{save_dir}/'failure'/{today_str}"
+    save_dir = f"{save_dir}/{today_str}"
     if not path.isdir(save_dir):
         os.makedirs(save_dir)
 

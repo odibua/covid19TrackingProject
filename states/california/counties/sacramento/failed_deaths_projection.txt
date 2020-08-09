@@ -1,1 +1,0 @@
-ERROR IN DEATH PROJECTION FOR STATE: california COUNTY: sacramento Num Failed Dates:2 Failed dates: ['2020-06-29', '2020-06-30']

@@ -48,6 +48,7 @@ def scrape_manager():
 
     logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
     for state in state_list:
+        failure_list = []
         state_name = state.lower()
         logging.info(f"Processing {state_name}")
 
@@ -55,6 +56,7 @@ def scrape_manager():
         logging.info("Get state level covid19 raw data with ethnicity")
         state_response_list, state_data_type_names, failed_state_data_type_names, request_type = get_responses_from_config_files_in_dir(
             config_dir=state_config_path)
+        failure_list.extend(failed_state_data_type_names)
         if state_response_list is None:
             raise Warning(f"No state level config files exist for {state_name}")
         else:
@@ -76,7 +78,7 @@ def scrape_manager():
                 logging.info(f"Getting and saving raw data for state: {state_name}, county: {state_county_dir}")
                 county_response_list, county_data_type_names, failed_county_data_type_names, request_type = get_responses_from_config_files_in_dir(
                     config_dir=path.join('states', state_name, 'counties', state_county_dir, 'configs'))
-
+                failure_list.extend(failed_county_data_type_names)
                 if county_response_list is None:
                     raise Warning(f"No county level config files exist for {state_county_dir}")
                 else:
@@ -89,6 +91,8 @@ def scrape_manager():
                                         failed_data_type_names=failed_county_data_type_names, request_type=request_type)
         else:
             raise Warning(f"No county level data exists for {state_name}")
+        failure_dir = f"states/{state_name}/failed_text"
+        utils.save_errors(save_dir=failure_dir, failure_list=failure_list)
 
 
 def raw_to_ethnicity_csv_manager():
@@ -136,7 +140,8 @@ def add_commit_and_push():
 
 
 @app.task
-def main(mode: str):
+def main():
+    mode = 'scrape'
     if mode == 'scrape':
         scrape_manager()
         add_commit_and_push()
@@ -151,4 +156,4 @@ if __name__ == "__main__":
     # parser.add_argument('--mode', help='Mode that will determine which managers run')
     # args = parser.parse_args()
     # main(mode=args.mode)
-    main(mode='scrape')
+    main()

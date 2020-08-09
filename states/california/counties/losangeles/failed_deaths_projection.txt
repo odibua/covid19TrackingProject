@@ -1,1 +1,0 @@
-ERROR IN DEATH PROJECTION FOR STATE: california COUNTY: losangeles Num Failed Dates:5 Failed dates: ['2020-07-02', '2020-07-03', '2020-07-05', '2020-07-24', '2020-07-25']

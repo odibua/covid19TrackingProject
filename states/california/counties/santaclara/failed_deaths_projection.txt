@@ -1,1 +1,0 @@
-ERROR IN DEATH PROJECTION FOR STATE: california COUNTY: santaclara Num Failed Dates:4 Failed dates: ['2020-07-02', '2020-07-03', '2020-07-05', '2020-07-20']

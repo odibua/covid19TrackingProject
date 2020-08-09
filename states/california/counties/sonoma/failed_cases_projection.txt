@@ -1,1 +1,0 @@
-ERROR IN CASE PROJECTION FOR STATE: california COUNTY: sonoma Num Failed Dates:1 Failed dates: ['2020-07-05']
