@@ -25,7 +25,21 @@ import yaml as yaml
 
 
 def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[str, float], dict2: Dict[str, float]) -> bool:
-    projector_exception_config =
+    config_dir = f"states/{state}/configs" if county is None else f"states/{state}/{county}/configs"
+    config_file = "projector_exceptions.yaml"
+    config_file_obj = open(path.join(config_dir, config_file))
+    exception_config = yaml.safe_load(config_file_obj)
+
+    if date_string in exception_config['DATES']:
+        return True
+
+    diff_list = []
+    for key in dict1.keys():
+        diff_list.append(abs(dict1[key] - dict2[key])/dict2[key])
+
+    if max(diff_list) > exception_config['THRESH']:
+        return False
+    return True
 
 
 def get_projector_module(state: str, county: str, projector_name: str) -> str:
@@ -103,14 +117,14 @@ def project_deaths(state: str, county: str,
 
             ethnicity_deaths = projector_instance.ethnicity_deaths
             ethnicity_deaths_discrepancies = projector_instance.ethnicity_deaths_discrepancies
-            valid_change_bool = check_valid_change(state=state, county=county, dict1=ethnicity_deaths , dict2=most_recent_entry)
+            valid_change_bool = check_valid_change(state=state, county=county, dict1=ethnicity_deaths, dict2=most_recent_entry)
             if not valid_change_bool:
                 msg = f"Change in number of cases for date {date_string} state: {state}, county: {county} anomalous. Check and add to exception"
                 failed_dates.append(msg)
                 break
             else:
                 most_recent_entry = ethnicity_deaths
-            ethnicity_deaths_list.append(ethnicity_deaths )
+            ethnicity_deaths_list.append(ethnicity_deaths)
             ethnicity_deaths_discrepancies_list.append(ethnicity_deaths_discrepancies)
         except BaseException:
             failed_dates.append(date_string)
