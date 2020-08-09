@@ -48,7 +48,7 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
             soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
             raw_data_file_html = soup.prettify()
             self.raw_data_lxml = etree.HTML(raw_data_file_html)
-        except:
+        except BaseException:
             pass
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")

@@ -76,7 +76,8 @@ class EthnicDataProjector(ABC):
         if self.cases_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_cases_percentages_dict.keys():
                 if key != 'date':
-                    discrepancy_dict[key] = self.ethnicity_cases_percentages_dict[key] / self.ethnicity_demographics[key]
+                    discrepancy_dict[key] = self.ethnicity_cases_percentages_dict[key] / \
+                        self.ethnicity_demographics[key]
 
         discrepancy_dict['date'] = self.date_string
         return discrepancy_dict
@@ -109,7 +110,8 @@ class EthnicDataProjector(ABC):
         if self.deaths_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_deaths_percentages_dict.keys():
                 if key != 'date':
-                    discrepancy_dict[key] = self.ethnicity_deaths_percentages_dict[key] / self.ethnicity_demographics[key]
+                    discrepancy_dict[key] = self.ethnicity_deaths_percentages_dict[key] / \
+                        self.ethnicity_demographics[key]
 
         discrepancy_dict['date'] = self.date_string
         return discrepancy_dict
