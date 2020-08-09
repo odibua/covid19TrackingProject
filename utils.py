@@ -253,6 +253,27 @@ def run_ethnicity_to_csv(state_county_dir: str, state: str,
         pass
 
 
+def save_errors(save_dir: str, failure_list: List[str], mode: str='scrape'):
+    logging.info("Transform failure list into text")
+    dt = datetime.datetime.now() - datetime.timedelta(days=1)
+    today = datetime.date(dt.year, dt.month, dt.day)
+    today_str = today.isoformat()
+    save_dir = f"{save_dir}/'failure'/{today_str}"
+    if not path.isdir(save_dir):
+        os.makedirs(save_dir)
+
+    failure_text = '\n'.join(failure_list)
+    if mode == 'scrape':
+        failure_path = f"{save_dir}/scrape_failures.txt"
+    elif mode == 'project':
+        failure_path = f"{save_dir}/project_failures.txt"
+    else:
+        raise ValueError(f"Unimplemented mode, f{mode}, passed into save_errors")
+
+    failure_file = open(failure_path, "w")
+    failure_file.write(failure_text)
+
+
 def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str],
                   failed_data_type_names: List[str], request_type: str):
     dt = datetime.datetime.now() - datetime.timedelta(days=1)
