@@ -1,1 +1,1 @@
-ERROR IN CASE PROJECTION FOR STATE: california COUNTY: None Num Failed Dates:2 Failed dates: ['2020-07-10', '2020-07-11']
+ERROR IN CASE PROJECTION FOR STATE: california COUNTY: None Num Failed Dates:2 Failed dates: ['CASES: ERROR state: california county: None, 2020-07-10', 'CASES: ERROR state: california county: None, 2020-07-11']

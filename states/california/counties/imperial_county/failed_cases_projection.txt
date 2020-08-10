@@ -1,0 +1,1 @@
+ERROR IN CASE PROJECTION FOR STATE: california COUNTY: imperial_county Num Failed Dates:1 Failed dates: ["CASES: ERROR state: california county: imperial_county Max difference 0.1925925925925926 is greater than thresh: 0.15 {'Hispanic': 3815, 'Non-Hispanic': 161, 'date': '2020-07-14'} \n != {'Hispanic': 3808, 'Non-Hispanic': 135, 'date': '2020-07-13'}"]
