@@ -107,23 +107,29 @@ def raw_to_ethnicity_csv_manager():
 
     logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
     for state in state_list:
+        failure_list = []
         state_name = state.lower()
         logging.info(f"Processing {state_name}")
         state_county_dir = os.path.join('states', state_name)
 
-        utils.run_ethnicity_to_csv(
-            state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+        # failure_state_county = utils.run_ethnicity_to_csv(
+        #     state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+        # failure_list.extend(failure_state_county)
 
         logging.info("\n")
         logging.info(f"Processing county level data for {state_name}")
         county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
         if len(county_dirs) > 0:
             for county in county_dirs:
-                state_county_dir = path.join('states', state_name, 'counties', county)
-                utils.run_ethnicity_to_csv(
-                    state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+                if county == 'losangeles':
+                    state_county_dir = path.join('states', state_name, 'counties', county)
+                    failure_state_county = utils.run_ethnicity_to_csv(
+                        state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+                    failure_list.extend(failure_state_county)
         else:
             raise Warning(f"No county level data exists for {state_name}")
+        failure_dir = f"states/{state_name}/failed_text"
+        utils.save_errors(save_dir=failure_dir, failure_list=failure_list, mode='project')
 
 # TODO(odibua@): Create and push to new branch based on date to be later merged in
 
@@ -141,7 +147,7 @@ def add_commit_and_push():
 
 @app.task
 def main():
-    mode = 'scrape'
+    mode = 'project'
     if mode == 'scrape':
         scrape_manager()
         add_commit_and_push()

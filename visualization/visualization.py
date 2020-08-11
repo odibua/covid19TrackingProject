@@ -1,23 +1,19 @@
 # --------------------------
 # Standard Python Imports
 # --------------------------
-import datetime
 import itertools
 import logging
 import os
 from os import path
-import subprocess as cmd
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 # --------------------------
 # Third Party Imports
 # --------------------------
-import bokeh as bokeh
 from bokeh.io import output_file
 from bokeh.plotting import ColumnDataSource, figure, show
 from bokeh.layouts import column, row
 from bokeh.models.widgets import Panel, Tabs
-from bokeh.models import ColorBar, Label, LabelSet, LinearColorMapper, LogTicker, Slider
 from bokeh.palettes import Dark2_5 as palette
 
 import pandas as pd
@@ -25,6 +21,20 @@ import yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
+
+
+def get_mean_df(df_list: List[pd.DataFrame]) -> Tuple[float]:
+    new_df_list = []
+    for df in df_list:
+        new_df_list.append(df.mean().mean())
+    return tuple(new_df_list)
+
+
+def get_mean_max_df(df_list: List[pd.DataFrame]) -> Tuple[float]:
+    new_df_list = []
+    for df in df_list:
+        new_df_list.append(df.mean().max())
+    return new_df_list
 
 
 def convert_date_str_to_datetime(df_list: List[pd.DataFrame]) -> Tuple[pd.DataFrame]:
@@ -35,22 +45,32 @@ def convert_date_str_to_datetime(df_list: List[pd.DataFrame]) -> Tuple[pd.DataFr
     return tuple(new_df_list)
 
 
+def drop_other_columns(df_list: List[pd.DataFrame]) -> Tuple[pd.DataFrame]:
+    new_df_list = []
+    for df in df_list:
+        for key in df.keys():
+            if 'other' in key.lower():
+                df = df.drop(key, axis=1)
+        new_df_list.append(df)
+    return tuple(new_df_list)
+
+
 def split_pandas_into_case_discrepancy(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     columns = df.columns.tolist()
     discrepancy_columns = [column for column in columns if 'discrepancy' in column or column ==
                            'date' or column == 'Unnamed: 0']
     columns = [column for column in columns if 'discrepancy' not in column or column == 'date']
-    try:
-        df[columns], df[discrepancy_columns]
-    except:
-        import ipdb
-        ipdb.set_trace()
+
     return df[columns], df[discrepancy_columns]
 
 
 def get_plot_figs(fig_names: List[str]) -> Tuple[figure]:
     return tuple([figure(plot_width=1000, title=fig_name, x_axis_type='datetime',
                          tooltips=[("x", "$x"), ("y", "$y")]) for fig_name in fig_names])
+
+
+def get_bar_plot_figs(fig_names: List[str], x_ranges: List[str]) -> Tuple[figure]:
+    return tuple([figure(title=fig_name, x_range=x_ranges) for fig_name in fig_names])
 
 
 def plot_cases_deaths(fig: figure, source_: ColumnDataSource, df: pd.DataFrame):
@@ -82,6 +102,130 @@ def run_plot_cases_deaths(fig_names: List[str], cases_df: pd.DataFrame,
     return layout
 
 
+def plot_bar_cases_deaths(fig: figure, dict_: Dict[str, float], state_name: str):
+    label_list, count_list = [], []
+    for key in dict_.keys():
+        if key != state_name:
+            label_list.append(key)
+            count_list.append(dict_[key])
+
+    fig.vbar(x=label_list, top=count_list, width=.9,
+       fill_alpha=.5,
+       fill_color='salmon',
+       line_alpha=.5,
+       line_color='green',
+       line_dash='dashed')
+    fig.xaxis.axis_label = "County"
+    fig.yaxis.axis_label = "Disparity"
+
+
+def run_bar_plot_cases_deaths(fig_names: List[str], cases_mean_disparity: Dict[str, float],
+                          cases_max_disparity: Dict[str, float], deaths_mean_disparity: Dict[str, float], deaths_max_disparity: Dict[str, float], state_name: str):
+    mean_case_disparity_fig, max_case_disparity_fig = get_bar_plot_figs(fig_names=fig_names[0:2], x_ranges=list(cases_mean_disparity.keys()))
+    mean_death_disparity_fig, max_death_disparity_fig = get_bar_plot_figs(fig_names=fig_names[2:], x_ranges=list(deaths_mean_disparity.keys()))
+
+    plot_bar_cases_deaths(fig=mean_case_disparity_fig, dict_=cases_mean_disparity, state_name=state_name)
+    plot_bar_cases_deaths(fig=max_case_disparity_fig, dict_=cases_max_disparity, state_name=state_name)
+    plot_bar_cases_deaths(fig=mean_death_disparity_fig, dict_=deaths_mean_disparity, state_name=state_name)
+    plot_bar_cases_deaths(fig=max_death_disparity_fig, dict_=deaths_max_disparity, state_name=state_name)
+
+    layout = column(row(mean_case_disparity_fig, max_case_disparity_fig),
+                    row(mean_death_disparity_fig, max_death_disparity_fig))
+    return layout
+
+
+def visualize_summary_stats():
+    logging.info("Open State Configuration file and get states to be plotted")
+    config_path = 'states/states_config.yaml'
+    if not path.isfile(config_path):
+        raise ValueError(f"states_config.yaml not found in states directory")
+    config_file = open(config_path)
+    config = yaml.safe_load(config_file)
+    state_list = config['STATES']
+    cases_csv_filename, deaths_csv_filename = 'ethnicity_cases.csv', 'ethnicity_deaths.csv'
+
+    logging.info("Create output html file")
+    output_file(f"covid_ethnic_summary_discrepancy.html")
+    fig_names = [
+        'Average Case Disparity', 'Max Case Disparity', 'Average Death Disparity',
+        'Max Death Disparity']
+    tab_list, tab_names = [], []
+    logging.info(f"Load deaths and cases csvs for relevant states and all counties in config")
+    for state in state_list:
+        state_name = state.lower()
+        logging.info(f"Processing {state_name}")
+        state_county_dir = os.path.join('states', state_name)
+        case_disparity_mean_dict, death_disparity_mean_dict = {}, {}
+        case_disparity_max_dict, death_disparity_max_dict = {}, {}
+
+        ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
+        ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
+        ethnicity_cases_df, ethnicity_deaths_df = convert_date_str_to_datetime(
+            df_list=[ethnicity_cases_df, ethnicity_deaths_df])
+        ethnicity_cases_df, ethnicity_deaths_df = drop_other_columns(df_list=[ethnicity_cases_df, ethnicity_deaths_df])
+
+        _, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(df=ethnicity_cases_df)
+        _, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+            df=ethnicity_deaths_df)
+
+        ethnicity_cases_discrepancy_df = ethnicity_cases_discrepancy_df.drop(columns=['date'])
+        ethnicity_deaths_discrepancy_df = ethnicity_deaths_discrepancy_df.drop(columns=['date'])
+        # import ipdb
+        # ipdb.set_trace()
+        case_disparity_mean_dict[state_name], death_disparity_mean_dict[state_name] = get_mean_df(df_list=[ethnicity_cases_discrepancy_df, ethnicity_deaths_discrepancy_df])
+        case_disparity_max_dict[state_name], death_disparity_max_dict[state_name] = get_mean_max_df(df_list=[ethnicity_cases_discrepancy_df, ethnicity_deaths_discrepancy_df])
+
+        logging.info("\n")
+        logging.info(f"Processing county level data for {state_name}")
+        county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
+
+        if len(county_dirs) > 0:
+            for county in county_dirs:
+                logging.info(f"County {county}")
+                state_county_dir = path.join('states', state_name, 'counties', county)
+                try:
+                    ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
+                    ethnicity_cases_df = convert_date_str_to_datetime(
+                        df_list=[ethnicity_cases_df])[0]
+                    _, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
+                        df=ethnicity_cases_df)
+                    ethnicity_cases_discrepancy_df = ethnicity_cases_discrepancy_df.drop(columns=['date'])
+                    case_disparity_mean_dict[county] = get_mean_df(
+                        df_list=[ethnicity_cases_discrepancy_df])[0]
+                    case_disparity_max_dict[county] = get_mean_max_df(
+                        df_list=[ethnicity_cases_discrepancy_df])[0]
+                except:
+                    pass
+
+                try:
+                    ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
+                    ethnicity_deaths_df = convert_date_str_to_datetime(
+                        df_list=[ethnicity_deaths_df])[0]
+                    _, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+                        df=ethnicity_deaths_df)
+                    ethnicity_deaths_discrepancy_df = ethnicity_deaths_discrepancy_df.drop(columns=['date'])
+                    death_disparity_mean_dict[county] = get_mean_df(
+                        df_list=[ethnicity_deaths_discrepancy_df])[0]
+                    death_disparity_max_dict[county] = get_mean_max_df(
+                        df_list=[ethnicity_deaths_discrepancy_df])[0]
+                except:
+                    pass
+        # import ipdb
+        # ipdb.set_trace()
+        state_county_layout = run_bar_plot_cases_deaths(
+            fig_names=fig_names,
+            cases_mean_disparity=case_disparity_mean_dict,
+            cases_max_disparity=case_disparity_max_dict,
+            deaths_mean_disparity=death_disparity_mean_dict,
+            deaths_max_disparity=death_disparity_max_dict
+            state_name=state_name)
+        tab_name = f"{state_name}"
+        tab_list.append(Panel(child=state_county_layout, title=tab_name))
+        tab_names.append(tab_name)
+
+        tabs = Tabs(tabs=tab_list)
+        show(tabs)
+
 # TODO(odibua@): Make hover tool read dates. Note inconsistent dates so parsing can be fixed
 # TODO(odibua@): Log error if change is too large based on dates
 def visualize_per_county_stats():
@@ -112,6 +256,7 @@ def visualize_per_county_stats():
         ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
         ethnicity_cases_df, ethnicity_deaths_df = convert_date_str_to_datetime(
             df_list=[ethnicity_cases_df, ethnicity_deaths_df])
+        ethnicity_cases_df, ethnicity_deaths_df = drop_other_columns(df_list=[ethnicity_cases_df, ethnicity_deaths_df])
 
         ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(df=ethnicity_cases_df)
         ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
@@ -135,16 +280,23 @@ def visualize_per_county_stats():
             for county in county_dirs:
                 logging.info(f"County {county}")
                 state_county_dir = path.join('states', state_name, 'counties', county)
+                try:
+                    ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
+                    ethnicity_cases_df = convert_date_str_to_datetime(
+                        df_list=[ethnicity_cases_df])[0]
+                    ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
+                        df=ethnicity_cases_df)
+                except:
+                    ethnicity_cases_df, ethnicity_cases_discrepancy_df = {}, {}
 
-                ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
-                ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
-                ethnicity_cases_df, ethnicity_deaths_df = convert_date_str_to_datetime(
-                    df_list=[ethnicity_cases_df, ethnicity_deaths_df])
-
-                ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
-                    df=ethnicity_cases_df)
-                ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
-                    df=ethnicity_deaths_df)
+                try:
+                    ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
+                    ethnicity_deaths_df = convert_date_str_to_datetime(
+                        df_list=[ethnicity_deaths_df])[0]
+                    ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+                        df=ethnicity_deaths_df)
+                except:
+                    ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = {}, {}
 
                 state_county_layout = run_plot_cases_deaths(
                     fig_names=fig_names,
@@ -162,4 +314,5 @@ def visualize_per_county_stats():
 if __name__ == '__main__':
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
-    visualize_per_county_stats()
+    # visualize_per_county_stats()
+    visualize_summary_stats()
