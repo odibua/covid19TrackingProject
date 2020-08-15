@@ -1,0 +1,22 @@
+CASES: ERROR state: california county: alameda Max difference 0.102803738317757 is greater than thresh: 0.1 {'Hispanic': 4942, 'White': 1039, 'Asian': 1009, 'Black': 712, 'Pacific Islander': 54, 'Native American': 24, 'Multi-Race': 118, 'date': '2020-07-23'} 
+ != {'Hispanic': 4861, 'White': 1006, 'Asian': 995, 'Black': 703, 'Pacific Islander': 53, 'Native American': 24, 'Multi-Race': 107, 'date': '2020-07-22'}
+DEATHS: ERROR state: california county: alameda, 2020-07-15
+DEATHS: ERROR state: california county: alameda, 2020-07-16
+DEATHS: ERROR state: california county: alameda, 2020-07-17
+DEATHS: ERROR state: california county: alameda, 2020-07-18
+DEATHS: ERROR state: california county: alameda, 2020-07-19
+DEATHS: ERROR state: california county: alameda, 2020-07-20
+DEATHS: ERROR state: california county: alameda, 2020-07-21
+DEATHS: ERROR state: california county: alameda, 2020-07-22
+DEATHS: ERROR state: california county: alameda, 2020-07-23
+DEATHS: ERROR state: california county: alameda, 2020-07-24
+DEATHS: ERROR state: california county: alameda, 2020-07-25
+DEATHS: ERROR state: california county: alameda, 2020-07-26
+DEATHS: ERROR state: california county: alameda, 2020-07-28
+DEATHS: ERROR state: california county: alameda, 2020-07-29
+DEATHS: ERROR state: california county: alameda, 2020-07-30
+DEATHS: ERROR state: california county: alameda, 2020-08-01
+DEATHS: ERROR state: california county: alameda, 2020-08-02
+DEATHS: ERROR state: california county: alameda, 2020-08-06
+DEATHS: ERROR state: california county: alameda, 2020-08-07
+DEATHS: ERROR state: california county: alameda, 2020-08-08

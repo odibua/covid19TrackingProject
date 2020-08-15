@@ -1,0 +1,1 @@
+ERROR IN DEATH PROJECTION FOR STATE: california COUNTY: imperial_county Num Failed Dates:1 Failed dates: ["DEATHS: ERROR state: california county: imperial_county Max difference 0.1506849315068493 is greater than thresh: 0.15 {'Hispanic': 84, 'Non-Hispanic': 1, 'date': '2020-06-30'} \n != {'Hispanic': 73, 'Non-Hispanic': 1, 'date': '2020-06-29'}"]

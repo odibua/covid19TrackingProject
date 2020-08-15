@@ -1,1 +1,1 @@
-ERROR IN CASE PROJECTION FOR STATE: california COUNTY: sonoma Num Failed Dates:1 Failed dates: ['2020-07-05']
+ERROR IN CASE PROJECTION FOR STATE: california COUNTY: sonoma Num Failed Dates:2 Failed dates: ['CASES: ERROR state: california county: sonoma, 2020-07-05', "CASES: ERROR state: california county: sonoma Difference -0.8324607329842932 is less than 0 {'hispanic': 393, 'white': 64, 'asian_pacific_islander': 41, 'non_hispanic': 1013, 'date': '2020-07-19'} \n != {'hispanic': 981, 'white': 382, 'asian_pacific_islander': 60, 'non_hispanic': 41, 'date': '2020-07-18'}"]
