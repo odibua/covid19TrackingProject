@@ -37,7 +37,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "setup.py" }}-v1-dependencies-{{ checksum "setup.cfg"}}
+          key: v1-dependencies-{{ checksum "setup.py" }}
 
       # run tests using pytest alias in setup.cfg
       # https://pytest.org
