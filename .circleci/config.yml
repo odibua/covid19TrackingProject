@@ -45,6 +45,7 @@ jobs:
           name: run tests
           command: |
             python test.py
+            git config user.email odibua@gmail.com
             git config user.name odibua
             git commit -m 'testy.txt'
             git push
