@@ -121,7 +121,7 @@ def raw_to_ethnicity_csv_manager():
         county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
         if len(county_dirs) > 0:
             for county in county_dirs:
-                if county == 'losangeles':
+                if county == 'alameda':
                     state_county_dir = path.join('states', state_name, 'counties', county)
                     failure_state_county = utils.run_ethnicity_to_csv(
                         state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
@@ -147,7 +147,7 @@ def add_commit_and_push():
 
 @app.task
 def main():
-    mode = 'project'
+    mode = 'scrape'
     if mode == 'scrape':
         scrape_manager()
         add_commit_and_push()

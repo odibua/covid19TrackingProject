@@ -116,8 +116,6 @@ def project_cases(state: str, county: str,
     ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = [], [], []
     date_strings.sort()
     for date_string in date_strings:
-        import ipdb
-        ipdb.set_trace()
         try:
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_cases()
@@ -196,8 +194,6 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
     raw_data_cases_dates, raw_data_cases_old_dates = filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df)
     raw_data_cases_dates.sort()
     raw_data_cases_old_dates.sort()
-    import ipdb
-    ipdb.set_trace()
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
     if state_county_cases_df is not None and len(state_county_cases_df) > 0:
         most_recent_entry = state_county_cases_df[state_county_cases_df.date.eq(raw_data_cases_old_dates[-1])].to_dict('record')[0]
