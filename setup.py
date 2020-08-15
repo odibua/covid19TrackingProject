@@ -98,8 +98,6 @@ setup(
         'requests',
         'requests_html',
         'scipy',
-        'scrapy',
-        'selenium',
         'setuptools>=40.0',
         "typing",
         'urllib3>1.25',
