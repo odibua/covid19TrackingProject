@@ -184,4 +184,4 @@
 # ipdb.set_trace()
 
 import os
-os.mkdir('testy.txt')
+open('testy.txt', 'w')
