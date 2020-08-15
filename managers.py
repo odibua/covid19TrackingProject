@@ -35,11 +35,11 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     return response_list, response_names, failed_response_names, request_type
 
 
-def scrape_manager(state_name: str, county: str=None):
-    if county is None:
+def scrape_manager(state_name: str, county_name: str=None):
+    if county_name is None:
         state_config_path = path.join('states', state_name, 'configs')
     else:
-        state_config_path = path.join('states', state_name, 'counties', county, 'configs')
+        state_config_path = path.join('states', state_name, 'counties', county_name, 'configs')
     state_response_list, state_data_type_names, failed_state_data_type_names, request_type = get_responses_from_config_files_in_dir(
         config_dir=state_config_path)
     raw_data_dir = path.join('states', state_name, 'raw_data')

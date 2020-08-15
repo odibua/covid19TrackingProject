@@ -13,9 +13,10 @@ import unittest
 from managers import scrape_manager
 
 
-class TestCaliforniaScrapeAndProject(unittest.TestCase):
+class TestCaliforniaRiversideScrapeAndProject(unittest.TestCase):
     def setUp(self):
         self.state_name = 'california'
+        self.county_name = 'riverside'
 
     def test_scrape_manager(self):
-        scrape_manager(state_name=self.state_name)
+        scrape_manager(state_name=self.state_name, county_name=self.county_name)
