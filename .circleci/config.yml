@@ -30,7 +30,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            python -m venv venv
             . venv/bin/activate
+            pip install -U pip setuptools virtualenv
             pip install -e .
 
       - save_cache:
