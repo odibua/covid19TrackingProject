@@ -4,7 +4,7 @@
 #
 version: 2.1
 jobs:
-  build-and-test:
+  build:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -38,9 +38,8 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "setup.py" }}
 
-      # run tests using pytest alias in setup.cfg
-      # https://pytest.org
-      # https://nose.readthedocs.io
+ test:
+   steps:
       - run:
           name: run tests
           command: |
@@ -60,4 +59,5 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - build-and-test
+      - build
+      - test
