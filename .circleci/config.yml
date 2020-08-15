@@ -58,3 +58,13 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
+
+  daily:
+    triggers:
+      - schedule:
+          cron: "37 8 * * *"
+          filters:
+            branches:
+              only:
+                - master
+                - beta
