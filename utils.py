@@ -286,10 +286,9 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
                 response_names.append(data_type_name)
             else:
                 msg = f"ERROR: Response for {data_type_name} failed with status {status_code}"
-                logging.info(msg)
-                failed_response_names.append(msg)
-
+                raise ValueError(f"{msg}")
             response.close()
+
     return response_list, response_names, failed_response_names, request_type
 
 
