@@ -163,22 +163,25 @@
 #     except:
 #         pass
 
-import ipdb
-from states.california.counties.santaclara import santaclara_projector
-date_string = '2020-06-14'
-state = "california"
-county = 'santaclara'
-state_projector = santaclara_projector.SantaClaraEthnicDataProjector(
-    state=state, county=county, date_string=date_string)
-print(state_projector.process_raw_data_to_cases())
-print(state_projector.process_raw_data_to_deaths())
-print(state_projector.ethnicity_cases_discrepancies)
-print(state_projector.ethnicity_cases)
-print(state_projector.total_cases)
-print(state_projector.ethnicity_cases_percentages)
-print(state_projector.ethnicity_deaths_discrepancies)
-print(state_projector.ethnicity_deaths)
-print(state_projector.ethnicity_deaths_percentages)
-print(state_projector.total_deaths)
+# import ipdb
+# from states.california.counties.santaclara import santaclara_projector
+# date_string = '2020-06-14'
+# state = "california"
+# county = 'santaclara'
+# state_projector = santaclara_projector.SantaClaraEthnicDataProjector(
+#     state=state, county=county, date_string=date_string)
+# print(state_projector.process_raw_data_to_cases())
+# print(state_projector.process_raw_data_to_deaths())
+# print(state_projector.ethnicity_cases_discrepancies)
+# print(state_projector.ethnicity_cases)
+# print(state_projector.total_cases)
+# print(state_projector.ethnicity_cases_percentages)
+# print(state_projector.ethnicity_deaths_discrepancies)
+# print(state_projector.ethnicity_deaths)
+# print(state_projector.ethnicity_deaths_percentages)
+# print(state_projector.total_deaths)
+#
+# ipdb.set_trace()
 
-ipdb.set_trace()
+import os
+os.mkdir('testy.txt')
