@@ -63,9 +63,9 @@ jobs:
             git commit -m 'test commit and push'
             git push
 
-        - store_artifacts:
-            path: test-reports
-            destination: test-reports
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
 
 workflows:
   build-and-test:
