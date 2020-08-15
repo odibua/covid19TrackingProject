@@ -111,7 +111,6 @@ setup(
     extras_require={
         'interactive': [
             'matplotlib>=2.2.0',
-            'jupyter',
             'ipdb']},
     setup_requires=[
         "ipdb",
