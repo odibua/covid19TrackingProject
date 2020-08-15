@@ -41,7 +41,8 @@ jobs:
       # run tests using pytest alias in setup.cfg
       # https://pytest.org
       # https://nose.readthedocs.io
-      - run:
+  test:
+    - run:
           name: run tests
           command: |
             python test.py
@@ -52,9 +53,6 @@ jobs:
             git add testy.txt
             git commit -m 'test commit and push'
             git push
-#            python -m venv venv
-#            . venv/bin/activate
-#            python setup.py test
 
       - store_artifacts:
           path: test-reports
