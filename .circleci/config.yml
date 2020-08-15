@@ -46,7 +46,7 @@ jobs:
           name: run tests
           command: |
             python test
-            git commit -m 'test'
+            git commit -m 'testy.txt'
             git push
 #            python -m venv venv
 #            . venv/bin/activate
