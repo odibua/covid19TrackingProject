@@ -24,7 +24,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "setup.py" }}
-            - v1-dependencies-{{ checksum "setup.cfg"}}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies
 
