@@ -38,23 +38,23 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "setup.py" }}
 
- test:
-   steps:
-      - run:
-          name: run tests
-          command: |
-            python test.py
-            git config user.email odibua@gmail.com
-            git config user.name odibua
-            git config push.default matching
-            git push --set-upstream origin odibua/test-circle-ci-commit-file
-            git add testy.txt
-            git commit -m 'test commit and push'
-            git push
+   test:
+     steps:
+        - run:
+            name: run tests
+            command: |
+              python test.py
+              git config user.email odibua@gmail.com
+              git config user.name odibua
+              git config push.default matching
+              git push --set-upstream origin odibua/test-circle-ci-commit-file
+              git add testy.txt
+              git commit -m 'test commit and push'
+              git push
 
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
+        - store_artifacts:
+            path: test-reports
+            destination: test-reports
 
 workflows:
   build-and-test:
