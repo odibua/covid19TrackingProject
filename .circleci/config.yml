@@ -47,6 +47,8 @@ jobs:
             python test.py
             git config user.email odibua@gmail.com
             git config user.name odibua
+            git config push.default matching
+            git push --set-upstream origin odibua/test-circle-ci-commit-file
             git add testy.txt
             git commit -m 'test commit'
             git push
