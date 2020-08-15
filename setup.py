@@ -116,7 +116,6 @@ setup(
             'jupyter',
             'ipdb']},
     setup_requires=[
-        'flake8',
         "ipdb",
         'pycodestyle',
         'pytest-runner'],
