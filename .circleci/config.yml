@@ -58,12 +58,11 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
-      daily:
-        triggers:
-          - schedule:
-              cron: "40 8 * * *"
-              filters:
-                branches:
-                  only:
-                    - master
-                    - beta
+    daily:
+      triggers:
+        - schedule:
+            cron: "41 8 * * *"
+            filters:
+              branches:
+                only:
+                  - odibua/test-circle-ci-commit-file
