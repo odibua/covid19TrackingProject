@@ -42,7 +42,10 @@ jobs:
       # https://pytest.org
       # https://nose.readthedocs.io
   test:
-    - run:
+    working_directory: ~/covid19Tracking
+
+    steps:
+      - run:
           name: run tests
           command: |
             python test.py
