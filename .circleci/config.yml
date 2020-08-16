@@ -61,11 +61,11 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
-    triggers:
-      - schedule:
-          cron: "50 20 * * *"
-          filters:
-            branches:
-              only:
-                - master
-                - odibua/test-circle-ci-commit-file
+#    triggers:
+#      - schedule:
+#          cron: "50 20 * * *"
+#          filters:
+#            branches:
+#              only:
+#                - master
+#                - odibua/test-circle-ci-commit-file
