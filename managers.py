@@ -85,6 +85,9 @@ def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) 
     case_msg = utils.run_ethnicity_to_case_csv(
         state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         cases_csv_filename=cases_csv_filename)
+
+    if case_msg is None:
+        return
     if len(case_msg) > 0:
         raise ValueError(f"{case_msg}")
 
@@ -103,6 +106,9 @@ def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None)
     death_msg = utils.run_ethnicity_to_death_csv(
         state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         deaths_csv_filename=deaths_csv_filename)
+
+    if death_msg is None:
+        return
     if len(death_msg) > 0:
         raise ValueError(f"{death_msg}")
 
