@@ -71,40 +71,51 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
         request_type=request_type)
 
 
-def raw_to_ethnicity_csv_manager():
-    logging.info("Open State Configuration file and get states to be processed")
-    config_path = 'states/states_config.yaml'
-    if not path.isfile(config_path):
-        raise ValueError(f"states_config.yaml not found in states directory")
-    config_file = open(config_path)
-    config = yaml.safe_load(config_file)
-    state_list = config['STATES']
-    cases_csv_filename, deaths_csv_filename = 'ethnicity_cases.csv', 'ethnicity_deaths.csv'
+def raw_to_ethnicity_csv_manager(state_name: str, county_name: str = None) -> None:
+    state_county_dir = os.path.join(state_name, 'csvs')
+    if not os.path.isdir(state_county_dir):
+        os.mkdir(state_county_dir)
+    if county_name is None:
+        cases_csv_filename, deaths_csv_filename = f"{state_name}_ethnicity_cases.csv", f"{state_name}_ethnicity_deaths.csv"
+    else:
+        cases_csv_filename, deaths_csv_filename = f"{state_name}_{county_name}_ethnicity_cases.csv", f"{state_name}_{county_name}_ethnicity_deaths.csv"
+    utils.run_ethnicity_to_csv(
+        state_county_dir=state_county_dir, state=state_name, county=county_name, cases_csv_filename=cases_csv_filename,
+        deaths_csv_filename=deaths_csv_filename)
 
-    logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
-    for state in state_list:
-        failure_list = []
-        state_name = state.lower()
-        logging.info(f"Processing {state_name}")
-        state_county_dir = os.path.join('states', state_name)
+    # logging.info("Open State Configuration file and get states to be processed")
+    # config_path = 'states/states_config.yaml'
+    # if not path.isfile(config_path):
+    #     raise ValueError(f"states_config.yaml not found in states directory")
+    # config_file = open(config_path)
+    # config = yaml.safe_load(config_file)
+    # state_list = config['STATES']
+    # cases_csv_filename, deaths_csv_filename = 'ethnicity_cases.csv', 'ethnicity_deaths.csv'
 
-        failure_state_county = utils.run_ethnicity_to_csv(
-            state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
-        failure_list.extend(failure_state_county)
-
-        logging.info("\n")
-        logging.info(f"Processing county level data for {state_name}")
-        county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
-        if len(county_dirs) > 0:
-            for county in county_dirs:
-                state_county_dir = path.join('states', state_name, 'counties', county)
-                failure_state_county = utils.run_ethnicity_to_csv(
-                    state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
-                failure_list.extend(failure_state_county)
-        else:
-            raise Warning(f"No county level data exists for {state_name}")
-        failure_dir = f"states/{state_name}/failed_text"
-        utils.save_errors(save_dir=failure_dir, failure_list=failure_list, mode='project')
+    # logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
+    # for state in state_list:
+    #     failure_list = []
+    #     state_name = state.lower()
+    #     logging.info(f"Processing {state_name}")
+    #     state_county_dir = os.path.join('states', state_name)
+    #
+    #     failure_state_county = utils.run_ethnicity_to_csv(
+    #         state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+    #     failure_list.extend(failure_state_county)
+    #
+    #     logging.info("\n")
+    #     logging.info(f"Processing county level data for {state_name}")
+    #     county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
+    #     if len(county_dirs) > 0:
+    #         for county in county_dirs:
+    #             state_county_dir = path.join('states', state_name, 'counties', county)
+    #             failure_state_county = utils.run_ethnicity_to_csv(
+    #                 state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
+    #             failure_list.extend(failure_state_county)
+    #     else:
+    #         raise Warning(f"No county level data exists for {state_name}")
+    #     failure_dir = f"states/{state_name}/failed_text"
+    #     utils.save_errors(save_dir=failure_dir, failure_list=failure_list, mode='project')
 
 
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
