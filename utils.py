@@ -112,8 +112,8 @@ def get_class_in_projector_module(module: sys.modules, module_name: str) -> Call
 
 
 def project_cases(state: str, county: str,
-                  date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
-    ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = [], [], []
+                  date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
+    ethnicity_cases_list, ethnicity_cases_discrepancies_list = [], []
     date_strings.sort()
     for date_string in date_strings:
         try:
@@ -123,16 +123,15 @@ def project_cases(state: str, county: str,
             ethnicity_cases_discrepancies = projector_instance.ethnicity_cases_discrepancies
             valid_change_bool, msg = check_valid_change(state=state, county=county, date_string=date_string, dict1=ethnicity_cases, dict2=most_recent_entry, type_='case')
             if not valid_change_bool:
-                failed_dates.append(f"CASES: {msg}")
-                break
+                raise ValueError(f"CASES: {msg}")
             else:
                 most_recent_entry = ethnicity_cases
             ethnicity_cases_list.append(ethnicity_cases)
             ethnicity_cases_discrepancies_list.append(ethnicity_cases_discrepancies)
-        except BaseException:
-            msg = f"CASES: ERROR state: {state} county: {county}, {date_string}"
-            failed_dates.append(msg)
-    return ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates
+        except Exception:
+            msg = f"CASES: ERROR in projection state: {state} county: {county}, {date_string}"
+            raise ValueError(msg)
+    return ethnicity_cases_list, ethnicity_cases_discrepancies_list
 
 
 def project_deaths(state: str, county: str,
@@ -160,8 +159,8 @@ def project_deaths(state: str, county: str,
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, failed_dates
 
 
-def parse_cases_responses_with_projectors(state: str, county: str, state_county_dir: str,
-                                          cases_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
+def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir: str, state_county_dir: str,
+                                          cases_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]]]:
     logging.info("Get state/county projector")
     state_county_dir_list = os.listdir(state_county_dir)
     state_county_projector_list = filter_projector_module(projector_candidate_list=state_county_dir_list)
@@ -171,7 +170,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
 
     logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
                  "Load if they do exist")
-    state_county_cases_csv = os.path.join(state_county_dir, cases_csv_filename)
+    state_county_cases_csv = os.path.join(state_csv_dir, cases_csv_filename)
     state_county_cases_df = None
 
     logging.info(f"Get projector class for state: {state}, county: {county}")
@@ -205,12 +204,12 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_county_
     else:
         most_recent_entry = None
 
-    ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates = project_cases(
+    ethnicity_cases_list, ethnicity_cases_discrepancies_list = project_cases(
         state=state, county=county, date_strings=raw_data_cases_dates, most_recent_entry=most_recent_entry, projector_class=projector_class)
-    return ethnicity_cases_list, ethnicity_cases_discrepancies_list, failed_dates
+    return ethnicity_cases_list, ethnicity_cases_discrepancies_list
 
 
-def parse_deaths_responses_with_projectors(state: str, county: str, state_county_dir: str,
+def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_dir: str, state_county_dir: str,
                                            deaths_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], List[str]]:
     logging.info("Get state/county projector")
     state_county_dir_list = os.listdir(state_county_dir)
@@ -226,7 +225,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
 
     logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
                  "Load if they do exist")
-    state_county_deaths_csv = os.path.join(state_county_dir, deaths_csv_filename)
+    state_county_deaths_csv = os.path.join(state_csv_dir, deaths_csv_filename)
     state_county_deaths_df = None
 
     logging.info("Load deaths ethnicities csv if it does not exist. Create if it does not.")
@@ -292,63 +291,64 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
     return response_list, response_names, request_type
 
 
-def run_ethnicity_to_csv(state_county_dir: str, state: str,
-                         county: Union[str, None], cases_csv_filename: str, deaths_csv_filename: str):
+def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: str,
+                         county: Union[str, None], cases_csv_filename: str) -> None:
+    """
+    Convert raw ethnicity data for a particular state and county to number of cases.
+    Process these to obtain disparity.
+
+    Arguments:
+        state_csv_dir: Directory in which csv file will be failed
+        state_county_dir: Directory of state/directory that contains relevant raw data to ethnicity projector
+        state: State for which projection will be done
+        county: County for which projection will be done
+        cases_csv_filename: Name of csv of format {state}_{county}_ethnicity_cases.csv
+
+    Returns:
+        None
+    """
     logging.info(f"Get state ethnicity cases and deaths counts and discrepancies")
     state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list, failed_cases_dates_list = parse_cases_responses_with_projectors(
-        state=state, county=county, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
-    state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list, failed_deaths_dates_list = parse_deaths_responses_with_projectors(
-        state=state, county=county, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
-
-    if len(failed_cases_dates_list) > 0:
-        msg = f"ERROR IN CASE PROJECTION FOR STATE: {state} COUNTY: {county} Num Failed Dates:{len(failed_cases_dates_list)} Failed dates: {failed_cases_dates_list}"
-        logging.info(msg)
-        f_obj = open(f"{state_county_dir}/failed_cases_projection.txt", 'w')
-        f_obj.write(msg)
-    if len(failed_deaths_dates_list) > 0:
-        msg = f"ERROR IN DEATH PROJECTION FOR STATE: {state} COUNTY: {county} Num Failed Dates:{len(failed_deaths_dates_list)} Failed dates: {failed_deaths_dates_list}"
-        logging.info(msg)
-        f_obj = open(f"{state_county_dir}/failed_deaths_projection.txt", 'w')
-        f_obj.write(msg)
+        state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
 
     state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
         state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
+
+    state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
+            state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+    try:
+        pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
+        if len(pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")) > 0:
+            state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False,
+                                                     header=False)
+        elif len(pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")) == 0:
+                state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False)
+    except:
+        state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False)
+
+
+def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state: str,
+                         county: Union[str, None], deaths_csv_filename: str):
+    logging.info(f"Get state ethnicity cases and deaths counts and discrepancies")
+    state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list, failed_deaths_dates_list = parse_deaths_responses_with_projectors(
+        state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
+
     state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
         state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
 
-    try:
-        state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
-            state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
-        try:
-            pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
-            if len(pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")) > 0:
-                state_ethnicity_full_cases_df.to_csv(f"{state_county_dir}/{cases_csv_filename}", mode='a', index=False,
-                                                     header=False)
-            elif len(pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")) == 0:
-                state_ethnicity_full_cases_df.to_csv(f"{state_county_dir}/{cases_csv_filename}", mode='a', index=False)
-        except:
-            state_ethnicity_full_cases_df.to_csv(f"{state_county_dir}/{cases_csv_filename}", mode='a', index=False)
-    except BaseException:
-        pass
-
-    try:
-        state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
+    state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
             state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
-        try:
-            pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
-            if len(pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")) > 0:
-                state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}", mode='a',
-                                                      index=False, header=False)
-            elif len(pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")) == 0:
-                state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}", mode='a',
-                                                      index=False)
-        except:
+    try:
+        pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
+        if len(pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")) > 0:
             state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}", mode='a',
+                                                      index=False, header=False)
+        elif len(pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")) == 0:
+            state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}", mode='a',
+                                                      index=False)
+    except:
+        state_ethnicity_full_deaths_df.to_csv(f"{state_county_dir}/{deaths_csv_filename}", mode='a',
                                                   index=False)
-    except BaseException:
-        pass
-
-    return failed_cases_dates_list + failed_deaths_dates_list
 
 
 def save_errors(save_dir: str, failure_list: List[str], mode: str='scrape'):

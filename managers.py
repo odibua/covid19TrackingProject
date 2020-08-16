@@ -72,15 +72,19 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
 
 
 def raw_to_ethnicity_csv_manager(state_name: str, county_name: str = None) -> None:
-    state_county_dir = os.path.join(state_name, 'csvs')
-    if not os.path.isdir(state_county_dir):
-        os.mkdir(state_county_dir)
+    state_csv_dir = os.path.join(state_name, 'csvs')
+    if not os.path.isdir(state_csv_dir):
+        os.mkdir(state_csv_dir)
     if county_name is None:
+        state_county_dir = os.path.join('states', state_name)
         cases_csv_filename, deaths_csv_filename = f"{state_name}_ethnicity_cases.csv", f"{state_name}_ethnicity_deaths.csv"
     else:
+        state_county_dir = path.join('states', state_name, 'counties', county_name)
         cases_csv_filename, deaths_csv_filename = f"{state_name}_{county_name}_ethnicity_cases.csv", f"{state_name}_{county_name}_ethnicity_deaths.csv"
-    utils.run_ethnicity_to_csv(
-        state_county_dir=state_county_dir, state=state_name, county=county_name, cases_csv_filename=cases_csv_filename,
+    utils.run_ethnicity_to_case_csv(
+        state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name, cases_csv_filename=cases_csv_filename)
+    utils.run_ethnicity_to_deaths_csv(
+        state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         deaths_csv_filename=deaths_csv_filename)
 
     # logging.info("Open State Configuration file and get states to be processed")
