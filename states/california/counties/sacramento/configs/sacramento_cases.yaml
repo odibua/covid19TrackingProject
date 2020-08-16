@@ -7,3 +7,5 @@ REQUEST:
   HEADERS:
     User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
   PAYLOAD: None
+
+WEBSITE: https://sac-epidemiology.maps.arcgis.com/apps/opsdashboard/index.html#/a33a1c52e7fe4252bc1f81e44d725fd1

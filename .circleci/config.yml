@@ -33,6 +33,7 @@ jobs:
             python -m venv venv
             . venv/bin/activate
             pip install -e .[install_requires]
+            pip install -e .[test_requires]
       - save_cache:
           paths:
             - ./venv
@@ -41,13 +42,13 @@ jobs:
       - run:
           name: run tests
           command: |
-            python test.py
+            python setup.py pytest
             git config user.email odibua@gmail.com
             git config user.name odibua
             git config push.default matching
             git push --set-upstream origin odibua/test-circle-ci-commit-file
-            git add testy.txt
-            git commit -m 'test commit and push'
+            git add states
+            git commit -m 'Scrape raw data of states and counties'
             git push
 
       - store_artifacts:
@@ -58,10 +59,11 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
-    triggers:
-      - schedule:
-          cron: "50 20 * * *"
-          filters:
-            branches:
-              only:
-                - odibua/test-circle-ci-commit-file
+#    triggers:
+#      - schedule:
+#          cron: "50 20 * * *"
+#          filters:
+#            branches:
+#              only:
+#                - master
+#                - odibua/test-circle-ci-commit-file

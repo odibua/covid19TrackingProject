@@ -2,8 +2,25 @@ NAME: Alameda
 DATA_TYPE: Cases
 
 REQUEST:
-  TYPE: GET
-  URL: https://services3.arcgis.com/1iDJcsklY3l3KIjE/arcgis/rest/services/AC_cases/FeatureServer/0/query?f=json&where=Geography%3D%27Alameda%20County%27&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Hispanic_Latino%22%2C%22outStatisticFieldName%22%3A%22Hispanic_Latino%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Asian%22%2C%22outStatisticFieldName%22%3A%22Asian%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22African_American_Black%22%2C%22outStatisticFieldName%22%3A%22African_American_Black%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22White%22%2C%22outStatisticFieldName%22%3A%22White%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Pacific_Islander%22%2C%22outStatisticFieldName%22%3A%22Pacific_Islander%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Native_American%22%2C%22outStatisticFieldName%22%3A%22Native_American%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Multirace%22%2C%22outStatisticFieldName%22%3A%22Multirace%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22Unknown_Race%22%2C%22outStatisticFieldName%22%3A%22Unknown_Race%22%7D%5D&resultType=standard&cacheHint=true
+  TYPE: POST
+  URL: https://wabi-us-gov-iowa-api.analysis.usgovcloudapi.net/public/reports/querydata?synchronous=true
   HEADERS:
-    User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
-  PAYLOAD: None
+    Accept: application/json, text/plain, */*
+    Accept-Encoding: gzip, deflate, br
+    Accept-Language: en-US,en;q=0.9
+    ActivityId: a58e9dac-692c-b977-9110-561b08c9eb42
+    Connection: keep-alive
+    Content-Length: '2863'
+    Content-Type: application/json;charset=UTF-8
+    Host: wabi-us-gov-iowa-api.analysis.usgovcloudapi.net
+    Origin: https://app.powerbigov.us
+    Referer: https://app.powerbigov.us/view?r=eyJrIjoiM2EyMmNiMjMtY2YxYS00MzZlLTlhMzMtNTExZDJlZGMyOWYzIiwidCI6IjMyZmRmZjJjLWY4NmUtNGJhMy1hNDdkLTZhNDRhN2Y0NWE2NCJ9&pageName=ReportSection
+    RequestId: 6168c76a-af13-39c8-6fdd-8abc5ca82884
+    Sec-Fetch-Dest: empty
+    Sec-Fetch-Mode: cors
+    Sec-Fetch-Site: cross-site
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36
+    X-PowerBI-ResourceKey: 3a22cb23-cf1a-436e-9a33-511d2edc29f3
+  PAYLOAD: {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"v","Entity":"V_RaceEth_Rates","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"v"}},"Property":"RaceEth"},"Name":"V_RaceEth_Rates.RaceEth"},{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"v"}},"Property":"Cases"}},"Function":0},"Name":"Sum(V_RaceEth_Rates.Cases)"}],"Where":[{"Condition":{"Not":{"Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"v"}},"Property":"RaceEth"}}],"Values":[[{"Literal":{"Value":"'Overall Known Race/Ethnicity'"}}],[{"Literal":{"Value":"'Overall'"}}]]}}}}},{"Condition":{"Comparison":{"ComparisonKind":2,"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"v"}},"Property":"Cases"}},"Function":0}},"Right":{"Literal":{"Value":"10L"}}}},"Target":[{"Column":{"Expression":{"SourceRef":{"Source":"v"}},"Property":"RaceEth"}}]}],"OrderBy":[{"Direction":1,"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"v"}},"Property":"RaceEth"}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1]}]},"DataReduction":{"DataVolume":4,"Primary":{"Window":{"Count":1000}}},"Version":1}}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"v\",\"Entity\":\"V_RaceEth_Rates\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"v\"}},\"Property\":\"RaceEth\"},\"Name\":\"V_RaceEth_Rates.RaceEth\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"v\"}},\"Property\":\"Cases\"}},\"Function\":0},\"Name\":\"Sum(V_RaceEth_Rates.Cases)\"}],\"Where\":[{\"Condition\":{\"Not\":{\"Expression\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"v\"}},\"Property\":\"RaceEth\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'Overall Known Race/Ethnicity'\"}}],[{\"Literal\":{\"Value\":\"'Overall'\"}}]]}}}}},{\"Condition\":{\"Comparison\":{\"ComparisonKind\":2,\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"v\"}},\"Property\":\"Cases\"}},\"Function\":0}},\"Right\":{\"Literal\":{\"Value\":\"10L\"}}}},\"Target\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"v\"}},\"Property\":\"RaceEth\"}}]}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"v\"}},\"Property\":\"RaceEth\"}}}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1]}]},\"DataReduction\":{\"DataVolume\":4,\"Primary\":{\"Window\":{\"Count\":1000}}},\"Version\":1}}}]}","QueryId":"","ApplicationContext":{"DatasetId":"d4923c43-5fc4-444c-aa95-8ecf0d15f562","Sources":[{"ReportId":"5080f005-6411-4a22-88b0-ff13c00d140f"}]}}],"cancelQueries":[],"modelId":295360}
+
+WEBSITE: https://covid-19.acgov.org/data.page?
