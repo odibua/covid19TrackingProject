@@ -126,7 +126,7 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project':
-        raw_to_ethnicity_csv_manager()
+        raw_to_ethnicity_csv_manager(state_name=state_name, county_name=county_name)
 
 
 if __name__ == "__main__":
