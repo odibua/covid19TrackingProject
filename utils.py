@@ -162,7 +162,7 @@ def project_cases(state: str, county: str,
                 most_recent_entry = ethnicity_cases
             ethnicity_cases_list.append(ethnicity_cases)
             ethnicity_cases_discrepancies_list.append(ethnicity_cases_discrepancies)
-        except Exception:
+        except Exception as e:
             msg = f"CASES: ERROR in projection state: {state} county: {county}, {date_string}"
             break
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg
@@ -204,7 +204,7 @@ def project_deaths(state: str, county: str,
                 most_recent_entry = ethnicity_deaths
             ethnicity_deaths_list.append(ethnicity_deaths)
             ethnicity_deaths_discrepancies_list.append(ethnicity_deaths_discrepancies)
-        except BaseException:
+        except Exception as e:
             msg = f"DEATHS: ERROR state: {state} county: {county}, {date_string}"
             break
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, msg
@@ -272,8 +272,8 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir
     try:
         ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg = project_cases(
             state=state, county=county, date_strings=raw_data_cases_dates, most_recent_entry=most_recent_entry, projector_class=projector_class)
-    except Exception:
-        raise ValueError(f"{Exception.args}")
+    except Exception as e:
+        raise ValueError(f"{e}")
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg
 
 
@@ -405,7 +405,6 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
     logging.info(f"Get state ethnicity cases counts and discrepancies")
     state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list, msg = parse_cases_responses_with_projectors(
             state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
-
     try:
         state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
                 state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)

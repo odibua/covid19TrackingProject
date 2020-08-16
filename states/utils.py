@@ -15,6 +15,14 @@ def get_element_int(element: etree.HTML) -> int:
     element = element[0].text
     element = element.replace(',', '')
     element = element.replace('\u200b', '')
+    element_tmp = ''
+    for char in element:
+        try:
+            if int(char) or not int(char):
+                element_tmp = element_tmp + char
+        except:
+            pass
+    element = element_tmp
     return int(element)
 
 
