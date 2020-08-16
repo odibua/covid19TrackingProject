@@ -42,7 +42,9 @@ jobs:
       - run:
           name: run tests
           command: |
-            python setup.py pytest
+            python -m venv venv
+            . venv/bin/activate
+            python setup.py test
             git config user.email odibua@gmail.com
             git config user.name odibua
             git config push.default matching

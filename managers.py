@@ -25,6 +25,11 @@ app.config_from_object('celeryconfig')
 
 
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str], str]:
+    """
+
+    :param config_dir:
+    :return:
+    """
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
     # if len(config_files) > 0:
@@ -36,7 +41,19 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     return response_list, response_names, failed_response_names, request_type
 
 
-def scrape_manager(state_name: str, county_name: str=None):
+def scrape_manager(state_name: str, county_name: str = None) -> None:
+    """
+    Scraping manager that uses the config file associated with a particular state and county to collect raw data
+    about COVID cases and deaths. It can be adopted for other purposes.
+
+    Arguments:
+        state_name: State to scrape from
+        county_name: County to scrape from. Defaults to 0
+
+    Returns:
+        None
+    """
+    logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
     if county_name is None:
         state_config_path = path.join('states', state_name, 'configs')
         raw_data_dir = path.join('states', state_name, 'raw_data')
@@ -44,6 +61,7 @@ def scrape_manager(state_name: str, county_name: str=None):
         state_config_path = path.join('states', state_name, 'counties', county_name, 'configs')
         raw_data_dir = path.join('states', state_name, 'counties', county_name, 'raw_data')
 
+    logging.info(f"Get responses from text file")
     state_response_list, state_data_type_names, failed_state_data_type_names, request_type = get_responses_from_config_files_in_dir(
         config_dir=state_config_path)
 
