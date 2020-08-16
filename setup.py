@@ -86,7 +86,6 @@ setup(
     install_requires=[
         'autopep8',
         'bokeh',
-        'celery',
         'beautifulsoup4',
         'html5lib',
         'numpy>=1.9.0',

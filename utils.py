@@ -260,8 +260,8 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_county
     return ethnicity_dates_list, ethnicity_deaths_discrepancies_list, failed_dates
 
 
-def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], List[str], str]:
-    response_list, response_names, failed_response_names = [], [], []
+def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], str]:
+    response_list, response_names = [], []
     for config_file in config_file_list:
         config_file_obj = open(path.join(config_dir, config_file))
         response_config = yaml.safe_load(config_file_obj)
@@ -289,7 +289,7 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
                 raise ValueError(f"{msg}")
             response.close()
 
-    return response_list, response_names, failed_response_names, request_type
+    return response_list, response_names, request_type
 
 
 def run_ethnicity_to_csv(state_county_dir: str, state: str,
@@ -373,7 +373,19 @@ def save_errors(save_dir: str, failure_list: List[str], mode: str='scrape'):
 
 
 def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List[str],
-                  failed_data_type_names: List[str], request_type: str):
+                  request_type: str) -> None:
+    """
+    Save raw data based on response list and data  type names.
+
+    Arguments:
+        save_dir: Directory that raw data will be saved to
+        response_list: List of responses to be saved
+        data_type_names: Names of data types and
+        request_type: Type of request made
+
+    Returns:
+        None
+    """
     dt = datetime.datetime.now() - datetime.timedelta(days=1)
     today = datetime.date(dt.year, dt.month, dt.day)
     today_str = today.isoformat()
@@ -381,7 +393,7 @@ def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List
     if not path.isdir(save_dir):
         os.makedirs(save_dir)
     save_dir_files = os.listdir(save_dir)
-    if len(save_dir_files) == 0 or 'failed_queries' in save_dir_files:
+    if len(save_dir_files) == 0:
         for response, data_type_name in zip(response_list, data_type_names):
             if request_type == 'GET':
                 save_path = f"{save_dir}/{data_type_name}.html"
@@ -390,11 +402,3 @@ def save_raw_data(save_dir: str, response_list: List[str], data_type_names: List
             text_file = open(save_path, "w")
             text_file.write(response)
             text_file.close()
-            if path.isfile(f"{save_dir}/failed_queries"):
-                os.remove(f"{save_dir}/failed_queries")
-
-    failed_save_path = f"{save_dir}/failed_queries"
-    if len(failed_data_type_names):
-        with open(failed_save_path, 'w') as f:
-            for failed_data_type_name in failed_data_type_names:
-                f.write(f"{failed_data_type_name}\n")

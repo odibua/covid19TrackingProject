@@ -2,17 +2,14 @@
 # Standard Python Imports
 # --------------------------
 import argparse
-import datetime
 import logging
 import os
 from os import path
-import subprocess as cmd
 from typing import List, Tuple
 
 # --------------------------
 # Third Party Imports
 # --------------------------
-from celery import Celery
 import yaml as yaml
 
 # --------------------------
@@ -20,25 +17,25 @@ import yaml as yaml
 # --------------------------
 import utils
 
-app = Celery()
-app.config_from_object('celeryconfig')
 
-
-def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], List[str], str]:
+def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], str]:
     """
+    Wrapper that lists config files in a directory, and calls a function that gets requests from them
 
-    :param config_dir:
-    :return:
+    Arguments:
+        config_dir: Config directory
+
+    Returns:
+        response_list: Get list of responses texts from requests
+        response_names: List of names containing the location and what is being looked for based on the associated config file
+        request_type: Return request type
     """
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
-    # if len(config_files) > 0:
-    response_list, response_names, failed_response_names, request_type = utils.get_yaml_responses(
+    response_list, response_names, request_type = utils.get_yaml_responses(
             config_dir=config_dir, config_file_list=config_files)
-    # else:
-    #     response_list, response_names, failed_response_names, request_type = None, None, None, None
 
-    return response_list, response_names, failed_response_names, request_type
+    return response_list, response_names, request_type
 
 
 def scrape_manager(state_name: str, county_name: str = None) -> None:
@@ -62,7 +59,7 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
         raw_data_dir = path.join('states', state_name, 'counties', county_name, 'raw_data')
 
     logging.info(f"Get responses from text file")
-    state_response_list, state_data_type_names, failed_state_data_type_names, request_type = get_responses_from_config_files_in_dir(
+    state_response_list, state_data_type_names, request_type = get_responses_from_config_files_in_dir(
         config_dir=state_config_path)
 
     if not path.isdir(raw_data_dir):
@@ -71,7 +68,6 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
         save_dir=raw_data_dir,
         response_list=state_response_list,
         data_type_names=state_data_type_names,
-        failed_data_type_names=failed_state_data_type_names,
         request_type=request_type)
 
 
@@ -110,25 +106,10 @@ def raw_to_ethnicity_csv_manager():
         failure_dir = f"states/{state_name}/failed_text"
         utils.save_errors(save_dir=failure_dir, failure_list=failure_list, mode='project')
 
-# TODO(odibua@): Create and push to new branch based on date to be later merged in
 
-
-def add_commit_and_push():
-    logging.info("Add, commit, and push updates to raw data")
-    dt = datetime.datetime.now() - datetime.timedelta(days=1)
-    today = datetime.date(dt.year, dt.month, dt.day)
-    today_str = today.isoformat()
-    cmd.check_call(["git", "add", "states"])
-    message = f"Update states and county raw covid ethnicity data with data from {today_str}"
-    cmd.check_call(["git", "commit", "-m", f"{message}"])
-    cmd.check_call(["git", "push"])
-
-
-@app.task
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
-        add_commit_and_push()
     elif mode == 'project':
         raw_to_ethnicity_csv_manager()
 
