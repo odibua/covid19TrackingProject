@@ -50,7 +50,7 @@ jobs:
             git config push.default matching
             git push --set-upstream origin odibua/test-circle-ci-commit-file
             git add states
-            git commit -m 'Scrape raw data of states and counties'
+            git commit -m 'Scrape raw data of states and counties' || echo "No changes to commit"
             git push
 
       - store_artifacts:
