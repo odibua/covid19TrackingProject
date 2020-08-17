@@ -163,7 +163,7 @@ def project_cases(state: str, county: str,
             ethnicity_cases_discrepancies_list.append(ethnicity_cases_discrepancies)
         except Exception as e:
             if not projector_instance.cases_raw_bool:
-                msg = f"CASES: ERROR in projection state: {state} county: {county}, {date_string}"
+                msg = f"WARNING CASES: ERROR in projection state: {state} county: {county}, {date_string}"
                 pass
             else:
                 raise ValueError(f"{msg}")
