@@ -6,6 +6,7 @@ import logging
 import os
 from os import path
 from typing import List, Tuple
+import warnings
 
 # --------------------------
 # Third Party Imports
@@ -89,7 +90,10 @@ def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) 
     if case_msg is None:
         return
     if len(case_msg) > 0:
-        raise ValueError(f"{case_msg}")
+        if 'WARNING' in case_msg:
+            logging.warning(f"{case_msg}")
+        else:
+            raise ValueError(f"{case_msg}")
 
 
 def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None) -> None:
@@ -110,7 +114,10 @@ def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None)
     if death_msg is None:
         return
     if len(death_msg) > 0:
-        raise ValueError(f"{death_msg}")
+        if 'WARNING' in death_msg:
+            logging.warning(f"{death_msg}")
+        else:
+            raise ValueError(f"{death_msg}")
 
 
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
