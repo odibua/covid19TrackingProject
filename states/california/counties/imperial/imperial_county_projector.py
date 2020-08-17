@@ -66,7 +66,7 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
             self.deaths_raw_bool = True
         except BaseException:
             try:
-                deaths_file_obj = open(raw_data_cases_file_html, 'r')
+                deaths_file_obj = open(raw_data_deaths_file_html, 'r')
                 self.deaths_raw_bool = True
             except BaseException:
                 pass
