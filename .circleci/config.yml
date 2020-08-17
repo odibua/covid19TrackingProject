@@ -68,4 +68,3 @@ workflows:
             branches:
               only:
                 - master
-                - odibua/test-circle-ci-commit-file
