@@ -2,7 +2,6 @@
 # Standard Python Imports
 # --------------------------
 import copy
-import csv
 import datetime
 import importlib
 import inspect
@@ -25,7 +24,7 @@ import yaml as yaml
 # --------------------------
 
 
-def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[str, float], dict2: Dict[str, float], type_: str) -> bool:
+def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[str, float], dict2: Dict[str, float], type_: str) -> Tuple[bool, str]:
     """
     Throw an error if the projection from raw data to processed data is anomalous either because of size or
     differences in keys
@@ -50,14 +49,14 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
     if type_ == 'case':
         if exception_config['CASE_DATES'] is not None:
             if date_string in exception_config['CASE_DATES']:
-                return True, None
+                return True, ''
     elif type_ == 'death':
         if exception_config['DEATH_DATES'] is not None:
             if date_string in exception_config['DEATH_DATES']:
-                return True, None
+                return True, ''
 
     if dict1 is None or dict2 is None:
-        return True, None
+        return True, ''
 
     if len(dict1.keys()) != len(dict2.keys()):
         msg = f"ERROR state: {state} county: {county} {dict1} \n != {dict2}"
@@ -82,7 +81,7 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
         msg = f"ERROR state: {state} county: {county} Max difference {max(diff_list)} is greater than thresh: {exception_config['THRESH']}" \
             f" {dict1} \n != {dict2}"
         return False, msg
-    return True, None
+    return True, ''
 
 
 def get_projector_module(state: str, county: str, projector_name: str) -> str:
@@ -163,8 +162,11 @@ def project_cases(state: str, county: str,
             ethnicity_cases_list.append(ethnicity_cases)
             ethnicity_cases_discrepancies_list.append(ethnicity_cases_discrepancies)
         except Exception as e:
-            msg = f"CASES: ERROR in projection state: {state} county: {county}, {date_string}"
-            break
+            if not projector_instance.cases_raw_bool:
+                msg = f"CASES: ERROR in projection state: {state} county: {county}, {date_string}"
+                pass
+            else:
+                raise ValueError(f"{msg}")
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg
 
 
@@ -193,7 +195,6 @@ def project_deaths(state: str, county: str,
         try:
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_deaths()
-
             ethnicity_deaths = projector_instance.ethnicity_deaths
             ethnicity_deaths_discrepancies = projector_instance.ethnicity_deaths_discrepancies
             valid_change_bool, msg = check_valid_change(state=state, county=county, date_string=date_string, dict1=ethnicity_deaths, dict2=most_recent_entry, type_='death')
@@ -205,8 +206,11 @@ def project_deaths(state: str, county: str,
             ethnicity_deaths_list.append(ethnicity_deaths)
             ethnicity_deaths_discrepancies_list.append(ethnicity_deaths_discrepancies)
         except Exception as e:
-            msg = f"DEATHS: ERROR state: {state} county: {county}, {date_string}"
-            break
+            if not projector_instance.deaths_raw_bool:
+                msg = f"WARNING DEATHS: ERROR state: {state} county: {county}, {date_string}"
+                pass
+            else:
+                raise ValueError(f"{msg}")
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, msg
 
 

@@ -52,14 +52,26 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
 
         logging.info("Load raw json data")
         try:
-            cases_file_obj, deaths_file_obj = open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
+            cases_file_obj = open(raw_data_cases_file, 'r')
+            self.cases_raw_bool = True
         except BaseException:
             try:
-                cases_file_obj, deaths_file_obj = open(
-                    raw_data_cases_file_html, 'r'), open(
-                    raw_data_deaths_file_html, 'r')
+                cases_file_obj = open(
+                    raw_data_cases_file_html, 'r')
+                self.cases_raw_bool = True
             except BaseException:
                 pass
+
+        try:
+            deaths_file_obj = open(raw_data_deaths_file, 'r')
+        except BaseException:
+            try:
+               deaths_file_obj = open(
+                    raw_data_deaths_file_html, 'r')
+               self.deaths_raw_bool = True
+            except BaseException:
+                pass
+
         try:
             self.raw_data_cases_json = json.load(cases_file_obj)
             self.raw_data_deaths_json = json.load(deaths_file_obj)

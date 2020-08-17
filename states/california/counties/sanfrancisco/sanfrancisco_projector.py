@@ -67,6 +67,7 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
                 'WHITE_CASES': 'White',
                 'HISPANIC_CASES': 'Hispanic'
             }
+            self.cases_raw_bool = True
         except BaseException:
             pass
 
@@ -81,6 +82,7 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
                 'ASIAN_DEATHS': 'Asian',
                 'BLACK_DEATHS': 'Black',
             }
+            self.deaths_raw_bool = True
         except BaseException:
             pass
 

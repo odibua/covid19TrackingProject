@@ -23,6 +23,7 @@ from states import utils
 class CaliforniaEthnicDataProjector(EthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         super().__init__(state=state, county=county)
+        self.cases_raw_bool, self.deaths_raw_bool = False, False
         logging.info("Initialize California raw and config file strings")
         raw_data_dir = os.path.join("states", state, "raw_data")
         raw_data_file = f"{raw_data_dir}/{date_string}/california_all.html"
@@ -48,6 +49,7 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
             soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
             raw_data_file_html = soup.prettify()
             self.raw_data_lxml = etree.HTML(raw_data_file_html)
+            self.cases_raw_bool, self.deaths_raw_bool = True, True
         except BaseException:
             pass
 

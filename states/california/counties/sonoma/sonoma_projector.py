@@ -48,6 +48,7 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
             soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
             raw_data_file_html = soup.prettify()
             self.raw_data_lxml = etree.HTML(raw_data_file_html)
+            self.cases_raw_bool = True
         except BaseException:
             pass
 

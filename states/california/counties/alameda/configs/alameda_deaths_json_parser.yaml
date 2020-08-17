@@ -20,3 +20,60 @@ DATES:
       - 0
       - attributes
       - Deaths_White
+  '2020-08-14':
+    HISPANIC_LATINO_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 0
+      - C
+      - 1
+    ASIAN_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 1
+      - C
+      - 1
+    BLACK_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 2
+      - C
+      - 1
+    WHITE_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 3
+      - C
+      - 1

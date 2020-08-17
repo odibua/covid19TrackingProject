@@ -46,9 +46,11 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
         logging.info("Load raw json data")
         try:
             cases_file_obj = open(raw_data_cases_file, 'r')
+            self.cases_raw_bool = True
         except BaseException:
             try:
                 cases_file_obj = open(raw_data_cases_file_html, 'r')
+                self.cases_raw_bool = True
             except BaseException:
                 pass
         try:

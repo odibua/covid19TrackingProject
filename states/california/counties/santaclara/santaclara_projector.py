@@ -72,15 +72,26 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
 
         logging.info("Load raw json data")
         try:
-            cases_file_obj, deaths_file_obj = open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
-            totalcases_file_obj, totaldeaths_file_obj = open(
-                raw_data_totalcases_file, 'r'), open(
-                raw_data_totaldeaths_file, 'r')
-            self.raw_data_cases_json, self.raw_data_deaths_json = json.load(cases_file_obj), json.load(deaths_file_obj)
-            self.raw_data_totalcases_json, self.raw_data_totaldeaths_json = json.load(
-                totalcases_file_obj), json.load(totaldeaths_file_obj)
+            cases_file_obj = open(raw_data_cases_file, 'r')
+            totalcases_file_obj = open(
+                raw_data_totalcases_file, 'r')
+            self.raw_data_cases_json = json.load(cases_file_obj)
+            self.raw_data_totalcases_json = json.load(
+                totalcases_file_obj)
+            self.cases_raw_bool = True
         except BaseException:
             pass
+
+        try:
+            deaths_file_obj = open(raw_data_deaths_file, 'r')
+            totaldeaths_file_obj = open(
+                raw_data_totaldeaths_file, 'r')
+            self.raw_data_deaths_json = json.load(deaths_file_obj)
+            self.raw_data_totaldeaths_json = json.load(totaldeaths_file_obj)
+            self.deaths_raw_bool = True
+        except BaseException:
+            pass
+
 
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
