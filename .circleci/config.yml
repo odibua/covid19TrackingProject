@@ -44,15 +44,9 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            python setup.py test
             git config user.email odibua@gmail.com
             git config user.name odibua
-            git config push.default matching
-            git push --set-upstream origin odibua/test-circle-ci-commit-file
-            git add states
-            git commit -m 'Scrape raw data of states and counties' || echo "No changes to commit"
-            git push
-
+            python setup.py test
       - store_artifacts:
           path: test-reports
           destination: test-reports
@@ -63,7 +57,7 @@ workflows:
       - build-and-run-scrape
     triggers:
       - schedule:
-          cron: "50 20 * * *"
+          cron: "20 21 * * *"
           filters:
             branches:
               only:

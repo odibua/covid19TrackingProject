@@ -2,9 +2,11 @@
 # Standard Python Imports
 # --------------------------
 import argparse
+import datetime
 import logging
 import os
 from os import path
+import subprocess as cmd
 from typing import List, Tuple
 
 # --------------------------
@@ -105,6 +107,17 @@ def raw_to_ethnicity_csv_manager():
             raise Warning(f"No county level data exists for {state_name}")
         failure_dir = f"states/{state_name}/failed_text"
         utils.save_errors(save_dir=failure_dir, failure_list=failure_list, mode='project')
+
+
+def add_commit_and_push(state_county_dir: str):
+    logging.info("Add, commit, and push updates to raw data")
+    dt = datetime.datetime.now() - datetime.timedelta(days=1)
+    today = datetime.date(dt.year, dt.month, dt.day)
+    today_str = today.isoformat()
+    cmd.check_call(["git", "add", f"{state_county_dir}"])
+    message = f"Update {state_county_dir} raw covid ethnicity data with data from {today_str}"
+    cmd.check_call(["git", "commit", "-m", f"{message}"])
+    cmd.check_call(["git", "push"])
 
 
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
