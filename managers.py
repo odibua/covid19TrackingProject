@@ -2,9 +2,11 @@
 # Standard Python Imports
 # --------------------------
 import argparse
+import datetime
 import logging
 import os
 from os import path
+import subprocess as cmd
 from typing import List, Tuple
 import warnings
 
@@ -118,6 +120,20 @@ def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None)
             logging.warning(f"{death_msg}")
         else:
             raise ValueError(f"{death_msg}")
+
+
+def add_commit_and_push(state_county_dir: str):
+    try:
+        logging.info("Add, commit, and push updates to raw data")
+        dt = datetime.datetime.now() - datetime.timedelta(days=1)
+        today = datetime.date(dt.year, dt.month, dt.day)
+        today_str = today.isoformat()
+        cmd.check_call(["git", "add", f"{state_county_dir}"])
+        message = f"Update {state_county_dir} raw covid ethnicity data with data from {today_str}"
+        cmd.check_call(["git", "commit", "-m", f"{message}"])
+        cmd.check_call(["git", "push"])
+    except:
+        pass
 
 
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
