@@ -13,10 +13,10 @@ import unittest
 from managers import add_commit_and_push, scrape_manager
 
 
-class TestCaliforniaSantaClaraScrapeAndProject(unittest.TestCase):
+class TestCaliforniaSonomaScrapeAndProject(unittest.TestCase):
     def setUp(self):
         self.state_name = 'california'
-        self.county_name = 'santaclara'
+        self.county_name = 'sonoma'
         self.state_county_dir = f"states/{self.state_name}/counties/{self.county_name}/raw_data/"
 
     def test_scrape_manager(self):
