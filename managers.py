@@ -110,14 +110,17 @@ def raw_to_ethnicity_csv_manager():
 
 
 def add_commit_and_push(state_county_dir: str):
-    logging.info("Add, commit, and push updates to raw data")
-    dt = datetime.datetime.now() - datetime.timedelta(days=1)
-    today = datetime.date(dt.year, dt.month, dt.day)
-    today_str = today.isoformat()
-    cmd.check_call(["git", "add", f"{state_county_dir}"])
-    message = f"Update {state_county_dir} raw covid ethnicity data with data from {today_str}"
-    cmd.check_call(["git", "commit", "-m", f"{message}"])
-    cmd.check_call(["git", "push"])
+    try:
+        logging.info("Add, commit, and push updates to raw data")
+        dt = datetime.datetime.now() - datetime.timedelta(days=1)
+        today = datetime.date(dt.year, dt.month, dt.day)
+        today_str = today.isoformat()
+        cmd.check_call(["git", "add", f"{state_county_dir}"])
+        message = f"Update {state_county_dir} raw covid ethnicity data with data from {today_str}"
+        cmd.check_call(["git", "commit", "-m", f"{message}"])
+        cmd.check_call(["git", "push"])
+    except:
+        pass
 
 
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
