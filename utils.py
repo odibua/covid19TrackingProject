@@ -481,6 +481,7 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
     Returns:
         msg: Non empty message if there is an error in projecting a particular date
     """
+    change_df_key_bool = False
     logging.info(f"Get state ethnicity deaths counts and discrepancies")
     state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list, msg = parse_deaths_responses_with_projectors(
         state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
@@ -492,15 +493,22 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
         state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
                 state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         try:
-            pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")
-            if len(pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")) > 0:
+            old_state_county_df = pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")
+            change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_deaths_df)
+            if len(old_state_county_df) > 0 and not change_df_key_bool:
                 state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='a',
                                                           index=False, header=False)
-            elif len(pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")) == 0:
-                state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='a',
+            else:
+                if change_df_key_bool:
+                    state_ethnicity_full_deaths_df = pd.concat([old_state_county_df, state_ethnicity_full_deaths_df],
+                                                              axis=0, ignore_index=True)
+                state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='w',
                                                           index=False)
         except:
-            state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='a',
+            if change_df_key_bool:
+                state_ethnicity_full_deaths_df = pd.concat([old_state_county_df, state_ethnicity_full_deaths_df], axis=0,
+                                                          ignore_index=True)
+            state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='w',
                                                       index=False)
     except:
         pass
