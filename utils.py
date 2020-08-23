@@ -74,7 +74,7 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
 
     diff_list = []
     for key in dict1.keys():
-        if key != 'date' and not np.isnan(dict1[key]):
+        if key != 'date' and not np.isnan(dict1[key]) and dict2[key] != 0:
             try:
                 diff_list.append((dict1[key] - dict2[key])/dict2[key])
             except:
@@ -485,7 +485,6 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
     logging.info(f"Get state ethnicity deaths counts and discrepancies")
     state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list, msg = parse_deaths_responses_with_projectors(
         state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
-
     try:
         state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
             state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
