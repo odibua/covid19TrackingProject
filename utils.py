@@ -7,6 +7,7 @@ import importlib
 import inspect
 import json
 import logging
+import numpy as np
 import os
 from os import path
 import sys
@@ -58,13 +59,15 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
     if dict1 is None or dict2 is None:
         return True, ''
 
-    if len(dict1.keys()) != len(dict2.keys()):
+    dict1_not_nan_keys = [key for key in dict1.keys() if not np.isnan(dict1[key])]
+    dict2_not_nan_keys = [key for key in dict2.keys() if not np.isnan(dict2[key])]
+    if len(dict1_not_nan_keys) != len(dict2_not_nan_keys):
         msg = f"ERROR state: {state} county: {county} {dict1} \n != {dict2}"
         return False, msg
 
     diff_list = []
     for key in dict1.keys():
-        if key != 'date':
+        if key != 'date' and not np.isnan(dict1[key]):
             try:
                 diff_list.append((dict1[key] - dict2[key])/dict2[key])
             except:
@@ -126,6 +129,18 @@ def get_class_in_projector_module(module: sys.modules, module_name: str) -> Call
     return obj_list[0]
 
 
+def modify_df_with_old_df(old_df: pd.DataFrame, new_df: pd.DataFrame) -> bool:
+    old_keys, new_keys = old_df.keys(), new_df.keys()
+    if len(old_keys) != len(new_keys):
+        return True
+    new_list = [True if old_key in new_keys else False for old_key in old_keys]
+    N = len(new_list)
+    if sum(new_list) == N:
+        return False
+    else:
+        return True
+
+
 def project_cases(state: str, county: str,
                   date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], str]:
     """
@@ -166,7 +181,8 @@ def project_cases(state: str, county: str,
                 msg = f"WARNING CASES: ERROR in projection state: {state} county: {county}, {date_string}"
                 pass
             else:
-                raise ValueError(f"{msg}")
+                msg = f'Issue with parsing cases at date: {date_string} with most recent entry {most_recent_entry}'
+                break
     return ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg
 
 
@@ -210,7 +226,8 @@ def project_deaths(state: str, county: str,
                 msg = f"WARNING DEATHS: ERROR state: {state} county: {county}, {date_string}"
                 pass
             else:
-                raise ValueError(f"{msg}")
+                msg = f'Issue with parsing death at date: {date_string} with most recent entry {most_recent_entry}'
+                break
     return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, msg
 
 
@@ -407,6 +424,7 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
         msg: Non empty message if there is an error in projecting a particular date
     """
     logging.info(f"Get state ethnicity cases counts and discrepancies")
+    change_df_key_bool = False
     state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list, msg = parse_cases_responses_with_projectors(
             state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
     try:
@@ -415,14 +433,20 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
                     state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         try:
-            pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
-            if len(pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")) > 0:
+            old_state_county_df = pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
+            change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_cases_df)
+            if len(old_state_county_df) > 0 and not change_df_key_bool:
                 state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False,
                                                              header=False)
-            elif len(pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")) == 0:
-                        state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False)
+            else:
+                if change_df_key_bool:
+                    state_ethnicity_full_cases_df = pd.concat([old_state_county_df, state_ethnicity_full_cases_df], axis=0, ignore_index=True)
+                state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='w', index=False)
         except:
-            state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False)
+            if change_df_key_bool:
+                state_ethnicity_full_cases_df = pd.concat([old_state_county_df, state_ethnicity_full_cases_df], axis=0,
+                                                          ignore_index=True)
+            state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='w', index=False)
     except:
         pass
     return msg
