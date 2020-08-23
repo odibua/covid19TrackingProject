@@ -87,10 +87,16 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
         return False, msg
 
     diff_list = [abs(diff) for diff in diff_list]
-    if max(diff_list) > exception_config['THRESH']:
-        msg = f"ERROR state: {state} county: {county} Max difference {max(diff_list)} is greater than thresh: {exception_config['THRESH']}" \
-            f" {dict1} \n != {dict2}"
-        return False, msg
+    if type_ == 'case':
+        if max(diff_list) > exception_config['CASE_THRESH']:
+            msg = f"ERROR state: {state} county: {county} Max difference {max(diff_list)} is greater than thresh: {exception_config['THRESH']}" \
+                f" {dict1} \n != {dict2}"
+            return False, msg
+    elif type_ == 'death':
+        if max(diff_list) > exception_config['DEATH_THRESH']:
+            msg = f"ERROR state: {state} county: {county} Max difference {max(diff_list)} is greater than thresh: {exception_config['THRESH']}" \
+                f" {dict1} \n != {dict2}"
+            return False, msg
     return True, ''
 
 
