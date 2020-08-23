@@ -59,8 +59,15 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
     if dict1 is None or dict2 is None:
         return True, ''
 
-    dict1_not_nan_keys = [key for key in dict1.keys() if not np.isnan(dict1[key])]
-    dict2_not_nan_keys = [key for key in dict2.keys() if not np.isnan(dict2[key])]
+    dict1_not_nan_keys, dict2_not_nan_keys = [], []
+    for key in dict1.keys():
+        if key != 'date':
+            if not np.isnan(dict1[key]):
+                dict1_not_nan_keys.append(key)
+    for key in dict2.keys():
+        if key != 'date':
+            if not np.isnan(dict2[key]):
+                dict2_not_nan_keys.append(key)
     if len(dict1_not_nan_keys) != len(dict2_not_nan_keys):
         msg = f"ERROR state: {state} county: {county} {dict1} \n != {dict2}"
         return False, msg
