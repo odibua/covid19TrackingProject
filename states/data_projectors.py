@@ -31,6 +31,7 @@ class EthnicDataProjector(ABC):
         self.ethnicity_cases_dict, self.ethnicity_cases_percentages_dict = None, None
         self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict = None, None
         self.cases_yaml_keys_dict_keys_map, self.deaths_yaml_keys_dict_keys_map = None, None
+        self.cases_raw_bool, self.deaths_raw_bool = False, False
 
     @property
     @abstractmethod

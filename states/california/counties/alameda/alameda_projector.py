@@ -22,6 +22,7 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         try:
             super().__init__(state=state, county=county)
+            self.cases_raw_bool, self.deaths_raw_bool = False, False
             logging.info("Initialize Alameda raw and config file strings")
             raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
             raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/alameda_cases", f"{raw_data_dir}/{date_string}/alameda_cases.html"
@@ -53,11 +54,24 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
 
             logging.info("Load raw json data")
             try:
-                cases_file_obj, deaths_file_obj = open(raw_data_cases_file, 'r'), open(raw_data_deaths_file, 'r')
-            except BaseException:
-                cases_file_obj, deaths_file_obj = open(
-                    raw_data_cases_file_html, 'r'), open(
-                    raw_data_deaths_file_html, 'r')
+                cases_file_obj = open(raw_data_cases_file, 'r')
+                self.cases_raw_bool = True
+            except:
+                try:
+                    cases_file_obj = open(raw_data_cases_file_html, 'r')
+                    self.cases_raw_bool = True
+                except:
+                    pass
+
+            try:
+                deaths_file_obj = open(raw_data_deaths_file, 'r')
+                self.deaths_raw_bool = True
+            except:
+                try:
+                    deaths_file_obj = open(raw_data_deaths_file_html, 'r')
+                    self.deaths_raw_bool = True
+                except:
+                    pass
 
             self.raw_data_cases_json = json.load(cases_file_obj)
             self.raw_data_deaths_json = json.load(deaths_file_obj)
@@ -77,7 +91,7 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
                 'ASIAN_DEATHS': 'Asian',
                 'BLACK_DEATHS': 'Black',
                 'WHITE_DEATHS': 'White'}
-        except BaseException:
+        except Exception:
             pass
 
     @property

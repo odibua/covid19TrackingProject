@@ -48,6 +48,7 @@ class KernEthnicDataProjector(AlamedaEthnicDataProjector):
         try:
             cases_file_obj = open(raw_data_cases_file, 'r')
             self.raw_data_cases_json = json.load(cases_file_obj)
+            self.cases_raw_bool = True
         except BaseException:
             pass
 

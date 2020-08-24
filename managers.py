@@ -8,6 +8,7 @@ import os
 from os import path
 import subprocess as cmd
 from typing import List, Tuple
+import warnings
 
 # --------------------------
 # Third Party Imports
@@ -73,40 +74,60 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
         request_type=request_type)
 
 
-def raw_to_ethnicity_csv_manager():
-    logging.info("Open State Configuration file and get states to be processed")
-    config_path = 'states/states_config.yaml'
-    if not path.isfile(config_path):
-        raise ValueError(f"states_config.yaml not found in states directory")
-    config_file = open(config_path)
-    config = yaml.safe_load(config_file)
-    state_list = config['STATES']
-    cases_csv_filename, deaths_csv_filename = 'ethnicity_cases.csv', 'ethnicity_deaths.csv'
-
-    logging.info(f"Get and process covid19 ethnicity data for each state and corresponding counties")
-    for state in state_list:
-        failure_list = []
-        state_name = state.lower()
-        logging.info(f"Processing {state_name}")
+def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) -> None:
+    state_csv_dir = os.path.join('states', state_name, 'csvs')
+    if not os.path.isdir(state_csv_dir):
+        os.makedirs(state_csv_dir)
+    if county_name is None:
         state_county_dir = os.path.join('states', state_name)
+        cases_csv_filename = f"{state_name}_ethnicity_cases.csv"
+    else:
+        state_county_dir = path.join('states', state_name, 'counties', county_name)
+        cases_csv_filename = f"{state_name}_{county_name}_ethnicity_cases.csv"
 
-        failure_state_county = utils.run_ethnicity_to_csv(
-            state_county_dir=state_county_dir, state=state_name, county=None, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
-        failure_list.extend(failure_state_county)
+    case_msg = utils.run_ethnicity_to_case_csv(
+        state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
+        cases_csv_filename=cases_csv_filename)
 
-        logging.info("\n")
-        logging.info(f"Processing county level data for {state_name}")
-        county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
-        if len(county_dirs) > 0:
-            for county in county_dirs:
-                state_county_dir = path.join('states', state_name, 'counties', county)
-                failure_state_county = utils.run_ethnicity_to_csv(
-                    state_county_dir=state_county_dir, state=state_name, county=county, cases_csv_filename=cases_csv_filename, deaths_csv_filename=deaths_csv_filename)
-                failure_list.extend(failure_state_county)
+    try:
+        add_commit_and_push(state_county_dir=state_csv_dir)
+    except:
+        pass
+    if case_msg is None:
+        return
+    if len(case_msg) > 0:
+        if 'WARNING' in case_msg:
+            logging.warning(f"{case_msg}")
         else:
-            raise Warning(f"No county level data exists for {state_name}")
-        failure_dir = f"states/{state_name}/failed_text"
-        utils.save_errors(save_dir=failure_dir, failure_list=failure_list, mode='project')
+            raise ValueError(f"{case_msg}")
+
+
+def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None) -> None:
+    state_csv_dir = os.path.join('states', state_name, 'csvs')
+    if not os.path.isdir(state_csv_dir):
+        os.makedirs(state_csv_dir)
+    if county_name is None:
+        state_county_dir = os.path.join('states', state_name)
+        deaths_csv_filename = f"{state_name}_ethnicity_deaths.csv"
+    else:
+        state_county_dir = path.join('states', state_name, 'counties', county_name)
+        deaths_csv_filename = f"{state_name}_{county_name}_ethnicity_deaths.csv"
+
+    death_msg = utils.run_ethnicity_to_death_csv(
+        state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
+        deaths_csv_filename=deaths_csv_filename)
+
+    try:
+        add_commit_and_push(state_county_dir=state_csv_dir)
+    except:
+        pass
+    if death_msg is None:
+        return
+    if len(death_msg) > 0:
+        if 'WARNING' in death_msg:
+            logging.warning(f"{death_msg}")
+        else:
+            raise ValueError(f"{death_msg}")
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -126,8 +147,10 @@ def add_commit_and_push(state_county_dir: str):
 def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
-    elif mode == 'project':
-        raw_to_ethnicity_csv_manager()
+    elif mode == 'project_case':
+        raw_to_ethnicity_case_csv_manager(state_name=state_name, county_name=county_name)
+    elif mode == 'project_death':
+        raw_to_ethnicity_death_csv_manager(state_name=state_name, county_name=county_name)
 
 
 if __name__ == "__main__":

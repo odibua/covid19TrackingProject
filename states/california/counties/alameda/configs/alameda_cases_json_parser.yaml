@@ -40,3 +40,116 @@ DATES:
       - 0
       - attributes
       - Unknown_Race
+  '2020-08-14':
+    HISPANIC_LATINO_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 0
+      - C
+      - 1
+    ASIAN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 1
+      - C
+      - 1
+    BLACK_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 2
+      - C
+      - 1
+    WHITE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 3
+      - C
+      - 1
+    PACIFIC_ISLANDER_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 4
+      - C
+      - 1
+    NATIVE_AMERICAN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 5
+      - C
+      - 1
+    MULTI_RACE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 6
+      - C
+      - 1
+    UNKNOWN_RACE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 7
+      - C
+      - 1

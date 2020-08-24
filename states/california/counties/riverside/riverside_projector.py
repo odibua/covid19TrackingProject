@@ -46,9 +46,11 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
         logging.info("Load raw json data")
         try:
             cases_file_obj = open(raw_data_cases_file, 'r')
+            self.cases_raw_bool = True
         except BaseException:
             try:
                 cases_file_obj = open(raw_data_cases_file_html, 'r')
+                self.cases_raw_bool = True
             except BaseException:
                 pass
         try:
@@ -65,7 +67,7 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
             'ASIAN_CASES': 'Asian',
             'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native',
             'BLACK_CASES': 'Black',
-            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER': 'Native Hawaiian/Pacifc Islander'
+            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacifc Islander'
         }
 
     @property
