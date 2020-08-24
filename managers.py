@@ -89,6 +89,10 @@ def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) 
         state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         cases_csv_filename=cases_csv_filename)
 
+    try:
+        add_commit_and_push(state_county_dir=state_csv_dir)
+    except:
+        pass
     if case_msg is None:
         return
     if len(case_msg) > 0:
@@ -113,6 +117,10 @@ def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None)
         state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         deaths_csv_filename=deaths_csv_filename)
 
+    try:
+        add_commit_and_push(state_county_dir=state_csv_dir)
+    except:
+        pass
     if death_msg is None:
         return
     if len(death_msg) > 0:

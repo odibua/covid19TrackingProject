@@ -57,7 +57,7 @@ workflows:
       - build-and-run-scrape
     triggers:
       - schedule:
-          cron: "32 21 * * *"
+          cron: "30 15 * * *"
           filters:
             branches:
               only:
