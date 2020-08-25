@@ -45,7 +45,7 @@ jobs:
             . venv/bin/activate
             git config user.email odibua@gmail.com
             git config user.name odibua
-            python -m pytest
+            e
       - store_artifacts:
           path: test-reports
           destination: test-reports
