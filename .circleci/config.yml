@@ -32,8 +32,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            pip install -e .[install_requires]
-            pip install -e .[tests_requires]
+            pip install -e .
       - save_cache:
           paths:
             - ./venv
@@ -46,7 +45,7 @@ jobs:
             . venv/bin/activate
             git config user.email odibua@gmail.com
             git config user.name odibua
-            python setup.py test
+            python -m pytest
       - store_artifacts:
           path: test-reports
           destination: test-reports
@@ -55,10 +54,10 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
-    triggers:
-      - schedule:
-          cron: "30 15 * * *"
-          filters:
-            branches:
-              only:
-                - master
+#    triggers:
+#      - schedule:
+#          cron: "30 15 * * *"
+#          filters:
+#            branches:
+#              only:
+#                - master
