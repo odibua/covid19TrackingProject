@@ -28,9 +28,13 @@ class TestCaliforniaSantaClaraScrapeAndProject(unittest.TestCase):
                 add_commit_and_push(state_county_dir=self.state_county_dir)
 
     def test_raw_to_ethnicity_case_manager(self):
-        if self.project_case_bool:
-            raw_to_ethnicity_case_csv_manager(state_name=self.state_name)
+        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+            if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
+                if self.project_case_bool:
+                    raw_to_ethnicity_case_csv_manager(state_name=self.state_name)
 
     def test_raw_to_ethnicity_death_manager(self):
-        if self.project_death_bool:
-            raw_to_ethnicity_death_csv_manager(state_name=self.state_name)
+        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+            if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
+                if self.project_death_bool:
+                    raw_to_ethnicity_death_csv_manager(state_name=self.state_name)
