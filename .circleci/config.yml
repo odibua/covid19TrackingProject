@@ -54,10 +54,10 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
-#    triggers:
-#      - schedule:
-#          cron: "30 15 * * *"
-#          filters:
-#            branches:
-#              only:
-#                - master
+    triggers:
+      - schedule:
+          cron: "30 15 * * *"
+          filters:
+            branches:
+              only:
+                - master
