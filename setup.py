@@ -1,11 +1,6 @@
 import distutils.cmd
-import itertools
-# TODO(odibua@): Investigate potential security issues here when
-# intepretML more developed
 import subprocess
 from setuptools import setup, find_packages
-
-# TODO(odibua@): Add filter based on config file
 
 
 def get_python_files():
@@ -90,6 +85,7 @@ setup(
         'html5lib',
         'numpy>=1.9.0',
         'pandas',
+         'pytest',
         'requests',
         'requests_html',
         'scipy',
