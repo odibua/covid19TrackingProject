@@ -17,8 +17,8 @@ exacerbate/alleviate health disparities.
 #### [I. Packages Used](#packages-used)
 #### [II. Getting Started](#getting-started)
 #### [III. Overview of Code](#overview-of-code)
-#### [IV. Adding State/County for scraping raw data](#adding-state/county-for-scraping-raw-data)
-#### [V. Running Scraper Locally](#running-scraper-locally)
+#### [IV. Adding Regions for Scraping Raw Data](#adding-regions-for-scraping-raw-data)
+#### [V. Running Scraping Locally](#running-scraping-locally)
 #### [VI. Handling Scraping Errors](#handling-scraping-errors)
 #### [VII. Processing Raw Data](#processing-raw-data)
 #### [VIII. Processing Raw Data Locally](#processing-raw-data-locally)
@@ -56,7 +56,7 @@ PyYAML
 
 ## Overview of Code
 
-## Adding State/County for scraping raw data
+## Adding Regions for Scraping Raw Data
 ## Running Scraping Locally
 ## Handling Scraping Errors
 ## Processing Raw Data
