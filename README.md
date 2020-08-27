@@ -1,6 +1,6 @@
 #Tracking COVID-19 by Ethnicity
 **"Never let a good crisis go to waste"**
-[go](#-packages-used)
+
 The purpose of his repository is to enable the collection of real-time data
 regarding covid cases/deaths from different counties and states, stratified by race.
 In it's most ideal form this repository will:
@@ -13,7 +13,17 @@ policies, quantify disparities in health outcomes, and enable research into what
 exacerbate/alleviate health disparities.
 
 
-#### Overview of README
+## Overview of README
+#### [I. Packages Used](#packages-used)
+#### [II. Getting Started](#getting-started)
+#### [III. Overview of Code](#overview-of-code)
+#### [IV. Adding State/County for scraping raw data](#adding-state/county-for-scraping-raw-data)
+#### [V. Running Scraper Locally](#running-scraper-locally)
+#### [VI. Handling Scraping Errors](#handling-scraping-errors)
+#### [VII. Processing Raw Data](#processing-raw-data)
+#### [VIII. Processing Raw Data Locally](#processing-raw-data-locally)
+#### [IX. Handling Processing Errors](#handling-processing-errors)
+
 
 #### Packages Used
 The main packages used can be found in ```setup.py```. These are
@@ -47,9 +57,9 @@ PyYAML
 ####Overview of Code
 
 ####Adding State/County for scraping raw data
-1. #####Running scraper locally
-2. #####Handling scraping errors
+####Running Scraping Locally
+####Handling Scraping Errors
 
-####Processing raw data
-1. #####Running processing locally
-2. #####Handling processing errors
+####Processing Raw Data
+####Processing Raw Data Locally
+####Handling Processing Errors
