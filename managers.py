@@ -36,7 +36,7 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
     response_list, response_names, request_type = utils.get_yaml_responses(
-            config_dir=config_dir, config_file_list=config_files)
+        config_dir=config_dir, config_file_list=config_files)
 
     return response_list, response_names, request_type
 
@@ -91,7 +91,7 @@ def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) 
 
     try:
         add_commit_and_push(state_county_dir=state_csv_dir)
-    except:
+    except BaseException:
         pass
     if case_msg is None:
         return
@@ -119,7 +119,7 @@ def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None)
 
     try:
         add_commit_and_push(state_county_dir=state_csv_dir)
-    except:
+    except BaseException:
         pass
     if death_msg is None:
         return
@@ -140,7 +140,7 @@ def add_commit_and_push(state_county_dir: str):
         message = f"Update {state_county_dir} raw covid ethnicity data with data from {today_str}"
         cmd.check_call(["git", "commit", "-m", f"{message}"])
         cmd.check_call(["git", "push"])
-    except:
+    except BaseException:
         pass
 
 

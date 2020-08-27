@@ -34,8 +34,12 @@ PyYAML
 ```
 
 ####Getting Started
+1. Install git on your system, following these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+1. Add ssh key to git, following the instructions [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+1. Clone the covid19Tracking repository using ```git clone git@github.com:odibua/covid19TrackingProject.git```
 1. Install python on your system by following these [instructions](https://wiki.python.org/moin/BeginnersGuide/Download)
-
+1. Install pip on your system by following these [instructions](https://pip.pypa.io/en/stable/installing/)
+1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
 ####Overview of Code
 
 ####Adding State/County for scraping raw data
