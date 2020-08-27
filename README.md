@@ -1,4 +1,5 @@
-#Tracking COVID-19 by Ethnicity
+# Tracking COVID-19 by Ethnicity
+
 **"Never let a good crisis go to waste"**
 
 The purpose of his repository is to enable the collection of real-time data
