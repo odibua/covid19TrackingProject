@@ -13,9 +13,9 @@ policies, quantify disparities in health outcomes, and enable research into what
 exacerbate/alleviate health disparities.
 
 
-####Overview of README
+#### Overview of README
 
-####Packages Used
+#### Packages Used
 The main packages used can be found in ```setup.py```. These are
 
 ```
@@ -36,7 +36,7 @@ wheel
 PyYAML
 ```
 
-####Getting Started
+#### Getting Started
 1. Install git on your system, following these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 1. Add ssh key to git, following the instructions [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 1. Clone the covid19Tracking repository using ```git clone git@github.com:odibua/covid19TrackingProject.git```
