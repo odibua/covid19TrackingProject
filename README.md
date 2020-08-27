@@ -1,6 +1,6 @@
 #Tracking COVID-19 by Ethnicity
 **"Never let a good crisis go to waste"**
-[go](####-packages-used)
+[go](#-packages-used)
 The purpose of his repository is to enable the collection of real-time data
 regarding covid cases/deaths from different counties and states, stratified by race.
 In it's most ideal form this repository will:
