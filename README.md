@@ -1,6 +1,6 @@
 #Tracking COVID-19 by Ethnicity
 **"Never let a good crisis go to waste"**
-
+[go](####-packages-used)
 The purpose of his repository is to enable the collection of real-time data
 regarding covid cases/deaths from different counties and states, stratified by race.
 In it's most ideal form this repository will:
@@ -11,6 +11,9 @@ In it's most ideal form this repository will:
 This repository of data contained above has the potential to motivate future health/pandemic 
 policies, quantify disparities in health outcomes, and enable research into what factors
 exacerbate/alleviate health disparities.
+
+
+####Overview of README
 
 ####Packages Used
 The main packages used can be found in ```setup.py```. These are
@@ -40,6 +43,7 @@ PyYAML
 1. Install python on your system by following these [instructions](https://wiki.python.org/moin/BeginnersGuide/Download)
 1. Install pip on your system by following these [instructions](https://pip.pypa.io/en/stable/installing/)
 1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
+
 ####Overview of Code
 
 ####Adding State/County for scraping raw data
