@@ -112,11 +112,11 @@ def plot_bar_cases_deaths(fig: figure, dict_: Dict[str, float], ref_name: str):
         ref_list.append(dict_[ref_name])
         fair_list.append(1)
     fig.vbar(x=label_list, top=count_list, width=.9,
-       fill_alpha=.5,
-       fill_color='salmon',
-       line_alpha=.5,
-       line_color='green',
-       line_dash='dashed')
+             fill_alpha=.5,
+             fill_color='salmon',
+             line_alpha=.5,
+             line_color='green',
+             line_dash='dashed')
     fig.line(x=label_list, color='blue', y=fair_list, width=3, legend_label='No Disparity')
     fig.line(x=label_list, color='red', line_dash='dotted', y=ref_list, width=3, legend_label=ref_name)
     fig.xaxis.axis_label = "County"
@@ -129,13 +129,16 @@ def plot_bar_cases_deaths(fig: figure, dict_: Dict[str, float], ref_name: str):
 
     fig.legend.label_text_font_size = '18pt'
 
+
 def run_bar_plot_cases_deaths(fig_names: List[str], cases_mean_disparity: Dict[str, float],
-                          cases_max_disparity: Dict[str, float], deaths_mean_disparity: Dict[str, float], deaths_max_disparity: Dict[str, float], state_name: str):
+                              cases_max_disparity: Dict[str, float], deaths_mean_disparity: Dict[str, float], deaths_max_disparity: Dict[str, float], state_name: str):
     case_list_names = [key for key in cases_mean_disparity.keys() if key != state_name]
     death_list_names = [key for key in deaths_mean_disparity.keys() if key != state_name]
 
-    mean_case_disparity_fig, max_case_disparity_fig = get_bar_plot_figs(fig_names=fig_names[0:2], x_ranges=case_list_names)
-    mean_death_disparity_fig, max_death_disparity_fig = get_bar_plot_figs(fig_names=fig_names[2:], x_ranges=death_list_names)
+    mean_case_disparity_fig, max_case_disparity_fig = get_bar_plot_figs(
+        fig_names=fig_names[0:2], x_ranges=case_list_names)
+    mean_death_disparity_fig, max_death_disparity_fig = get_bar_plot_figs(
+        fig_names=fig_names[2:], x_ranges=death_list_names)
 
     plot_bar_cases_deaths(fig=mean_case_disparity_fig, dict_=cases_mean_disparity, ref_name=state_name)
     plot_bar_cases_deaths(fig=max_case_disparity_fig, dict_=cases_max_disparity, ref_name=state_name)
@@ -185,8 +188,10 @@ def visualize_summary_stats():
         ethnicity_cases_discrepancy_df = ethnicity_cases_discrepancy_df.drop(columns=['date'])
         ethnicity_deaths_discrepancy_df = ethnicity_deaths_discrepancy_df.drop(columns=['date'])
 
-        case_disparity_mean_dict[state_name], death_disparity_mean_dict[state_name] = get_mean_df(df_list=[ethnicity_cases_discrepancy_df, ethnicity_deaths_discrepancy_df])
-        case_disparity_max_dict[state_name], death_disparity_max_dict[state_name] = get_mean_max_df(df_list=[ethnicity_cases_discrepancy_df, ethnicity_deaths_discrepancy_df])
+        case_disparity_mean_dict[state_name], death_disparity_mean_dict[state_name] = get_mean_df(
+            df_list=[ethnicity_cases_discrepancy_df, ethnicity_deaths_discrepancy_df])
+        case_disparity_max_dict[state_name], death_disparity_max_dict[state_name] = get_mean_max_df(
+            df_list=[ethnicity_cases_discrepancy_df, ethnicity_deaths_discrepancy_df])
 
         logging.info("\n")
         logging.info(f"Processing county level data for {state_name}")
@@ -208,7 +213,7 @@ def visualize_summary_stats():
                         df_list=[ethnicity_cases_discrepancy_df])[0]
                     case_disparity_max_dict[county] = get_mean_max_df(
                         df_list=[ethnicity_cases_discrepancy_df])[0]
-                except:
+                except BaseException:
                     pass
 
                 try:
@@ -222,7 +227,7 @@ def visualize_summary_stats():
                         df_list=[ethnicity_deaths_discrepancy_df])[0]
                     death_disparity_max_dict[county] = get_mean_max_df(
                         df_list=[ethnicity_deaths_discrepancy_df])[0]
-                except:
+                except BaseException:
                     pass
         state_county_layout = run_bar_plot_cases_deaths(
             fig_names=fig_names,
@@ -241,6 +246,8 @@ def visualize_summary_stats():
 
 # TODO(odibua@): Make hover tool read dates. Note inconsistent dates so parsing can be fixed
 # TODO(odibua@): Log error if change is too large based on dates
+
+
 def visualize_per_county_stats():
     logging.info("Open State Configuration file and get states to be plotted")
     config_path = 'states/states_config.yaml'
@@ -284,7 +291,6 @@ def visualize_per_county_stats():
         tab_list.append(Panel(child=state_layout, title=state_name))
         tab_names.append(state_name)
 
-
         logging.info("\n")
         logging.info(f"Processing county level data for {state_name}")
         county_dirs = sorted(os.listdir(path.join('states', state_name, 'counties')))
@@ -299,7 +305,7 @@ def visualize_per_county_stats():
                         df_list=[ethnicity_cases_df])[0]
                     ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
                         df=ethnicity_cases_df)
-                except:
+                except BaseException:
                     ethnicity_cases_df, ethnicity_cases_discrepancy_df = {}, {}
 
                 try:
@@ -308,7 +314,7 @@ def visualize_per_county_stats():
                         df_list=[ethnicity_deaths_df])[0]
                     ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
                         df=ethnicity_deaths_df)
-                except:
+                except BaseException:
                     ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = {}, {}
 
                 state_county_layout = run_plot_cases_deaths(
@@ -323,6 +329,7 @@ def visualize_per_county_stats():
 
         tabs = Tabs(tabs=tab_list)
         show(tabs)
+
 
 if __name__ == '__main__':
     logging.basicConfig()

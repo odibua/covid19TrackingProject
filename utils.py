@@ -25,7 +25,8 @@ import yaml as yaml
 # --------------------------
 
 
-def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[str, float], dict2: Dict[str, float], type_: str) -> Tuple[bool, str]:
+def check_valid_change(state: str, county: str, date_string: str,
+                       dict1: Dict[str, float], dict2: Dict[str, float], type_: str) -> Tuple[bool, str]:
     """
     Throw an error if the projection from raw data to processed data is anomalous either because of size or
     differences in keys
@@ -76,8 +77,8 @@ def check_valid_change(state: str, county: str, date_string: str, dict1: Dict[st
     for key in dict1.keys():
         if key != 'date' and not np.isnan(dict1[key]) and dict2[key] != 0:
             try:
-                diff_list.append((dict1[key] - dict2[key])/dict2[key])
-            except:
+                diff_list.append((dict1[key] - dict2[key]) / dict2[key])
+            except BaseException:
                 msg = f"ERROR state: {state} county: {county} with keys. {dict1} \n != {dict2}"
                 return False, msg
 
@@ -181,7 +182,8 @@ def project_cases(state: str, county: str,
             projector_instance.process_raw_data_to_cases()
             ethnicity_cases = projector_instance.ethnicity_cases
             ethnicity_cases_discrepancies = projector_instance.ethnicity_cases_discrepancies
-            valid_change_bool, msg = check_valid_change(state=state, county=county, date_string=date_string, dict1=ethnicity_cases, dict2=most_recent_entry, type_='case')
+            valid_change_bool, msg = check_valid_change(
+                state=state, county=county, date_string=date_string, dict1=ethnicity_cases, dict2=most_recent_entry, type_='case')
             if not valid_change_bool:
                 msg = f"CASES: {msg}"
                 break
@@ -226,7 +228,8 @@ def project_deaths(state: str, county: str,
             projector_instance.process_raw_data_to_deaths()
             ethnicity_deaths = projector_instance.ethnicity_deaths
             ethnicity_deaths_discrepancies = projector_instance.ethnicity_deaths_discrepancies
-            valid_change_bool, msg = check_valid_change(state=state, county=county, date_string=date_string, dict1=ethnicity_deaths, dict2=most_recent_entry, type_='death')
+            valid_change_bool, msg = check_valid_change(
+                state=state, county=county, date_string=date_string, dict1=ethnicity_deaths, dict2=most_recent_entry, type_='death')
             if not valid_change_bool:
                 msg = f"DEATHS: {msg}"
                 break
@@ -290,12 +293,14 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir
 
     logging.info(f"Get raw data dates if not already in cases data frames.")
     raw_data_dates = os.listdir(raw_data_dir)
-    raw_data_cases_dates, raw_data_cases_old_dates = filter_dates_from_df(date_list=raw_data_dates, df=state_county_cases_df)
+    raw_data_cases_dates, raw_data_cases_old_dates = filter_dates_from_df(
+        date_list=raw_data_dates, df=state_county_cases_df)
     raw_data_cases_dates.sort()
     raw_data_cases_old_dates.sort()
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
     if state_county_cases_df is not None and len(state_county_cases_df) > 0:
-        most_recent_entry = state_county_cases_df[state_county_cases_df.date.eq(raw_data_cases_old_dates[-1])].to_dict('record')[0]
+        most_recent_entry = state_county_cases_df[state_county_cases_df.date.eq(
+            raw_data_cases_old_dates[-1])].to_dict('record')[0]
         most_recent_entry_copy = copy.deepcopy(most_recent_entry)
         for key in most_recent_entry.keys():
             if 'discrepancy' in key.lower() or 'unnamed' in key.lower():
@@ -356,13 +361,15 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
 
     logging.info(f"Get raw data dates if not already in the deathsdata frames.")
     raw_data_dates = os.listdir(raw_data_dir)
-    raw_data_deaths_dates, raw_data_deaths_old_dates = filter_dates_from_df(date_list=raw_data_dates, df=state_county_deaths_df)
+    raw_data_deaths_dates, raw_data_deaths_old_dates = filter_dates_from_df(
+        date_list=raw_data_dates, df=state_county_deaths_df)
     raw_data_deaths_dates.sort()
     raw_data_deaths_old_dates.sort()
 
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
     if state_county_deaths_df is not None and len(state_county_deaths_df) > 0:
-        most_recent_entry = state_county_deaths_df[state_county_deaths_df.date.eq(raw_data_deaths_old_dates[-1])].to_dict('records')[0]
+        most_recent_entry = state_county_deaths_df[state_county_deaths_df.date.eq(
+            raw_data_deaths_old_dates[-1])].to_dict('records')[0]
         most_recent_entry_copy = copy.deepcopy(most_recent_entry)
         for key in most_recent_entry.keys():
             if 'discrepancy' in key.lower() or 'unnamed' in key.lower():
@@ -421,7 +428,7 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
 
 
 def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: str,
-                         county: Union[str, None], cases_csv_filename: str) -> str:
+                              county: Union[str, None], cases_csv_filename: str) -> str:
     """
     Convert raw ethnicity data for a particular state and county to number of cases.
     Process these to obtain disparity.
@@ -439,34 +446,35 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
     logging.info(f"Get state ethnicity cases counts and discrepancies")
     change_df_key_bool = False
     state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list, msg = parse_cases_responses_with_projectors(
-            state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
+        state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
     try:
         state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
-                state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
+            state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
-                    state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+            state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
             change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_cases_df)
             if len(old_state_county_df) > 0 and not change_df_key_bool:
                 state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False,
-                                                             header=False)
+                                                     header=False)
             else:
                 if change_df_key_bool:
-                    state_ethnicity_full_cases_df = pd.concat([old_state_county_df, state_ethnicity_full_cases_df], axis=0, ignore_index=True)
+                    state_ethnicity_full_cases_df = pd.concat(
+                        [old_state_county_df, state_ethnicity_full_cases_df], axis=0, ignore_index=True)
                 state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='w', index=False)
-        except:
+        except BaseException:
             if change_df_key_bool:
                 state_ethnicity_full_cases_df = pd.concat([old_state_county_df, state_ethnicity_full_cases_df], axis=0,
                                                           ignore_index=True)
             state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='w', index=False)
-    except:
+    except BaseException:
         pass
     return msg
 
 
 def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state: str,
-                         county: Union[str, None], deaths_csv_filename: str) -> str:
+                               county: Union[str, None], deaths_csv_filename: str) -> str:
     """
     Convert raw ethnicity data for a particular state and county to number of deaths.
     Process these to obtain disparity.
@@ -490,26 +498,27 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
             state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
 
         state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
-                state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+            state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")
-            change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_deaths_df)
+            change_df_key_bool = modify_df_with_old_df(
+                old_df=old_state_county_df, new_df=state_ethnicity_full_deaths_df)
             if len(old_state_county_df) > 0 and not change_df_key_bool:
                 state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='a',
-                                                          index=False, header=False)
+                                                      index=False, header=False)
             else:
                 if change_df_key_bool:
                     state_ethnicity_full_deaths_df = pd.concat([old_state_county_df, state_ethnicity_full_deaths_df],
-                                                              axis=0, ignore_index=True)
+                                                               axis=0, ignore_index=True)
                 state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='w',
-                                                          index=False)
-        except:
+                                                      index=False)
+        except BaseException:
             if change_df_key_bool:
                 state_ethnicity_full_deaths_df = pd.concat([old_state_county_df, state_ethnicity_full_deaths_df], axis=0,
-                                                          ignore_index=True)
+                                                           ignore_index=True)
             state_ethnicity_full_deaths_df.to_csv(f"{state_csv_dir}/{deaths_csv_filename}", mode='w',
-                                                      index=False)
-    except:
+                                                  index=False)
+    except BaseException:
         pass
 
     return msg

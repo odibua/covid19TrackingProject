@@ -93,7 +93,6 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         except BaseException:
             pass
 
-
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
             'WHITE_CASES': 'White',

@@ -38,4 +38,3 @@ class TestCaliforniaLosAngelesScrapeAndProject(unittest.TestCase):
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
                 if self.project_death_bool:
                     raw_to_ethnicity_death_csv_manager(state_name=self.state_name)
-

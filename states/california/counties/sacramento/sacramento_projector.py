@@ -66,9 +66,9 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
             deaths_file_obj = open(raw_data_deaths_file, 'r')
         except BaseException:
             try:
-               deaths_file_obj = open(
+                deaths_file_obj = open(
                     raw_data_deaths_file_html, 'r')
-               self.deaths_raw_bool = True
+                self.deaths_raw_bool = True
             except BaseException:
                 pass
 
