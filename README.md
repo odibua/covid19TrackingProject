@@ -63,7 +63,7 @@ PyYAML
 The below diagram provides a schematic overview of this repository. The description of this schematic will make 
 reference to the directory structure at the end of this section.
 
-![Test Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/overview_code.png)
+![Overview Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/overview_code.png)
 
 #### Scrape Manager
 For a given state and (optionally) county, our scrape manager:
@@ -139,8 +139,8 @@ scrape the state of California and the county of Alameda create the directory ``
 
 1. Within the region directory, create a configs sub-directory. E.G. ``states/california/configs/`` 
 
-1. Add a config file in the created configs sub-directory (**examples are given
-[here](#examples-of-config-files)**). The fields of this config
+1. Add a config file in the created configs sub-directory (**examples of the config
+ are given [here](#examples-of-config-files)**). The fields of this config
 are ``NAME, DATA_TYPE, REQUEST, WEBSITE``. 
     - The ``NAME`` and ``DATA_TYPE`` fields are used determine the name of the file
       containing scraped raw data
@@ -175,6 +175,18 @@ WEBSITE: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity
 ```
 
 #### POST Request Example
+Many websites display information about COVID19 on dash boards. These are generally not
+amenable to simple `GET` requests, and often times require `POST` requests. They 
+also generally require multiple config files. Santa Clara is an example of a 
+particularly sticky case. An example of this dashboard is below:
+
+![Santa Clara Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/santaclara_dashboard.png)
+
+
+For Santa Clara, their dashboard shows cases and deaths stratified by ethnicity
+as percentages. It also shows the total cases/deaths. To get the relevant case
+and death counts, we need all of this data. And, by proxy a config file for each
+value. 
 
 ## Configuring Scraping Schedule
 ## Running Scraping Locally
