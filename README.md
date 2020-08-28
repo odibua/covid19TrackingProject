@@ -58,7 +58,7 @@ PyYAML
 ## Overview of Code
 The below diagram provides a schematic overview of this repository.
 
-![Test Image](https://github.com/odibua/covid19TrackingProject/images/test_image.png)
+![Test Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/test_image.png)
 
     covid19Tracking/
     |   managers.py
