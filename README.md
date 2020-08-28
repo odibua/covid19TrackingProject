@@ -1,4 +1,4 @@
-# Tracking COVID-19 by Ethnicity
+# Tracking COVID19 by Ethnicity
 
 **"Never let a good crisis go to waste"**
 
@@ -56,7 +56,41 @@ PyYAML
 1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
 
 ## Overview of Code
+The below diagram provides a schematic overview of this repository.
 
+    covid19Tracking/
+    |   managers.py
+    |   utils.py
+    |   setup.py
+    |   conftest.py
+    |---states/
+        |   data_projectors.py
+        |   utils.py
+        |   states_config.yaml
+        |---california/
+            |   california_projector.py
+            |   test_california_scrape_project.py
+            |---configs/
+            |       california_all.yaml
+            |       california_all_html_parse.yaml
+            |       projector_exceptions.yaml
+            |---csvs/
+            |---raw_data/
+            |---counties/
+                |---alameda/
+                |   |   alameda_projector.py
+                |   |   test_california_alameda_scrape_project.py
+                |   |---configs/
+                |   |       alameda_cases.yaml
+                |   |       alameda_cases_json_parser.yaml
+                |   |       alameda_deaths.yaml
+                |   |       alameda_deaths_json_parser.yaml
+                |   |       projector_exceptions.yaml
+                |   |---raw_data/
+                |---...
+                .
+                .
+                .
 ## Adding Regions for Scraping Raw Data
 ## Running Scraping Locally
 ## Handling Scraping Errors
