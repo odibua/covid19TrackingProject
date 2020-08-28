@@ -74,7 +74,7 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
         request_type=request_type)
 
 
-def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) -> None:
+def case_parser_manager(state_name: str, county_name: str = None) -> None:
     state_csv_dir = os.path.join('states', state_name, 'csvs')
     if not os.path.isdir(state_csv_dir):
         os.makedirs(state_csv_dir)
@@ -102,7 +102,7 @@ def raw_to_ethnicity_case_csv_manager(state_name: str, county_name: str = None) 
             raise ValueError(f"{case_msg}")
 
 
-def raw_to_ethnicity_death_csv_manager(state_name: str, county_name: str = None) -> None:
+def death_parser_manager(state_name: str, county_name: str = None) -> None:
     state_csv_dir = os.path.join('states', state_name, 'csvs')
     if not os.path.isdir(state_csv_dir):
         os.makedirs(state_csv_dir)
@@ -148,9 +148,9 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_case':
-        raw_to_ethnicity_case_csv_manager(state_name=state_name, county_name=county_name)
+        case_parser_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_death':
-        raw_to_ethnicity_death_csv_manager(state_name=state_name, county_name=county_name)
+        death_parser_manager(state_name=state_name, county_name=county_name)
 
 
 if __name__ == "__main__":

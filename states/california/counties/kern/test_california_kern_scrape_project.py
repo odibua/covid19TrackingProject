@@ -11,7 +11,7 @@ import unittest
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from managers import raw_to_ethnicity_case_csv_manager
+from managers import case_parser_manager
 
 
 @pytest.mark.usefixtures("project_bools")
@@ -25,4 +25,4 @@ class TestCaliforniaKernScrapeAndProject(unittest.TestCase):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
                 if self.project_case_bool:
-                    raw_to_ethnicity_case_csv_manager(state_name=self.state_name)
+                    case_parser_manager(state_name=self.state_name)
