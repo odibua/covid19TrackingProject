@@ -61,7 +61,7 @@ reference to the directory structure at the end of this section.
 
 ![Test Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/overview_code.png)
 
-#####Scrape Manager
+##### Scrape Manager
 For a given state and (optionally) county, our scrape manager:
 
 1. Uses a config saved in the configs directory to request the raw data containing case and (if applicable)
@@ -72,7 +72,7 @@ death counts stratified by ethnicity from a website associated with that state a
 **NOTE: Details on how to add a new state/county for processing by the
 scraper manager are described [here](#adding-regions-for-scraping-raw-data).**
 
-#####Raw Data Parsers
+##### Raw Data Parsers
 The raw data parsing is split into two managers. One for parsing cases from raw data,
 and one for parsing deaths from raw data. For a given state and (optionally) county:
 
