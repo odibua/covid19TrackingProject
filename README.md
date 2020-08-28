@@ -148,9 +148,27 @@ are ``NAME, DATA_TYPE, REQUEST, WEBSITE``.
       It will be useful for handling scraping errors.
     - The ```REQUEST``` field is used by the scrape manager to obtain the relevant raw data 
       from the added region. The```REQUEST``` field either contains paramters for a ``POST``
-      or ``GET`` type.
+      or ``GET`` type of request.
 
 #### Examples of config files
+For the state of California, the information on cases/death counts 
+stratified by ethnicity are stored on an html page that we can obtain
+using a simple ``GET`` request. The associated config is ``california_all.yaml``
+and has the below fields:
+
+```
+NAME: California
+DATA_TYPE: All
+
+REQUEST:
+  TYPE: GET
+  URL: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity.aspx
+  HEADERS:
+    User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
+  PAYLOAD: None
+
+WEBSITE: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity.aspx
+```
 
 ## Configuring Scraping Schedule
 ## Running Scraping Locally
