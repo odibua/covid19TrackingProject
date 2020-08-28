@@ -140,7 +140,7 @@ scrape the state of California and the county of Alameda create the directory ``
 1. Within the region directory, create a configs sub-directory. E.G. ``states/california/configs/`` 
 
 1. Add a config file in the created configs sub-directory (**examples are given
-at the end of this section**). The fields of this config
+[here](#examples-of-config-files)**). The fields of this config
 are ``NAME, DATA_TYPE, REQUEST, WEBSITE``. 
     - The ``NAME`` and ``DATA_TYPE`` fields are used determine the name of the file
       containing scraped raw data
@@ -150,7 +150,11 @@ are ``NAME, DATA_TYPE, REQUEST, WEBSITE``.
       from the added region. The```REQUEST``` field either contains paramters for a ``POST``
       or ``GET`` type of request.
 
-#### Examples of config files
+### Examples of Config Files
+Here we will give an example of two configs for scraping raw data. One
+will be for a website based on a `GET` request and one for a `POST` request.
+
+#### GET Request Example
 For the state of California, the information on cases/death counts 
 stratified by ethnicity are stored on an html page that we can obtain
 using a simple ``GET`` request. The associated config is ``california_all.yaml``
@@ -169,6 +173,8 @@ REQUEST:
 
 WEBSITE: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity.aspx
 ```
+
+#### POST Request Example
 
 ## Configuring Scraping Schedule
 ## Running Scraping Locally
