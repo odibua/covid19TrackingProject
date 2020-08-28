@@ -9,7 +9,3 @@ REQUEST:
   PAYLOAD: None
 
 WEBSITE: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity.aspx
-
-PROJECTOR:
-  Module: california_projector
-  Class: CaliforniaEthnicDataProjector

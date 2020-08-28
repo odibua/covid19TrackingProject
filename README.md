@@ -2,8 +2,9 @@
 
 **"Never let a good crisis go to waste"**
 
-The purpose of his repository is to enable the collection of real-time data
-regarding covid cases/deaths from different counties and states, stratified by race.
+The purpose of his repository is to enable the semi-automated collection of real-time data
+regarding covid cases/deaths from different counties and states, stratified by race. The
+semi-automation is enabled through a combination of Circle CI and pytest.
 In it's most ideal form this repository will:
 
 1. contain real-time data about covid cases/deaths by ethnicity
@@ -17,13 +18,14 @@ exacerbate/alleviate health disparities.
 ## Overview of README
 #### [I. Packages Used](#packages-used)
 #### [II. Getting Started](#getting-started)
-#### [III. Overview of Code](#overview-of-code)
+#### [III. Overview of Code](#overview-of-codlone)
 #### [IV. Adding Regions for Scraping Raw Data](#adding-regions-for-scraping-raw-data)
-#### [V. Running Scraping Locally](#running-scraping-locally)
-#### [VI. Handling Scraping Errors](#handling-scraping-errors)
-#### [VII. Processing Raw Data](#processing-raw-data)
-#### [VIII. Processing Raw Data Locally](#processing-raw-data-locally)
-#### [IX. Handling Processing Errors](#handling-processing-errors)
+#### [V. Configuring Scraping Schedule](#configuring-scraping-schedule)
+#### [VI. Running Scraping Locally](#running-scraping-locally)
+#### [VII. Handling Scraping Errors](#handling-scraping-errors)
+#### [VIII. Processing Raw Data](#processing-raw-data)
+#### [IX. Processing Raw Data Locally](#processing-raw-data-locally)
+#### [X. Handling Processing Errors](#handling-processing-errors)
 
 
 #### Packages Used
@@ -54,6 +56,8 @@ PyYAML
 1. Install python on your system by following these [instructions](https://wiki.python.org/moin/BeginnersGuide/Download)
 1. Install pip on your system by following these [instructions](https://pip.pypa.io/en/stable/installing/)
 1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
+1. Sign up for [circleci](https://circleci.com/signup/), a continous integration tool
+1. Checkout a branch with a meaningful name for adding regions from which to scrape raw data
 
 ## Overview of Code
 The below diagram provides a schematic overview of this repository. The description of this schematic will make 
@@ -124,6 +128,31 @@ case/death parsers are described [here](#processing-raw-data).**
                 .
                 .
 ## Adding Regions for Scraping Raw Data
+Add regions for scraping raw data involves two main steps. The first is adding
+a config file that will be used to get the raw data for the state/county of interest,
+and the second is creating a ``test_{STATE}_{COUNTY}_scrape_project.py``. The specifics 
+of these steps are as follows:
+
+1. Create a directory of your region of interest. E.G. if you are going to scrape the
+state of California create the directory ``states/california/``. If you are going to
+scrape the state of California and the county of Alameda create the directory ``states/california/counties/alameda/``
+
+1. Within the region directory, create a configs sub-directory. E.G. ``states/california/configs/`` 
+
+1. Add a config file in the created configs sub-directory (**examples are given
+at the end of this section**). The fields of this config
+are ``NAME, DATA_TYPE, REQUEST, WEBSITE``. 
+    - The ``NAME`` and ``DATA_TYPE`` fields are used determine the name of the file
+      containing scraped raw data
+    - The ``WEBSITE`` field states the website from which the raw data will be obtained.
+      It will be useful for handling scraping errors.
+    - The ```REQUEST``` field is used by the scrape manager to obtain the relevant raw data 
+      from the added region. The```REQUEST``` field either contains paramters for a ``POST``
+      or ``GET`` type.
+
+#### Examples of config files
+
+## Configuring Scraping Schedule
 ## Running Scraping Locally
 ## Handling Scraping Errors
 ## Processing Raw Data
