@@ -61,13 +61,32 @@ reference to the directory structure at the end of this section.
 
 ![Test Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/overview_code.png)
 
+#####Scrape Manager
 For a given state and (optionally) county, our scrape manager:
 
 1. Uses a config saved in the configs directory to request the raw data containing case and (if applicable)
-death counts stratified by ethnicity from a website associated with that state and/or county.
+death counts stratified by ethnicity from a website associated with that state and/or county. 
 1. Saves this requested data as file(s) in the relevant sub-directory e.g. 
     ```{STATE}/{COUNTY}/raw_data/{DATE}```
 
+**NOTE: Details on how to add a new state/county for processing by the
+scraper manager are described [here](#adding-regions-for-scraping-raw-data).**
+
+#####Raw Data Parsers
+The raw data parsing is split into two managers. One for parsing cases from raw data,
+and one for parsing deaths from raw data. For a given state and (optionally) county:
+
+1. Iterates through the raw data saved for a particular state and county.
+1. Parses the case/death counts stratified by ethnicity based on count.
+1. Calculates a disparity ratio for each ethnicity. The disparity ratio
+is defined as the ratio of the proportion of cases/deaths of a particular
+ethnicity and the proportion of that ethnicity in a state/county. 
+1. Saves these results to the csvs directory of the state e.g.
+    ```{STATE}/csvs/{STATE}_{COUNTY}_ethnicity_cases.csv``` or 
+    ```{STATE}/csvs/{STATE}_{COUNTY}_ethnicity_deaths.csv```
+
+**NOTE: Details on how to add a new state/county for parsing by the
+case/death parsers are described [here](#processing-raw-data).**
 
     covid19Tracking/
     |   managers.py
