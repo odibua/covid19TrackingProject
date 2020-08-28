@@ -56,9 +56,18 @@ PyYAML
 1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
 
 ## Overview of Code
-The below diagram provides a schematic overview of this repository.
+The below diagram provides a schematic overview of this repository. The description of this schematic will make 
+reference to the directory structure at the end of this section.
 
 ![Test Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/overview_code.png)
+
+For a given state and (optionally) county, our scrape manager:
+
+1. Uses a config saved in the configs directory to request the raw data containing case and (if applicable)
+death counts stratified by ethnicity from a website associated with that state and/or county.
+1. Saves this requested data as file(s) in the relevant sub-directory e.g. 
+    ```{STATE}/{COUNTY}/raw_data/{DATE}```
+
 
     covid19Tracking/
     |   managers.py
@@ -78,6 +87,8 @@ The below diagram provides a schematic overview of this repository.
             |       projector_exceptions.yaml
             |---csvs/
             |---raw_data/
+            |       2020-06-14/
+            |       ...
             |---counties/
                 |---alameda/
                 |   |   alameda_projector.py
