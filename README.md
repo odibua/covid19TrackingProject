@@ -155,6 +155,8 @@ Here we will give an example of two configs for scraping raw data. One
 will be for a website based on a `GET` request and one for a `POST` request.
 
 #### GET Request Example
+![California Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/california_example.png)
+
 For the state of California, the information on cases/death counts 
 stratified by ethnicity are stored on an html page that we can obtain
 using a simple ``GET`` request. The associated config is ``california_all.yaml``
@@ -175,18 +177,53 @@ WEBSITE: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity
 ```
 
 #### POST Request Example
+![Santa Clara Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/santaclara_dashboard.png)
+
 Many websites display information about COVID19 on dash boards. These are generally not
 amenable to simple `GET` requests, and often times require `POST` requests. They 
 also generally require multiple config files. Santa Clara is an example of a 
-particularly sticky case. An example of this dashboard is below:
-
-![Santa Clara Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/santaclara_dashboard.png)
-
+particularly sticky case.
 
 For Santa Clara, their dashboard shows cases and deaths stratified by ethnicity
 as percentages. It also shows the total cases/deaths. To get the relevant case
 and death counts, we need all of this data. And, by proxy a config file for each
-value. 
+value. An example of this is the `santaclara_cases.yaml` config file.
+
+```
+NAME: SantaClara
+DATA_TYPE: Cases
+IFRAME: https://app.powerbigov.us/view?r=eyJrIjoiYzBiYTA0YTAtOWYyYS00NzExLTk2ZjAtOGMxOWQ4YzhlODgwIiwidCI6IjBhYzMyMDJmLWMzZTktNGY1Ni04MzBkLTAxN2QwOWQxNmIzZiJ9
+
+REQUEST:
+  TYPE: POST
+  URL: https://wabi-us-gov-virginia-api.analysis.usgovcloudapi.net/public/reports/querydata?synchronous=true
+  HEADERS:
+    Accept: application/json, text/plain, */*
+    Accept-Encoding: gzip, deflate, br
+    Accept-Language: en-US,en;q=0.9
+    ActivityId: 3f2feede-de49-52a2-2e2f-62e2f1118259
+    Connection: keep-alive
+    Content-Length: '2945'
+    Content-Type: application/json;charset=UTF-8
+    Host: wabi-us-gov-virginia-api.analysis.usgovcloudapi.net
+    Origin: https://app.powerbigov.us
+    Referer: https://app.powerbigov.us/view?r=eyJrIjoiYzBiYTA0YTAtOWYyYS00NzExLTk2ZjAtOGMxOWQ4YzhlODgwIiwidCI6IjBhYzMyMDJmLWMzZTktNGY1Ni04MzBkLTAxN2QwOWQxNmIzZiJ9
+    RequestId: e369f8db-ecfd-d1d3-f1b3-73a9498b84e7
+    Sec-Fetch-Dest: empty
+    Sec-Fetch-Mode: cors
+    Sec-Fetch-Site: cross-site
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36
+    X-PowerBI-ResourceKey: c0ba04a0-9f2a-4711-96f0-8c19d8c8e880
+  PAYLOAD: {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"c","Entity":"cases_race","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Race_eth"},"Name":"cases_race.Race_eth"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Count"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Count"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(cases_race.Count)"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_pop"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_pop"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(cases_race.Percent_pop)"}],"OrderBy":[{"Direction":1,"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Race_eth"}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2]}]},"DataReduction":{"DataVolume":4,"Primary":{"Window":{"Count":1000}}},"Version":1},"ExecutionMetricsKind":3}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"cases_race\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Race_eth\"},\"Name\":\"cases_race.Race_eth\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Count\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Count\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(cases_race.Count)\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_pop\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_pop\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(cases_race.Percent_pop)\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Race_eth\"}}}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2]}]},\"DataReduction\":{\"DataVolume\":4,\"Primary\":{\"Window\":{\"Count\":1000}}},\"Version\":1},\"ExecutionMetricsKind\":3}}]}","QueryId":"","ApplicationContext":{"DatasetId":"9f953fbe-cd3f-4764-be79-e8d95223222f","Sources":[{"ReportId":"bb6481c0-2521-4a1e-8db6-e886e81e81c7"}]}}],"cancelQueries":[],"modelId":344052}
+
+WEBSITE: https://www.sccgov.org/sites/covid19/Pages/dashboard.aspx
+```
+ 
+### Populating Request Field in Configs
+Populating the request field requires the use of network developer tools. For tables
+on simple html pages, a `GET` request should suffice, and the config should be filled out
+like the `california_all.yaml` config above. The only fields that need to be changed are
+the `URL` and `WEBSITE` fields.
 
 ## Configuring Scraping Schedule
 ## Running Scraping Locally
