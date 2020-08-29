@@ -254,7 +254,7 @@ Stop when a dictionary that displays ethnicity case/death counts is found
 in the config (as in `california_all.yaml`) and make `TYPE` `GET`. 
     - If it is `POST` make the `TYPE` `POST`, and copy the `Request Headers` to the `HEADERS` field in the config
 as in `santaclara_cases.yaml`. Make the `Content-Length` subfield a string.
-![step6_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step6_click_headers.png)
+![step6_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step6_click_headers_tab.png)
 
 1. Click the `view source` button next to `Request Payload` and copy and paste the resulting json to the `PAYLOAD` 
 field in the config, as in `sanaclara_cases.yaml`.
