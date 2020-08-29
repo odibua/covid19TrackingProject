@@ -59,6 +59,7 @@ PyYAML
 1. Sign up for [circleci](https://circleci.com/signup/), a continous integration tool
 1. Checkout a branch with a meaningful name for adding regions from which to scrape raw data
 
+To lint code type `python setup.py pylint` in terminal
 ## Overview of Code
 The below diagram provides a schematic overview of this repository. The description of this schematic will make 
 reference to the directory structure at the end of this section.
@@ -158,8 +159,8 @@ will be for a website based on a `GET` request and one for a `POST` request.
 ![California Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/california_example.png)
 
 For the state of California, the information on cases/death counts 
-stratified by ethnicity are stored on an html page that we can obtain
-using a simple ``GET`` request. The associated config is ``california_all.yaml``
+stratified by ethnicity are stored on an html page, shown above. We can obtain
+this raw data using a simple ``GET`` request. The associated config is ``california_all.yaml``
 and has the below fields:
 
 ```
@@ -216,14 +217,24 @@ REQUEST:
     X-PowerBI-ResourceKey: c0ba04a0-9f2a-4711-96f0-8c19d8c8e880
   PAYLOAD: {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"c","Entity":"cases_race","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Race_eth"},"Name":"cases_race.Race_eth"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Count"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Count"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(cases_race.Count)"},{"Arithmetic":{"Left":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_pop"}},"Function":0}},"Right":{"ScopedEval":{"Expression":{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Percent_pop"}},"Function":0}},"Scope":[]}},"Operator":3},"Name":"Sum(cases_race.Percent_pop)"}],"OrderBy":[{"Direction":1,"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Race_eth"}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2]}]},"DataReduction":{"DataVolume":4,"Primary":{"Window":{"Count":1000}}},"Version":1},"ExecutionMetricsKind":3}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"cases_race\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Race_eth\"},\"Name\":\"cases_race.Race_eth\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Count\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Count\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(cases_race.Count)\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_pop\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Percent_pop\"}},\"Function\":0}},\"Scope\":[]}},\"Operator\":3},\"Name\":\"Sum(cases_race.Percent_pop)\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"Race_eth\"}}}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2]}]},\"DataReduction\":{\"DataVolume\":4,\"Primary\":{\"Window\":{\"Count\":1000}}},\"Version\":1},\"ExecutionMetricsKind\":3}}]}","QueryId":"","ApplicationContext":{"DatasetId":"9f953fbe-cd3f-4764-be79-e8d95223222f","Sources":[{"ReportId":"bb6481c0-2521-4a1e-8db6-e886e81e81c7"}]}}],"cancelQueries":[],"modelId":344052}
 
-WEBSITE: https://www.sccgov.org/sites/covid19/Pages/dashboard.aspx
+WEBSITE: https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx
 ```
  
 ### Populating Request Field in Configs
-Populating the request field requires the use of network developer tools. For tables
-on simple html pages, a `GET` request should suffice, and the config should be filled out
+Populating the request field requires the use of network developer tools. 
+
+For tables on simple html pages, a `GET` request should suffice, and the config should be filled out
 like the `california_all.yaml` config above. The only fields that need to be changed are
 the `URL` and `WEBSITE` fields.
+
+Pages with dashboards are more complicated. Here, we will walk through an example of 
+figuring out how to properly populate a config file with `POST` requests based on
+the Santa Clara [website](https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx)
+
+1. Click inspect near the dash board
+![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png)
+
+
 
 ## Configuring Scraping Schedule
 ## Running Scraping Locally
