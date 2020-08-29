@@ -231,10 +231,34 @@ Pages with dashboards are more complicated. Here, we will walk through an exampl
 figuring out how to properly populate a config file with `POST` requests based on
 the Santa Clara [website](https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx)
 
-1. Click inspect near the dash board
+1. Click inspect near the dashboard
 ![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png)
 
+1. Select the element in the right tab that highlights the dashboard. Click the div elements until the
+url for the dashboard is visible
+![step2_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step2_select_dashboard.png)
 
+
+1. Copy the url and navigate to it. This should result in a webpage with just the dash board
+![step3_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step3_copy_link_address.png)
+
+1. Click the network tab. If the name column is empty, reload the url
+![step4_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step4_click_network_tab.png)
+
+1. Click the preview tab and click through all the queries. For each query, search the json in the preview tab.
+Stop when a dictionary that displays ethnicity case/death counts is found
+![step5_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step5_search_query_preview.png)
+
+1. Click the headers tab. 
+    - If the `Request Method` is `GET` then copy and paste the `Request URL` to the `URL` field 
+in the config (as in `california_all.yaml`) and make `TYPE` `GET`. 
+    - If it is `POST` make the `TYPE` `POST`, and copy the `Request Headers` to the `HEADERS` field in the config
+as in `santaclara_cases.yaml`. Make the `Content-Length` subfield a string.
+![step6_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step6_click_headers.png)
+
+1. Click the `view source` button next to `Request Payload` and copy and paste the resulting json to the `PAYLOAD` 
+field in the config, as in `sanaclara_cases.yaml`.
+![step7_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step7_view_source_payload.png)
 
 ## Configuring Scraping Schedule
 ## Running Scraping Locally
