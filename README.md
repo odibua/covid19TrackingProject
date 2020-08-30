@@ -367,6 +367,10 @@ inspecting your raw data to make sure that something meaningful is being scraped
 fix is the same. Re-populate the relevant scraping config file. Instructions on how to do so are located [here](#populating-request-field-in-config).
 
 ## Processing Raw Data
-
+To make full use of raw data, it is necessary to process it into coherent numbers. The raw data is 
+processed into:
+- Case/Death counts straified by ethnicity.
+- Disparity ratio stratified by ethnicity, where disparity ratio is defined as percentage of a particular ethnicity in cases/deaths
+divided by the percentage of that ethnicity in the county.
 ## Processing Raw Data Locally
 ## Handling Processing Errors
