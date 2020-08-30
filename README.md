@@ -23,8 +23,8 @@ exacerbate/alleviate health disparities.
 #### [V. Configuring Scraping Schedule](#configuring-scraping-schedule)
 #### [VI. Running Scraping Locally](#running-scraping-locally)
 #### [VII. Handling Scraping Errors](#handling-scraping-errors)
-#### [VIII. Processing Raw Data](#processing-raw-data)
-#### [IX. Processing Raw Data Locally](#processing-raw-data-locally)
+#### [VIII. Adding Regions for Processing Raw Data](#adding-regions-for-processing-raw-data)
+#### [IX. Processing Raw Data](#processing-raw-data)
 #### [X. Handling Processing Errors](#handling-processing-errors)
 
 
@@ -366,11 +366,14 @@ The automatic scraping will always pick up on the first error, but the second er
 inspecting your raw data to make sure that something meaningful is being scraped. Regardless of the source of error, the
 fix is the same. Re-populate the relevant scraping config file. Instructions on how to do so are located [here](#populating-request-field-in-config).
 
-## Processing Raw Data
+## Adding Regions for Processing Raw Data
 To make full use of raw data, it is necessary to process it into coherent numbers. The raw data is 
 processed into:
 - Case/Death counts straified by ethnicity.
 - Disparity ratio stratified by ethnicity, where disparity ratio is defined as percentage of a particular ethnicity in cases/deaths
 divided by the percentage of that ethnicity in the county.
-## Processing Raw Data Locally
+
+**All processed data for a state, or a county in a particular state, is stored in a directory of the form `states/{STATE}/csvs/`**
+
+## Processing Raw Data
 ## Handling Processing Errors
