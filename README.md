@@ -232,7 +232,9 @@ figuring out how to properly populate a config file with `POST` requests based o
 the Santa Clara [website](https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx)
 
 1. Click inspect near the dashboard
-![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png) <!-- .element height="100" width="100" -->
+<img src="https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png" width="48">
+
+![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png) 
 
 1. Select the element in the right tab that highlights the dashboard. Click the div elements until the
 url for the dashboard is visible
