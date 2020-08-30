@@ -357,6 +357,16 @@ Scraping is run locally through pytest. It can be run in three ways.
 
 
 ## Handling Scraping Errors
+The API of websites tend to change. There are two sources of errors.
+
+1. The API of the website being scraped has changed, resulting in request errors
+1. The API of the website as changed, and there are no request errors, but you are scraping incorrect data.
+
+The automatic scraping will always pick up on the first error, but the second error can only be found by semi-periodically
+inspecting your raw data to make sure that something meaningful is being scraped. Regardless of the source of error, the
+fix is the same. Re-populate the relevant scraping config file. Instructions on how to do so are located [here](#populating-request-field-in-config).
+
 ## Processing Raw Data
+
 ## Processing Raw Data Locally
 ## Handling Processing Errors
