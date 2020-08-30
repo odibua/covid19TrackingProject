@@ -350,6 +350,13 @@ different inputs to this subsection mean. In the above case, `30 15 * * *`, mean
 We note that UTC is the only time zone used in Circle CI.
 
 ## Running Scraping Locally
+Scraping is run locally through pytest. It can be run in three ways.
+    - `python -m pytest` scrapes, commits, and pushes raw data for every state/county with a `test_{STATE}_{COUNTY}_scrape_project.py`
+       file
+    - `python -m pytest --state={STATE}` does this for a particular state
+    - `python -m pytest --state={STATE} --county={COUNTY}` does this for a particular state and county
+
+
 ## Handling Scraping Errors
 ## Processing Raw Data
 ## Processing Raw Data Locally
