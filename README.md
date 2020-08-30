@@ -57,7 +57,7 @@ PyYAML
 1. Install pip on your system by following these [instructions](https://pip.pypa.io/en/stable/installing/)
 1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
 1. Sign up for [circleci](https://circleci.com/signup/), a continous integration tool
-1. Checkout a branch with a meaningful name for adding regions from which to scrape raw data
+1. Create a branch with a meaningful name for adding regions from which to scrape raw data i.e `git checkout -b {NAME}`
 
 To lint code type `python setup.py pylint` in terminal
 ## Overview of Code
@@ -151,6 +151,54 @@ are ``NAME, DATA_TYPE, REQUEST, WEBSITE``.
       from the added region. The```REQUEST``` field either contains paramters for a ``POST``
       or ``GET`` type of request.
 
+1. Create in the `states/{STATE}` or `states/{STATE}/counties/{COUNTY}`, a `test_{STATE}_{COUNTY}_scrape_project.py`. 
+Examples of this type of file can be found for [california](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/test_california_scrape_project.py)
+and for [alameda](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/test_california_santaclara_scrape_project.py).
+An example of the Alameda file is below. For your particular region modify `self.state_name` and `self.county_name`. If you are just
+scraping from a state, set `self.county_name = None`.
+
+```
+# --------------------------
+# Standard Python Imports
+# --------------------------
+import pytest
+import unittest
+
+# --------------------------
+# Third Party Imports
+# --------------------------
+
+# --------------------------
+# covid19Tracking Imports
+# --------------------------
+from managers import add_commit_and_push, scrape_manager, case_parser_manager, death_parser_manager
+
+
+@pytest.mark.usefixtures("project_bools")
+class TestCaliforniaAlamedaScrapeAndProject(unittest.TestCase):
+    def setUp(self):
+        self.state_name = 'california'
+        self.county_name = 'alameda'
+        self.state_county_dir = f"states/{self.state_name}/counties/{self.county_name}/raw_data/"
+
+    def test_scrape_manager(self):
+        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+            if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
+                scrape_manager(state_name=self.state_name)
+                add_commit_and_push(state_county_dir=self.state_county_dir)
+
+    def test_raw_to_ethnicity_case_manager(self):
+        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+            if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
+                if self.project_case_bool:
+                    case_parser_manager(state_name=self.state_name)
+
+    def test_raw_to_ethnicity_death_manager(self):
+        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+            if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
+                if self.project_death_bool:
+                    death_parser_manager(state_name=self.state_name)
+```
 ### Examples of Config Files
 Here we will give an example of two configs for scraping raw data. One
 will be for a website based on a `GET` request and one for a `POST` request.
@@ -160,7 +208,7 @@ will be for a website based on a `GET` request and one for a `POST` request.
 
 For the state of California, the information on cases/death counts 
 stratified by ethnicity are stored on an html page, shown above. We can obtain
-this raw data using a simple ``GET`` request. The associated config is ``california_all.yaml``
+this raw data using a simple ``GET`` request. The associated config is [california_all.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/configs/california_all.yaml)
 and has the below fields:
 
 ```
@@ -188,7 +236,7 @@ particularly sticky case.
 For Santa Clara, their dashboard shows cases and deaths stratified by ethnicity
 as percentages. It also shows the total cases/deaths. To get the relevant case
 and death counts, we need all of this data. And, by proxy a config file for each
-value. An example of this is the `santaclara_cases.yaml` config file.
+value. An example of this is the [santaclara_cases.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/configs/santaclara_cases.yaml) config file.
 
 ```
 NAME: SantaClara
@@ -232,8 +280,6 @@ figuring out how to properly populate a config file with `POST` requests based o
 the Santa Clara [website](https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx)
 
 1. Click inspect near the dashboard
-<img src="https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png" width="48">
-
 ![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png) 
 
 1. Select the element in the right tab that highlights the dashboard. Click the div elements until the
@@ -263,6 +309,46 @@ field in the config, as in `sanaclara_cases.yaml`.
 ![step7_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step7_view_source_payload.png)
 
 ## Configuring Scraping Schedule
+Scraping is run periodically using Circle CI. The configuration for this periodic run is stored in
+[.circleci/config.yml](https://github.com/odibua/covid19TrackingProject/blob/master/.circleci/config.yml). The
+relevant fields are replicated below.
+
+```
+      - run:
+          name: run tests
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            git config user.email odibua@gmail.com
+            git config user.name odibua
+            python -m pytest
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-run-scrape
+    triggers:
+      - schedule:
+          cron: "30 15 * * *"
+          filters:
+            branches:
+              only:
+                - master
+
+```
+In order to have Circle CI run scraping on a particular state and/or county regularly three modifications must be made.
+
+1. Under the run section modify `git config user.email odibua@gmail.com` and `git config user.name odibua` 
+   to make use of your own email and user name.
+1. Under the run section modify `python -m pytest` to `python -m pytest --state={STATE}` or `python -m pytest --state={STATE} --county={COUNTY}`
+   in order to have periodic scraping occur for particular states and/or counties.
+1. Modify the `cron` subsection under `schedule`. The [crontab guru](https://crontab.guru/#20_21_*_*_*) shows what 
+different inputs to this subsection mean. In the above case, `30 15 * * *`, means scraping will run at 15:30 UTC every day.
+We note that UTC is the only time zone used in Circle CI.
+
 ## Running Scraping Locally
 ## Handling Scraping Errors
 ## Processing Raw Data
