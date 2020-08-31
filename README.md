@@ -397,6 +397,15 @@ result of processing raw data makes sense.
     - `CASE_DATES` and `DEATH_DATES` fields are populated with lists of dates in which checks are skipped when processing raw data. These are populated in the instances where
 our checks throw an error, but, upon manual inspection, the changes recorded are valid. 
 
+1. Create a python projector file of form `{COUNTY}_projector.py` or `{STATE}_projector.py`.
+    - The [Santa Clara projector](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/santaclara_projector.py) is
+      is an example of a projector for parsing JSON raw data when one needs to combine values from different sources of raw data.
+    - The [Sacrament projector](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/states/california/counties/sacramento/sacramento_projector.py) is
+      an example of a straightforward projector for parsing JSON raw data.
+    - The [Los Angeles projector](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/losangeles/losangeles_projector.py)
+      is an example of a projector for parsing html raw data. 
+      
+For any new region, populate the projector using one of the above examples as a reference
 
 **California html parse yaml**
 ```

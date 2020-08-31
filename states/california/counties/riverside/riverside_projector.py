@@ -21,6 +21,7 @@ from states import utils
 class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         self.state, self.county = state, county
+        self.cases_raw_bool, self.deaths_raw_bool = False, False
         logging.info("Initialize riverside raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
         raw_data_cases_file, raw_data_cases_file_html = f"{raw_data_dir}/{date_string}/riverside_cases", f"{raw_data_dir}/{date_string}/riverside_cases.html"

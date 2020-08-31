@@ -23,6 +23,7 @@ from states import utils
 class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         super().__init__(state=state, county=county, date_string=date_string)
+        self.cases_raw_bool, self.deaths_raw_bool = False, False
         logging.info("Initialize Los Angeles raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
         raw_data_file = f"{raw_data_dir}/{date_string}/losangeles_all.html"
