@@ -375,5 +375,9 @@ divided by the percentage of that ethnicity in the county.
 
 **All processed data for a state, or a county in a particular state, is stored in a directory of the form `states/{STATE}/csvs/`**
 
+Adding regions for processing raw data boils down to creating a parser config file containing elements that are used to 
+transform raw data to case/death counts, creating a projection exception config file (that will be explained shortly), and creating
+a python projector file of form `{COUNTY}_projector.py` or `{STATE}_projector.py`. The config files
+are saved in the state and/or county `configs` directory.
 ## Processing Raw Data
 ## Handling Processing Errors
