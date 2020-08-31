@@ -378,6 +378,152 @@ divided by the percentage of that ethnicity in the county.
 Adding regions for processing raw data boils down to creating a parser config file containing elements that are used to 
 transform raw data to case/death counts, creating a projection exception config file (that will be explained shortly), and creating
 a python projector file of form `{COUNTY}_projector.py` or `{STATE}_projector.py`. The config files
-are saved in the state and/or county `configs` directory.
+are saved in the state and/or county `configs` directory. We go through these steps in more detail below.
+
+1. Create a parser config that will be used to convert raw data to case/death counts. The parser
+will either contain xpaths for html, or a list of json keys. The json keys can be found by using pythons
+`json` module to load the raw data text through `json.load`. The xpaths for html can be found by opening
+the raw html file, using inspect to select relevant elements on the page, and copying the full xpath of that element.
+Both configs are partially replicated at the end of this section. 
+    - An example of a html parser is [california_all_html_parse.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/configs/california_all_html_parse.yaml)
+    - An example of a json parser is [santaclara_cases.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/configs/santaclara_cases.yaml).
+    - The `DATES` field in these files gives the date at which the html or json parsers
+are valid. It is not uncommon for api responses to change slightly over time. At each date this occurs, a new element is added
+under the `DATE` field with valid parsing. 
+
+1. Create a [projector_exceptions.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/sacramento/configs/projector_exceptions.yaml) file. The processing managers have built in checks to see whether or not the 
+result of processing raw data makes sense. 
+    - `CASE_THRESH` and `DEATH_THRESH` field gives the threshold percentage change allowed before an error is thrown during processing case/death raw data. 
+    - `CASE_DATES` and `DEATH_DATES` fields are populated with lists of dates in which checks are skipped when processing raw data. These are populated in the instances where
+our checks throw an error, but, upon manual inspection, the changes recorded are valid. 
+
+
+**California html parse yaml**
+```
+DATES:
+  '2020-06-13':
+    LATINO_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[2]/td[2]
+    LATINO_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[2]/td[4]
+    WHITE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[3]/td[2]
+    WHITE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[3]/td[4]
+    ASIAN_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[4]/td[2]
+    ASIAN_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[4]/td[4]
+    BLACK_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[5]/td[2]
+    BLACK_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[5]/td[4]
+    MULTI_RACE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[6]/td[2]
+    MULTI_RACE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[6]/td[4]
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[2]
+    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[4]
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[2]
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[4]
+    OTHER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[2]
+    OTHER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[4]
+    ...
+```
+
+**Santa Clara Cases Json Parser Yaml**
+ ```
+DATES:
+  '2020-06-14':
+    BLACK_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 0
+      - C
+      - 1
+    ASIAN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 1
+      - C
+      - 1
+    HISPANIC_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 2
+      - C
+      - 1
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 3
+      - C
+      - 1
+    OTHER_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 4
+      - C
+      - 1
+    UNKNOWN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 5
+      - C
+      - 1
+    WHITE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 1
+      - DM1
+      - 6
+      - C
+      - 1
+```
+
 ## Processing Raw Data
 ## Handling Processing Errors
