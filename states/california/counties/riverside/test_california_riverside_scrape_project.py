@@ -31,4 +31,4 @@ class TestCaliforniaRiversideScrapeAndProject(unittest.TestCase):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
                 if self.project_case_bool:
-                    raw_to_ethnicity_case_csv_manager(state_name=self.state_name)
+                    raw_to_ethnicity_case_csv_manager(state_name=self.state_name, county_name=self.county_name)

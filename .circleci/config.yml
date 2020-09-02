@@ -18,6 +18,9 @@ jobs:
     working_directory: ~/covid19Tracking
 
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "fa:1c:41:1a:46:7c:ca:06:55:72:88:e5:ff:b2:90:e0"
       - checkout
 
       # Download and cache dependencies
@@ -26,9 +29,6 @@ jobs:
             - v1-dependencies-{{ checksum "setup.py" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies
-      - add_ssh_keys:
-          fingerprints:
-            - "fa:1c:41:1a:46:7c:ca:06:55:72:88:e5:ff:b2:90:e0"
       - run:
           name: install dependencies
           command: |
@@ -43,6 +43,8 @@ jobs:
       - run:
           name: run tests
           command: |
+            git config user.email odibua@gmail.com
+            git config user.name odibua
             python -m venv venv
             . venv/bin/activate
             python -m pytest
@@ -54,10 +56,10 @@ workflows:
   build-and-test:
     jobs:
       - build-and-run-scrape
-    triggers:
-      - schedule:
-          cron: "30 15 * * *"
-          filters:
-            branches:
-              only:
-                - master
+#     triggers:
+#       - schedule:
+#           cron: "30 15 * * *"
+#           filters:
+#             branches:
+#               only:
+#                 - master
