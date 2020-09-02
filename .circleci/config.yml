@@ -26,7 +26,9 @@ jobs:
             - v1-dependencies-{{ checksum "setup.py" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies
-
+      - add_ssh_keys:
+          fingerprints:
+            - "fa:1c:41:1a:46:7c:ca:06:55:72:88:e5:ff:b2:90:e0"
       - run:
           name: install dependencies
           command: |
@@ -43,8 +45,6 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            git config user.email odibua@gmail.com
-            git config user.name odibua
             python -m pytest
       - store_artifacts:
           path: test-reports
