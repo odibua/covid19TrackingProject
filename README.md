@@ -352,7 +352,7 @@ We note that UTC is the only time zone used in Circle CI.
 ## Running Scraping Locally
 Scraping is run locally through pytest. It can be run in three ways.
 - `python -m pytest` scrapes, commits, and pushes raw data for every state/county with a `test_{STATE}_{COUNTY}_scrape_project.py` file
-- `python -m pytest --state={STATE}` does this for a particular state
+- `python -m pytest --state={STATE}` does this for a particular state and every county in the state
 - `python -m pytest --state={STATE} --county={COUNTY}` does this for a particular state and county
 
 
@@ -535,4 +535,34 @@ DATES:
 ```
 
 ## Processing Raw Data
+Processing raw data makes use of one of six commands:
+- `python -m pytest --project_case_bool` processes raw data about cases from every state/county with a properly populated
+ `test_{STATE}_{COUNTY}_scrape_project.py` file and pushes the resulting csv.
+- `python -m pytest --state={STATE} --project_case_bool` does this for a state and every county in the state
+- `python -m pytest --state={STATE} --county={COUNTY} --projecth_case_bool` does this for a particular state and county
+
+To process raw data for deaths replace `project_case_bool` with `project_death_bool`. It is possible to
+make projection of raw data a regularly scheduled by adding one of the above commands to the circleci config
+as illustrated [here](#configuring-scraping-schedule). **Sceduling processing is not recommended. Processing raw data raises
+frequent errors, and we think it is best to periodically do so locally**
+
 ## Handling Processing Errors
+ Three primary types of errors will occur when processing raw data. The first is that newly processed data will have abnormal
+values, the second is that processed data will have inconsistent keys (ethnic categories may change, for example), and the
+third is that the parsing is simply not working. The first two errors are thrown based on the output of the
+ [check_valid_change](https://github.com/odibua/covid19TrackingProject/blob/62671742b142ec643bd55e5e4d6e386df7e2221f/utils.py#L28)
+ function. We will iterate through example error messages from these, and how to address them.
+
+1. **Abnormal Values**
+     - Sample Error: 
+        ```
+        ValueError: CASES: ERROR state: california county: santaclara Max difference 0.14239324565676245 is greater than thresh: 0.1 
+        {'White': 1487, 'Hispanic': 7036, 'Asian': 1357, 'Black': 247, 'Native Hawaiian/Pacific Islander': 83, 'Other': 884, 'date': '2020-08-12'} 
+        != {'White': 1376, 'Hispanic': 6159, 'Asian': 1260, 'Black': 226, 'Native Hawaiian/Pacific Islander': 80, 'Other': 850, 'date': '2020-08-08'}```
+
+    - For this error, check the raw data from which this is being pulled:
+        - If the data is correct, add the date, `2020-08-12`, to this state/counties `projection_exception.yaml`
+        - If the data is correct, update the html or json parser with new xpaths/json keys at this new
+          date as shown [here](#adding-regions-for-processing-raw-data)
+
+1. **Inconsistent Keys**
