@@ -48,9 +48,6 @@ jobs:
             python -m venv venv
             . venv/bin/activate
             python -m pytest
-            git add states/
-            git commit -m 'Update raw data'
-            git push
       - store_artifacts:
           path: test-reports
           destination: test-reports
