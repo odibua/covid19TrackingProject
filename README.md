@@ -7,10 +7,10 @@ regarding covid cases/deaths from different counties and states, stratified by r
 semi-automation is enabled through a combination of Circle CI and pytest.
 In it's most ideal form this repository will:
 
-1. contain real-time data about covid cases/deaths by ethnicity
-2. contain this daa for different states/counties
+1. contain real-time raw data about covid cases/deaths by ethnicity
+2. contain this data for a variety of different states/counties
 
-This repository of data contained above has the potential to motivate future health/pandemic 
+This repository has the potential to motivate future health/pandemic 
 policies, quantify disparities in health outcomes, and enable research into what factors
 exacerbate/alleviate health disparities.
 
@@ -30,21 +30,27 @@ exacerbate/alleviate health disparities.
  
 #### Data for Researchers
 For researchers who would like to directly use data, the relevant csvs are contained in directories of 
-form `states/{STATE}/csvs/`. Each of these contain csvs containing state/death information with names 
+form `states/{STATE}/csvs/`. Each of these have csvs containing state/county information with names 
 formatted as `{STATE}_{COUNTY}_ethnicity_cases.csv`. The directory for California is located 
 [here](https://github.com/odibua/covid19TrackingProject/tree/master/states/california/csvs)
 
 Each csv has columns of data containing the case/death count of each ethnicity, the date of that count, 
 and a disparity ratio that is defined as the ratio between the percentage of
-total cases represented by an ethnicity to that same ethnicity's representation in the state/county of interest. For example,
+total cases/deaths represented by an ethnicity to that same ethnicity's representation in the state/county of interest. For example,
 a disparity ratio of two would mean that a particular ethnicity is represented in COVID twice as much as would be expected 
-based on their population. 
+based on their representation in the region. 
 
-**In many counties/states their are people whose ethnicities are not known. Those are
-ignored in this code.**
+**NOTES OF INTEREST**
+1. In many counties/states their are people whose ethnicities are not known. Those are
+ignored in the data set
+
+1. While the raw data for each region are updated automatically, the csvs are updated manually on a periodic basis.
+   If the dates in your csv of interest are not up to date, check the raw data for that county. If there is more recent
+   raw data, process this data by following the instructions [here](#handling-processing-errors)
 
 #### Packages Used
-The main packages used can be found in ```setup.py```. These are
+The main packages used can be found in [setup.py](https://github.com/odibua/covid19TrackingProject/blob/master/setup.py). 
+They are listed below.
 
 ```
 autopep8
@@ -65,16 +71,24 @@ PyYAML
 ```
 
 ## Getting Started
-1. Install git on your system, following these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-1. Add ssh key to git, following the instructions [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
-1. Clone the covid19Tracking repository using ```git clone git@github.com:odibua/covid19TrackingProject.git```
-1. Install python on your system by following these [instructions](https://wiki.python.org/moin/BeginnersGuide/Download)
-1. Install pip on your system by following these [instructions](https://pip.pypa.io/en/stable/installing/)
-1. Navigate to ```covid19Tracking/``` and run ```pip install -e .```
-1. Sign up for [circleci](https://circleci.com/signup/), a continous integration tool
-1. Create a branch with a meaningful name for adding regions from which to scrape raw data i.e `git checkout -b {NAME}`
+1. Install git on your system, following these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+1. Add ssh key to git, following the instructions [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+1. Clone the covid19Tracking repository using 
+    ```
+    git clone git@github.com:odibua/covid19TrackingProject.git```
+1. Install python on your system by following these [instructions](https://wiki.python.org/moin/BeginnersGuide/Download).
+1. Install pip and a create a virtual environment on your system by following these [instructions](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
+1. Navigate to the ```covid19Tracking``` directory, if not already there, and activate
+   the virtual environment, following these [instructions](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
+   **NOTE: Activate the virtual environment every time you work with this code**
+1. Create a branch with a meaningful name for adding regions from which to scrape and process raw data i.e `git checkout -b {NAME}`
+   This branch should be used to insure the scraping of raw data from a particular region is operating properly.
+1. Sign up for [circleci](https://circleci.com/signup/)
+1. Authorize github on circleci and create either a user key or read/write deploy key that will allow circleci to
+   push commits to the repository. [Instructions](https://support.circleci.com/hc/en-us/articles/360018860473-How-to-push-a-commit-back-to-the-same-repository-as-part-of-the-CircleCI-job)
 
-To lint code type `python setup.py pylint` in terminal
+**To lint code type `python setup.py pylint` in terminal.**
+
 ## Overview of Code
 The below diagram provides a schematic overview of this repository. The description of this schematic will make 
 reference to the directory structure at the end of this section.
@@ -94,9 +108,9 @@ scraper manager are described [here](#adding-regions-for-scraping-raw-data).**
 
 #### Raw Data Parsers
 The raw data parsing is split into two managers. One for parsing cases from raw data,
-and one for parsing deaths from raw data. For a given state and (optionally) county:
+and one for parsing deaths from raw data. For a given state and (optionally) county, the parsers:
 
-1. Iterates through the raw data saved for a particular state and county.
+1. Iterate through the raw data saved for a particular state and county.
 1. Parses the case/death counts stratified by ethnicity based on count.
 1. Calculates a disparity ratio for each ethnicity. The disparity ratio
 is defined as the ratio of the proportion of cases/deaths of a particular
@@ -159,7 +173,7 @@ scrape the state of California and the county of Alameda create the directory ``
  are given [here](#examples-of-config-files)**). The fields of this config
 are ``NAME, DATA_TYPE, REQUEST, WEBSITE``. 
     - The ``NAME`` and ``DATA_TYPE`` fields are used determine the name of the file
-      containing scraped raw data
+      containing scraped raw data.
     - The ``WEBSITE`` field states the website from which the raw data will be obtained.
       It will be useful for handling scraping errors.
     - The ```REQUEST``` field is used by the scrape manager to obtain the relevant raw data 
@@ -170,7 +184,7 @@ are ``NAME, DATA_TYPE, REQUEST, WEBSITE``.
 Examples of this type of file can be found for [california](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/test_california_scrape_project.py)
 and for [alameda](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/test_california_santaclara_scrape_project.py).
 An example of the Alameda file is below. For your particular region modify `self.state_name` and `self.county_name`. If you are just
-scraping from a state, set `self.county_name = None`.
+scraping from a state, set `self.county_name = None`. Also modify the name of the class to reflect the region.
 
 ```
 # --------------------------
@@ -294,33 +308,33 @@ Pages with dashboards are more complicated. Here, we will walk through an exampl
 figuring out how to properly populate a config file with `POST` requests based on
 the Santa Clara [website](https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx)
 
-1. Click inspect near the dashboard
+1. Click inspect near the dashboard.
 ![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png) 
 
 1. Select the element in the right tab that highlights the dashboard. Click the div elements until the
-url for the dashboard is visible
+url for the dashboard is visible.
 ![step2_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step2_select_dashboard.png)
 
 
-1. Copy the url and navigate to it. This should result in a webpage with just the dash board
+1. Copy the url and navigate to it. This should result in a webpage with just the dashboard.
 ![step3_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step3_copy_link_address.png)
 
-1. Click the network tab. If the name column is empty, reload the url
+1. Click the network tab. If the name column is empty, reload the url.
 ![step4_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step4_click_network_tab.png)
 
 1. Click the preview tab and click through all the queries. For each query, search the json in the preview tab.
-Stop when a dictionary that displays ethnicity case/death counts is found
+Stop when a dictionary that displays ethnicity case/death counts is found.
 ![step5_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step5_search_query_preview.png)
 
 1. Click the headers tab. 
     - If the `Request Method` is `GET` then copy and paste the `Request URL` to the `URL` field 
-in the config (as in `california_all.yaml`) and make `TYPE` `GET`. 
+in the config as in the [california_all.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/configs/california_all.yaml) and make `TYPE` `GET`. 
     - If it is `POST` make the `TYPE` `POST`, and copy the `Request Headers` to the `HEADERS` field in the config
-as in `santaclara_cases.yaml`. Make the `Content-Length` subfield a string.
+as in the [santaclara_cases.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/configs/santaclara_cases.yaml). Make the `Content-Length` subfield a string.
 ![step6_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step6_click_headers_tab.png)
 
 1. Click the `view source` button next to `Request Payload` and copy and paste the resulting json to the `PAYLOAD` 
-field in the config, as in `sanaclara_cases.yaml`.
+field in the config, as in the as in the [santaclara_cases.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/configs/santaclara_cases.yaml). Make the `Content-Length` subfield a string.
 ![step7_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step7_view_source_payload.png)
 
 ## Configuring Scraping Schedule
@@ -375,11 +389,11 @@ Scraping is run locally through pytest. It can be run in three ways.
 The API of websites tend to change. There are two sources of errors.
 
 1. The API of the website being scraped has changed, resulting in request errors
-1. The API of the website as changed, and there are no request errors, but you are scraping incorrect data.
+1. The API of the website has changed, and there are no request errors, but you are scraping incorrect data.
 
 The automatic scraping will always pick up on the first error, but the second error can only be found by semi-periodically
 inspecting your raw data to make sure that something meaningful is being scraped. Regardless of the source of error, the
-fix is the same. Re-populate the relevant scraping config file. Instructions on how to do so are located [here](#populating-request-field-in-config).
+fix is the same. Re-populate the relevant scraping config file. Instructions on how to do so are located [here](#populating-request-field-in-configs).
 
 ## Adding Regions for Processing Raw Data
 To make full use of raw data, it is necessary to process it into coherent numbers. The raw data is 
