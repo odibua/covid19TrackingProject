@@ -20,9 +20,12 @@ from states import utils
 
 class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
+        # Initialize relevant variables
         self.state, self.county = state, county
         self.total_cases_int, self.total_deaths_int = None, None
         self.cases_raw_bool, self.deaths_raw_bool = False, False
+
+        # Define raw and config files to be loaded
         logging.info("Initialize imperial county raw and config file strings")
         raw_data_dir = os.path.join("states", state, 'counties', county, "raw_data")
         raw_data_cases_file, raw_data_totalcases_file = f"{raw_data_dir}/{date_string}/santaclara_cases", f"{raw_data_dir}/{date_string}/santaclara_totalcases"
@@ -34,12 +37,14 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         totalcases_config_file_string = f"{configs_dir}/santaclara_totalcases_json_parser.yaml"
         totaldeaths_config_file_string = f"{configs_dir}/santaclara_totaldeaths_json_parser.yaml"
 
+        # Load config files that will be used for parsing
         logging.info("Load cases and deaths parsing config")
         json_parser_cases_config = self.load_yaml(cases_config_file_string)
         json_parser_deaths_config = self.load_yaml(deaths_config_file_string)
         json_parser_totalcases_config = self.load_yaml(totalcases_config_file_string)
         json_parser_totaldeaths_config = self.load_yaml(totaldeaths_config_file_string)
 
+        # Get all dates for which parsing currently exists
         logging.info("Get and sort json parsing dates")
         json_parser_cases_dates = self.get_sorted_dates_from_strings(
             date_string_list=list(json_parser_cases_config["DATES"].keys()))
@@ -50,6 +55,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         json_parser_totaldeaths_dates = self.get_sorted_dates_from_strings(
             date_string_list=list(json_parser_totaldeaths_config["DATES"].keys()))
 
+        # Get most recent parsing date with respect to the passed in date_string
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
         self.date_string = date_string
         self.cases_valid_date_string = utils.get_valid_date_string(
@@ -61,6 +67,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         self.totaldeaths_valid_date_string = utils.get_valid_date_string(
             date_list=json_parser_totaldeaths_dates, date_string=date_string)
 
+        # Get JSON keys for the chosen date
         self.cases_ethnicity_json_keys_map = json_parser_cases_config['DATES'][self.cases_valid_date_string]
         self.deaths_ethnicity_json_keys_map = json_parser_deaths_config['DATES'][self.deaths_valid_date_string]
         self.ethnicity_json_keys_map = {**self.cases_ethnicity_json_keys_map, **self.deaths_ethnicity_json_keys_map}
@@ -71,6 +78,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
             **self.totalcases_ethnicity_json_keys_map,
             **self.totaldeaths_ethnicity_json_keys_map}
 
+        # Load raw json files for cases and/or deaths depending on whether or not it exists
         logging.info("Load raw json data")
         try:
             cases_file_obj = open(raw_data_cases_file, 'r')
@@ -93,7 +101,8 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         except BaseException:
             pass
 
-
+        # Define mapping of YAML keys from the JSON parser to the
+        # names in this class
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {
             'WHITE_CASES': 'White',

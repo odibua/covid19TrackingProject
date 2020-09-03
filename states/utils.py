@@ -20,7 +20,7 @@ def get_element_int(element: etree.HTML) -> int:
         try:
             if int(char) or not int(char):
                 element_tmp = element_tmp + char
-        except:
+        except BaseException:
             pass
     element = element_tmp
     return int(element)

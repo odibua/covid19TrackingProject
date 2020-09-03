@@ -11,7 +11,7 @@ import unittest
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from managers import scrape_manager, add_commit_and_push, raw_to_ethnicity_case_csv_manager, raw_to_ethnicity_death_csv_manager
+from managers import scrape_manager, add_commit_and_push, case_parser_manager, death_parser_manager
 
 
 @pytest.mark.usefixtures("project_bools")
@@ -28,9 +28,9 @@ class TestCaliforniaScrapeAndProject(unittest.TestCase):
     def test_raw_to_ethnicity_case_manager(self):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
             if self.project_case_bool:
-                raw_to_ethnicity_case_csv_manager(state_name=self.state_name)
+                case_parser_manager(state_name=self.state_name)
 
     def test_raw_to_ethnicity_death_manager(self):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
             if self.project_death_bool:
-                raw_to_ethnicity_death_csv_manager(state_name=self.state_name)
+                death_parser_manager(state_name=self.state_name)

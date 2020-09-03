@@ -56,21 +56,21 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
             try:
                 cases_file_obj = open(raw_data_cases_file, 'r')
                 self.cases_raw_bool = True
-            except:
+            except BaseException:
                 try:
                     cases_file_obj = open(raw_data_cases_file_html, 'r')
                     self.cases_raw_bool = True
-                except:
+                except BaseException:
                     pass
 
             try:
                 deaths_file_obj = open(raw_data_deaths_file, 'r')
                 self.deaths_raw_bool = True
-            except:
+            except BaseException:
                 try:
                     deaths_file_obj = open(raw_data_deaths_file_html, 'r')
                     self.deaths_raw_bool = True
-                except:
+                except BaseException:
                     pass
 
             self.raw_data_cases_json = json.load(cases_file_obj)

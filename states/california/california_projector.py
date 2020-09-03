@@ -23,26 +23,36 @@ from states import utils
 class CaliforniaEthnicDataProjector(EthnicDataProjector):
     def __init__(self, state: str, county: str, date_string: str):
         super().__init__(state=state, county=county)
+        # Initialize relevant variables
         self.cases_raw_bool, self.deaths_raw_bool = False, False
+
+        # Define raw and config files to be loaded
         logging.info("Initialize California raw and config file strings")
         raw_data_dir = os.path.join("states", state, "raw_data")
         raw_data_file = f"{raw_data_dir}/{date_string}/california_all.html"
         configs_dir = os.path.join("states", state, "configs")
         config_file_string = f"{configs_dir}/california_all_html_parse.yaml"
 
+        # Load configs that will be used for html parsing
         logging.info("Load parsing config")
         html_parser_config_file = open(config_file_string)
         html_parser_config = yaml.safe_load(html_parser_config_file)
 
+        # Get all dates for which parsing currently exists
         logging.info("Get and sort html parsing dates")
         html_parser_date_strings = list(html_parser_config["DATES"].keys())
         html_parser_dates = self.get_sorted_dates_from_strings(date_string_list=html_parser_date_strings)
 
+        # Get most recent parsing date with respect to the passed in date_string
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.date_string = date_string
         self.valid_date_string = utils.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+
+        # Get xpath for particular date
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
         logging.info("Load raw html data and convert it to lxml")
+
+        # Load raw html for cases and/or deaths depending on whether or not it exists
         try:
             raw_data_file_object = open(raw_data_file, 'r')
             raw_data_file_html = raw_data_file_object.read()
@@ -53,6 +63,8 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         except BaseException:
             pass
 
+        # Define mapping of YAML keys from the html parser to the
+        # names in this class
         logging.info("Define yaml keys to dictionary maps for cases and deaths")
         self.cases_yaml_keys_dict_keys_map = {'LATINO_CASES': 'Hispanic', 'WHITE_CASES': 'White', 'ASIAN_CASES': 'Asian',
                                               'BLACK_CASES': 'Black', 'MULTI_RACE_CASES': 'Multi-Race',

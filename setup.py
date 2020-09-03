@@ -102,7 +102,7 @@ setup(
     extras_require={
         'interactive': [
             'matplotlib>=2.2.0',
-        'ipdb']},
+            'ipdb']},
     setup_requires=[
         'pycodestyle',
         'pytest-runner'],
