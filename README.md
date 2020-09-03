@@ -94,7 +94,7 @@ PyYAML
 The below diagram provides a schematic overview of this repository. The description of this schematic will make 
 reference to the directory structure at the end of this section.
 
-![Overview Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/overview_code.png)
+![Overview Image](https://github.com/odibua/covid19TrackingProject/blob/master/images/overview_code.png)
 
 #### Scrape Manager
 For a given state and (optionally) county, our scrape manager:
@@ -234,7 +234,7 @@ Here we will give an example of two configs for scraping raw data. One
 will be for a website based on a `GET` request and one for a `POST` request.
 
 #### GET Request Example
-![California Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/california_example.png)
+![California Image](https://github.com/odibua/covid19TrackingProject/blob/master/images/california_example.png)
 
 For the state of California, the information on cases/death counts 
 stratified by ethnicity are stored on an html page, shown above. We can obtain
@@ -256,7 +256,7 @@ WEBSITE: https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/Race-Ethnicity
 ```
 
 #### POST Request Example
-![Santa Clara Image](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/santaclara_dashboard.png)
+![Santa Clara Image](https://github.com/odibua/covid19TrackingProject/blob/master/images/santaclara_dashboard.png)
 
 Many websites display information about COVID19 on dash boards. These are generally not
 amenable to simple `GET` requests, and often times require `POST` requests. They 
@@ -310,33 +310,33 @@ figuring out how to properly populate a config file with `POST` requests based o
 the Santa Clara [website](https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx)
 
 1. Click inspect near the dashboard.
-![step1_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step1_inspect.png) 
+![step1_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step1_inspect.png) 
 
 1. Select the element in the right tab that highlights the dashboard. Click the div elements until the
 url for the dashboard is visible.
-![step2_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step2_select_dashboard.png)
+![step2_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step2_select_dashboard.png)
 
 
 1. Copy the url and navigate to it. This should result in a webpage with just the dashboard.
-![step3_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step3_copy_link_address.png)
+![step3_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step3_copy_link_address.png)
 
 1. Click the network tab. If the name column is empty, reload the url.
-![step4_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step4_click_network_tab.png)
+![step4_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step4_click_network_tab.png)
 
 1. Click the preview tab and click through all the queries. For each query, search the json in the preview tab.
 Stop when a dictionary that displays ethnicity case/death counts is found.
-![step5_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step5_search_query_preview.png)
+![step5_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step5_search_query_preview.png)
 
 1. Click the headers tab. 
     - If the `Request Method` is `GET` then copy and paste the `Request URL` to the `URL` field 
 in the config as in the [california_all.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/configs/california_all.yaml) and make `TYPE` `GET`. 
     - If it is `POST` make the `TYPE` `POST`, and copy the `Request Headers` to the `HEADERS` field in the config
 as in the [santaclara_cases.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/configs/santaclara_cases.yaml). Make the `Content-Length` subfield a string.
-![step6_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step6_click_headers_tab.png)
+![step6_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step6_click_headers_tab.png)
 
 1. Click the `view source` button next to `Request Payload` and copy and paste the resulting json to the `PAYLOAD` 
 field in the config, as in the as in the [santaclara_cases.yaml](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/configs/santaclara_cases.yaml). Make the `Content-Length` subfield a string.
-![step7_post](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/images/step7_view_source_payload.png)
+![step7_post](https://github.com/odibua/covid19TrackingProject/blob/master/images/step7_view_source_payload.png)
 
 ## Configuring Scraping Schedule
 Scraping is run periodically using Circle CI. The configuration for this periodic run is stored in
@@ -430,7 +430,7 @@ our checks throw an error, but, upon manual inspection, the changes recorded are
 1. Create a python projector file of form `{COUNTY}_projector.py` or `{STATE}_projector.py`.
     - The [Santa Clara projector](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/santaclara/santaclara_projector.py) is
       is an example of a projector for parsing JSON raw data when one needs to combine values from different sources of raw data.
-    - The [Sacrament projector](https://github.com/odibua/covid19TrackingProject/blob/odibua/README/states/california/counties/sacramento/sacramento_projector.py) is
+    - The [Sacrament projector](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/sacramento/sacramento_projector.py) is
       an example of a straightforward projector for parsing JSON raw data.
     - The [Los Angeles projector](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/losangeles/losangeles_projector.py)
       is an example of a projector for parsing html raw data. 
