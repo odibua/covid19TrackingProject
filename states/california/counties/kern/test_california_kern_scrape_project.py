@@ -26,3 +26,4 @@ class TestCaliforniaKernScrapeAndProject(unittest.TestCase):
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
                 if self.project_case_bool:
                     case_parser_manager(state_name=self.state_name, county_name=self.county_name)
+
