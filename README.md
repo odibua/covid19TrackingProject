@@ -2,12 +2,12 @@
 
 **"Never let a good crisis go to waste"**
 
-The purpose of his repository is to enable the semi-automated collection of real-time data
+The purpose of his repository is to enable the semi-automated collection of time-series data
 regarding covid cases/deaths from different counties and states, stratified by race. The
 semi-automation is enabled through a combination of Circle CI and pytest.
 In it's most ideal form this repository will:
 
-1. contain real-time raw data about covid cases/deaths by ethnicity
+1. contain time series raw data about covid cases/deaths by ethnicity
 2. contain this data for a variety of different states/counties
 
 This repository has the potential to motivate future health/pandemic 
@@ -27,6 +27,7 @@ exacerbate/alleviate health disparities.
 #### [IX. Adding Regions for Processing Raw Data](#adding-regions-for-processing-raw-data)
 #### [X. Processing Raw Data](#processing-raw-data)
 #### [XI. Handling Processing Errors](#handling-processing-errors)
+#### [XII. Where to Scrape More Data From]
  
 #### Data for Researchers
 For researchers who would like to directly use data, the relevant csvs are contained in directories of 
@@ -434,7 +435,7 @@ our checks throw an error, but, upon manual inspection, the changes recorded are
     - The [Los Angeles projector](https://github.com/odibua/covid19TrackingProject/blob/master/states/california/counties/losangeles/losangeles_projector.py)
       is an example of a projector for parsing html raw data. 
       
-For any new region, populate the projector using one of the above examples as a reference
+For any new region, populate the projector using one of the above examples as a reference.
 
 **California html parse yaml**
 ```
@@ -564,19 +565,19 @@ DATES:
 ```
 
 ## Processing Raw Data
-Processing raw data makes use of one of six commands:
+Processing raw data makes use of one of three commands:
 - `python -m pytest --project_case_bool` processes raw data about cases from every state/county with a properly populated
  `test_{STATE}_{COUNTY}_scrape_project.py` file and pushes the resulting csv.
-- `python -m pytest --state={STATE} --project_case_bool` does this for a state and every county in the state
-- `python -m pytest --state={STATE} --county={COUNTY} --projecth_case_bool` does this for a particular state and county
+- `python -m pytest --state={STATE} --project_case_bool` does this for a state and every county in the state.
+- `python -m pytest --state={STATE} --county={COUNTY} --projecth_case_bool` does this for a particular state and county.
 
 To process raw data for deaths replace `project_case_bool` with `project_death_bool`. It is possible to
-make projection of raw data a regularly scheduled by adding one of the above commands to the circleci config
+make processing raw data a regularly scheduled by adding one of the above commands to the circleci config
 as illustrated [here](#configuring-scraping-schedule). **Sceduling processing is not recommended. Processing raw data raises
-frequent errors, and we think it is best to periodically do so locally**
+frequent errors, and it is best to periodically do so locally**
 
 ## Handling Processing Errors
- Three primary types of errors will occur when processing raw data. The first is that newly processed data will have abnormal
+Three primary types of errors will occur when processing raw data. The first is that newly processed data will have abnormal
 values, the second is that processed data will have inconsistent keys (ethnic categories may change, for example), and the
 third is that the parsing is simply not working. The first two errors are thrown based on the output of the
  [check_valid_change](https://github.com/odibua/covid19TrackingProject/blob/62671742b142ec643bd55e5e4d6e386df7e2221f/utils.py#L28)
@@ -587,11 +588,12 @@ third is that the parsing is simply not working. The first two errors are thrown
         ```
         ValueError: CASES: ERROR state: california county: santaclara Max difference 0.14239324565676245 is greater than thresh: 0.1 
         {'White': 1487, 'Hispanic': 7036, 'Asian': 1357, 'Black': 247, 'Native Hawaiian/Pacific Islander': 83, 'Other': 884, 'date': '2020-08-12'} 
-        != {'White': 1376, 'Hispanic': 6159, 'Asian': 1260, 'Black': 226, 'Native Hawaiian/Pacific Islander': 80, 'Other': 850, 'date': '2020-08-08'}```
+        != {'White': 1376, 'Hispanic': 6159, 'Asian': 1260, 'Black': 226, 'Native Hawaiian/Pacific Islander': 80, 'Other': 850, 'date': '2020-08-08'}
+        ```
 
     - For this error, check the raw data from which this is being pulled:
         - If the data is correct, add the date, `2020-08-12`, to this state/counties `projection_exception.yaml`
-        - If the data is correct, update the html or json parser with new xpaths/json keys at this new
+        - If the data is incorrect, update the html or json parser with new xpaths/json keys at this new
           date as shown [here](#adding-regions-for-processing-raw-data)
 
 1. **Inconsistent Keys**
@@ -603,10 +605,25 @@ third is that the parsing is simply not working. The first two errors are thrown
     - For this error perform the same checks as above
 
 1. **Error in Parsing**
-    - Sample Error:
+    - Sample Error:he 
         ```
          ValueError: Issue with parsing cases at date: 2020-08-12 with most recent entry {'hispanic': 1431, 'white': 505, 'asian_pacific_islander': 48, 'non_hispanic': 103, 'date': '2020-08-08'}
         ```
     - For this error update the html or json parser with new xpaths/json keys at this new date as shown [here](#adding-regions-for-processing-raw-data)
     - Sometimes it can be the case that, though no error was thrown in scraping, you are collecting the wrong raw data. In this case, 
       update the raw scraper for a particular region.
+
+## Where to Scrape More Data From
+Below we will give more sources from which to potentially scrape data. If you are interested in
+a particular county, you will likely need to search for it online. This is an evolving list and
+all are welcomed to it.
+
+1. COVID Tracking Project:
+   This is a great project run by the Atlantic, and low hanging fruit. They update the covid case/deaths for states reporting it by ethnicity
+   twice a week. The link is [here](https://docs.google.com/spreadsheets/u/1/d/e/2PACX-1vR_xmYt4ACPDZCDJcY12kCiMiH0ODyx3E1ZvgOHB8ae1tRcjXbs_yWBOA4j4uoCEADVfC1PS2jYO68B/pubhtml#)
+   
+1. San Mateo County, California Dashboard:
+   Dash board that shows cases/deaths stratified by ethnicity for San Mateo county. Linked [here](https://www.smchealth.org/data-dashboard/county-data-dashboard)
+   
+1. Denver County, Colorado:
+   Website containing dashboard that shows cases/deaths stratified by ethnicity for Denver County. Linked [here](https://storymaps.arcgis.com/stories/50dbb5e7dfb6495292b71b7d8df56d0a).
