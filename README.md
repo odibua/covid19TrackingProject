@@ -27,7 +27,7 @@ exacerbate/alleviate health disparities.
 #### [IX. Adding Regions for Processing Raw Data](#adding-regions-for-processing-raw-data)
 #### [X. Processing Raw Data](#processing-raw-data)
 #### [XI. Handling Processing Errors](#handling-processing-errors)
-#### [XII. Where to Scrape More Data From]
+#### [XII. Where to Scrape More Data From](#where-to-scrape-more-data-from)
  
 ## Data for Researchers
 For researchers who would like to directly use data, the relevant csvs are contained in directories of 
