@@ -36,10 +36,13 @@ formatted as `{STATE}_{COUNTY}_ethnicity_cases.csv`. The directory for Californi
 [here](https://github.com/odibua/covid19TrackingProject/tree/master/states/california/csvs)
 
 Each csv has columns of data containing the case/death count of each ethnicity, the date of that count, 
-and a disparity ratio that is defined as the ratio between the percentage of
-total cases/deaths represented by an ethnicity to that same ethnicity's representation in the state/county of interest. For example,
-a disparity ratio of two would mean that a particular ethnicity is represented in COVID twice as much as would be expected 
-based on their representation in the region. 
+and a disparity ratio.
+ 
+**Disparity Ratio Definition** 
+  - percentage of total cases or deaths represented by an ethnicity/ percentage of total population of an ethnicity in
+    a particular region
+  - A disparity ratio of 2 for cases would indicate that an ethnicity has cases at twice the rate one
+    would expect based on their population
 
 **NOTES OF INTEREST**
 1. In many counties/states their are people whose ethnicities are not known. Those are
