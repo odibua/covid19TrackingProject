@@ -16,17 +16,32 @@ exacerbate/alleviate health disparities.
 
 
 ## Overview of README
-#### [I. Packages Used](#packages-used)
-#### [II. Getting Started](#getting-started)
-#### [III. Overview of Code](#overview-of-codlone)
-#### [IV. Adding Regions for Scraping Raw Data](#adding-regions-for-scraping-raw-data)
-#### [V. Configuring Scraping Schedule](#configuring-scraping-schedule)
-#### [VI. Running Scraping Locally](#running-scraping-locally)
-#### [VII. Handling Scraping Errors](#handling-scraping-errors)
-#### [VIII. Adding Regions for Processing Raw Data](#adding-regions-for-processing-raw-data)
-#### [IX. Processing Raw Data](#processing-raw-data)
-#### [X. Handling Processing Errors](#handling-processing-errors)
+#### [I. Data for Researchers](#data-for-researchers)
+#### [II. Packages Used](#packages-used)
+#### [III. Getting Started](#getting-started)
+#### [IV. Overview of Code](#overview-of-codlone)
+#### [V. Adding Regions for Scraping Raw Data](#adding-regions-for-scraping-raw-data)
+#### [VI. Configuring Scraping Schedule](#configuring-scraping-schedule)
+#### [VII. Running Scraping Locally](#running-scraping-locally)
+#### [VIII. Handling Scraping Errors](#handling-scraping-errors)
+#### [IX. Adding Regions for Processing Raw Data](#adding-regions-for-processing-raw-data)
+#### [X. Processing Raw Data](#processing-raw-data)
+#### [XI. Handling Processing Errors](#handling-processing-errors)
+ 
+#### Data for Researchers
+For researchers who would like to directly use data, the relevant csvs are contained in directories of 
+form `states/{STATE}/csvs/`. Each of these contain csvs containing state/death information with names 
+formatted as `{STATE}_{COUNTY}_ethnicity_cases.csv`. The directory for California is located 
+[here](https://github.com/odibua/covid19TrackingProject/tree/master/states/california/csvs)
 
+Each csv has columns of data containing the case/death count of each ethnicity, the date of that count, 
+and a disparity ratio that is defined as the ratio between the percentage of
+total cases represented by an ethnicity to that same ethnicity's representation in the state/county of interest. For example,
+a disparity ratio of two would mean that a particular ethnicity is represented in COVID twice as much as would be expected 
+based on their population. 
+
+**In many counties/states their are people whose ethnicities are not known. Those are
+ignored in this code.**
 
 #### Packages Used
 The main packages used can be found in ```setup.py```. These are
@@ -566,3 +581,18 @@ third is that the parsing is simply not working. The first two errors are thrown
           date as shown [here](#adding-regions-for-processing-raw-data)
 
 1. **Inconsistent Keys**
+    - Sample Error:
+        ```
+        ValueError: ERROR state: {'White': 1487, 'Hispanic': 7036, 'Asian': 1357, 'Black': 247, 'Native Hawaiian/Pacific Islander': 83, 'Other': 884, 'date': '2020-08-12'} 
+        != {'White': 1376, 'Hispanic': 6159, 'Asian/Pacific Islander': 1260, 'Black': 226, 'Native Hawaiian': 80, 'Other': 850, 'date': '2020-08-08'}
+        ```
+    - For this error perform the same checks as above
+
+1. **Error in Parsing**
+    - Sample Error:
+        ```
+         ValueError: Issue with parsing cases at date: 2020-08-12 with most recent entry {'hispanic': 1431, 'white': 505, 'asian_pacific_islander': 48, 'non_hispanic': 103, 'date': '2020-08-08'}
+        ```
+    - For this error update the html or json parser with new xpaths/json keys at this new date as shown [here](#adding-regions-for-processing-raw-data)
+    - Sometimes it can be the case that, though no error was thrown in scraping, you are collecting the wrong raw data. In this case, 
+      update the raw scraper for a particular region.
