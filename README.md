@@ -29,7 +29,7 @@ exacerbate/alleviate health disparities.
 #### [XI. Handling Processing Errors](#handling-processing-errors)
 #### [XII. Where to Scrape More Data From]
  
-#### Data for Researchers
+## Data for Researchers
 For researchers who would like to directly use data, the relevant csvs are contained in directories of 
 form `states/{STATE}/csvs/`. Each of these have csvs containing state/county information with names 
 formatted as `{STATE}_{COUNTY}_ethnicity_cases.csv`. The directory for California is located 
