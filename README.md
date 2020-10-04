@@ -1,5 +1,9 @@
 # Tracking COVID19 by Ethnicity
 
+TODO:
+   - Make data structure for projectors to be filled in (simple interface)
+   - Tableau python parser
+   - Crawl through states directory (or auto-generate pytests)
 **"Never let a good crisis go to waste"**
 
 The purpose of his repository is to enable the semi-automated collection of time-series data
