@@ -33,7 +33,6 @@ class TestCaliforniaImperialScrapeAndProject(unittest.TestCase):
                 if self.project_case_bool:
                     case_parser_manager(state_name=self.state_name, county_name=self.county_name)
 
-
     def test_raw_to_ethnicity_death_manager(self):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():

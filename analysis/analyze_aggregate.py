@@ -32,7 +32,7 @@ def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Data
     """
     # Calculate mean and confidence interval of maximum disparities, as well as the associated power
     max_disparity_stats_dict = calc_max_disparity_stats(df_dict=csv_df_dict)
-    # power_dict = calc_power_max_disparity(df_dict=max_ci_dict)
+    max_disparity_stats_dict = calc_power_max_disparity(df_dict=max_disparity_stats_dict)
 #
 #     # Visualize the mean, confidence, and power of maximum disparity ratios
 #     visualize_max_ci = aggregated_vis.max_disparity_ci(df_dict=max_ci_dict, power_df_dict=power_dict)
@@ -45,7 +45,8 @@ def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Data
 #     county_propotion_dict, state_ethnicity_proportion_dict = get_county_state_irregular_portions(df_dict=csv_df_dict)
 
 
-def calc_max_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]) -> Dict[str, Dict[str, List[Tuple[str, float]]]]:
+def calc_max_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
+                             ) -> Dict[str, Dict[str, List[Tuple[str, float]]]]:
     """
     Calculate the mean maximum disparity per day of each county, along with the standard deviation, and the 95 percent confidence
     interval. Data is calculated from data frames stored in a nested dictionary
@@ -78,6 +79,11 @@ def calc_max_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Dat
             max_disparity_stats_dict[key]['std'].append((identifier, std))
 
     return max_disparity_stats_dict
+
+
+def calc_power_max_disparity(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
+                             ) -> Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]:
+    pass
 
 
 def open_csvs(csv_path_dict: Dict[str, List[str]]) -> Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]:
@@ -133,23 +139,20 @@ def main():
     csv_path_dict = collections.defaultdict(list)
     for csv_file in os.listdir(state_path):
         if not csv_file.endswith('.csv'):
-            raise ValueError(f"Non-csv file {csv_file} found in {state_path}. All files in this directory must be a csv file")
+            raise ValueError(
+                f"Non-csv file {csv_file} found in {state_path}. All files in this directory must be a csv file")
 
         if 'cases' in csv_file.lower():
             csv_path_dict['cases'].append(os.path.join(state_path, csv_file))
         elif 'deaths' in csv_file.lower():
             csv_path_dict['deaths'].append(os.path.join(state_path, csv_file))
         else:
-            raise ValueError(f"CSV file exists that does not contain 'case' or 'death'. All files in {state_path} must have 'case' or 'death' in filename")
+            raise ValueError(
+                f"CSV file exists that does not contain 'case' or 'death'. All files in {state_path} must have 'case' or 'death' in filename")
     csv_df_dict = open_csvs(csv_path_dict=csv_path_dict)
 
     aggregated_analysis(csv_df_dict=csv_df_dict)
 
 
-
 if __name__ == "__main__":
     main()
-
-
-
-
