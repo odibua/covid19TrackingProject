@@ -10,6 +10,8 @@ from typing import Dict, List, Tuple
 # Third Party Imports
 # --------------------------
 import pandas as pd
+from statsmodels.stats.power import TTestIndPower
+
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
@@ -32,7 +34,7 @@ def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Data
     """
     # Calculate mean and confidence interval of maximum disparities, as well as the associated power
     max_disparity_stats_dict = calc_max_disparity_stats(df_dict=csv_df_dict)
-    max_disparity_stats_dict = calc_power_max_disparity(df_dict=max_disparity_stats_dict)
+    max_disparity_stats_dict = calc_power_max_disparity(stats_dict=max_disparity_stats_dict)
 #
 #     # Visualize the mean, confidence, and power of maximum disparity ratios
 #     visualize_max_ci = aggregated_vis.max_disparity_ci(df_dict=max_ci_dict, power_df_dict=power_dict)
@@ -74,16 +76,47 @@ def calc_max_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Dat
             mean = df.max(axis=1).mean()
             std = df.max(axis=1).std()
             if key not in max_disparity_stats_dict.keys():
-                max_disparity_stats_dict[key] = {'mean': [], 'std': []}
+                max_disparity_stats_dict[key] = {'mean': [], 'std': [], 'N': []}
             max_disparity_stats_dict[key]['mean'].append((identifier, mean))
             max_disparity_stats_dict[key]['std'].append((identifier, std))
+            max_disparity_stats_dict[key]['N'].append((identifier, len(df)))
 
     return max_disparity_stats_dict
 
 
-def calc_power_max_disparity(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
-                             ) -> Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]:
-    pass
+def calc_power_max_disparity(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]]],
+                             alpha: float=0.05) -> Dict[str, Dict[str, List[Tuple[str, float]]]]:
+    """
+    Calculate the power of the mean max disparity stat for each county/state with respect to a disparity
+    ratio of one. The dict processed has form:
+    Example:
+            {'cases': { 'mean': [(county_name, mean max discrepancy], ...],
+                                'std': [(county_name, std max discrepancy), ...]}}
+    Arguments:
+        df_dict: Dictionary (example shown above) of max disparity statistics
+        alpha: 95 percent confidence interval
+
+    Returns:
+        df_dict: Dictionary that is modified by adding power, as shown below.
+        Example:
+                {'cases': { 'mean': [(county_name, mean max discrepancy], ...],
+                                'std': [(county_name, std max discrepancy), ...],
+                                'power':[(county_name, power), ...]}}
+    :return:
+    """
+    for key in stats_dict.keys():
+        mean_tuple_list, std_tuple_list = stats_dict[key]['mean'], stats_dict[key]['std']
+        N_tuple_list = stats_dict[key]['N']
+        for N_tuple, std_tuple, mean_tuple in zip(N_tuple_list, std_tuple_list, mean_tuple_list):
+            identifier, mean = mean_tuple
+            _, N = N_tuple
+            _, std = std_tuple
+            analysis = TTestIndPower()
+            if 'power' not in stats_dict[key].keys():
+                stats_dict[key]['power'] = []
+            power = analysis.solve_power(effect_size=abs((mean - 1.0)/std), nobs1=N, ratio=1.0, alpha=alpha)
+            stats_dict[key]['power'].append((identifier, power))
+    return stats_dict
 
 
 def open_csvs(csv_path_dict: Dict[str, List[str]]) -> Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]:
