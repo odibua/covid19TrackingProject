@@ -58,8 +58,8 @@ def drop_other_columns(df_list: List[pd.DataFrame]) -> Tuple[pd.DataFrame]:
 
 def split_pandas_by_discrepancy(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     columns = df.columns.tolist()
-    discrepancy_columns = [column for column in columns if 'discrepancy' in column or column ==
-                           'date' or column == 'Unnamed: 0']
+    discrepancy_columns = [column for column in columns if ('discrepancy' in column or column ==
+                           'date' or column == 'Unnamed: 0') and 'other' not in column.lower()]
     columns = [column for column in columns if 'discrepancy' not in column or column == 'date']
 
     return df[columns], df[discrepancy_columns]
