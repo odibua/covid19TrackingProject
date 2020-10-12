@@ -90,6 +90,7 @@ setup(
         'requests_html',
         'scipy',
         'setuptools>=40.0',
+        'sklearn',
         'statsmodels',
         "typing",
         'urllib3>1.25',

@@ -3,6 +3,7 @@
 # --------------------------
 import argparse
 import collections
+import operator
 import os
 from typing import Dict, List, Tuple
 
@@ -19,7 +20,7 @@ from statsmodels.stats.power import TTestIndPower
 from visualization import aggregated_vis as agg_vis_lib, visualization as vis_lib
 
 
-def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]) -> None:
+def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]], state: str) -> None:
     """
     Analyze data frames of csvs by calculating the mean of the maximum disparity ratios on different
     days, the confidence interval of this quanitity, and the power with respect to one of this quantity.
@@ -32,6 +33,7 @@ def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Data
     Arguments:
         csv_df_dict: Dictionary of pandas dataframe containing counts and disparity ratios by ethnicity. Keys of
                      a dictionary are cases and deaths
+        state: State for which aggregated analysis is performed and the counties associated
     """
     # Calculate mean and confidence interval of maximum/median disparities, as well as the associated power
     disparity_stats_dict = calc_disparity_stats(df_dict=csv_df_dict)
@@ -41,21 +43,21 @@ def aggregated_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Data
     disparity_stats_dict = calc_power_disparity(stats_dict=disparity_stats_dict, stat_key='max_min_ratio_mean', std_stat_key='max_min_ratio_std')
 
     # Visualize the mean/median/max and their respective confidences
-    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='mean', std_plot_key='std')
-    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='max_mean', std_plot_key='max_std')
-    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='median_mean', std_plot_key='median_std')
-    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='max_min_ratio_mean', std_plot_key='max_min_ratio_std')
+    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='mean', std_plot_key='std', state=state)
+    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='max_mean', std_plot_key='max_std', state=state)
+    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='median_mean', std_plot_key='median_std', state=state)
+    agg_vis_lib.vis_mean_ci_bar(stats_dict=disparity_stats_dict, plot_key='max_min_ratio_mean', std_plot_key='max_min_ratio_std', state=state)
 
 #
 #     # Calculate two closest and two furthest counties from State
 #     distance_from_state_dict = calc_nearest_furthest_from_state(df_dict=csv_df_dict)
 #
-#     # Calculate proportion of ethnicities reported by state that each county reports
-#     # and show proportion of analyzed counties that report each ethnicity
-#     county_propotion_dict, state_ethnicity_proportion_dict = get_county_state_irregular_portions(df_dict=csv_df_dict)
+    # Calculate proportion of ethnicities reported by state that each county reports
+    # and show proportion of analyzed counties that report each ethnicity
+    county_propotion_dict, state_ethnicity_count_dict = get_county_state_key_portions(df_dict=csv_df_dict, state=state)
 
 
-def calc_max_min_ratio(df: pd.DataFrame) -> List[float]:
+def calc_max_min_ratio(df: pd.DataFrame) -> Tuple[List[float], str, str]:
     """
     Calculate the absolute max to minimum ratio of non-zero rows in a data frame
 
@@ -65,13 +67,22 @@ def calc_max_min_ratio(df: pd.DataFrame) -> List[float]:
     Return:
         max_min_ratios: List of max and min ratios for each row in the data frame
     """
-
     max_min_ratios = []
+    min_max_names = collections.defaultdict(int)
+    first_second_names = collections.defaultdict(int)
     for idx, row in df.iterrows():
+        row_names = list(row.keys())
         row_vals = list(row)
-        row_vals = [float(val) for val in row_vals if val != 0]
-        max_min_ratios.append(max(row_vals)/min(row_vals))
-    return max_min_ratios
+        vals, names = list(zip(*[(float(val), name) for val, name in zip(row_vals, row_names) if val != 0]))
+        sorted_idx = np.argsort(vals)
+
+        max_min_ratios.append(vals[sorted_idx[-1]] / vals[sorted_idx[0]])
+        first_second_names[f'{names[sorted_idx[-1]].split("_")[0]}_{names[sorted_idx[-2]].split("_")[0]}'] = first_second_names[f'{names[sorted_idx[-1]].split("_")[0]}_{names[sorted_idx[-2]].split("_")[0]}'] + 1
+        min_max_names[f'{names[sorted_idx[-1]].split("_")[0]}_{names[sorted_idx[0]].split("_")[0]}'] = min_max_names[f'{names[sorted_idx[-1]].split("_")[0]}_{names[sorted_idx[0]].split("_")[0]}'] + 1
+
+    first_second_names = max(first_second_names.items(), key=operator.itemgetter(1))[0]
+    majority_min_max_names = max(min_max_names.items(), key=operator.itemgetter(1))[0]
+    return max_min_ratios, majority_min_max_names, first_second_names
 
 
 def calc_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
@@ -101,7 +112,7 @@ def calc_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFra
         for identifier_df_tuple in discrepancy_list:
             identifier, df = identifier_df_tuple
             df = df.filter(items=[key for key in df.keys() if key != 'date'])
-            max_min_ratios = calc_max_min_ratio(df=df)
+            max_min_ratios, min_max_names, first_second_names = calc_max_min_ratio(df=df)
 
             mean = df.mean(axis=1).mean()
             max_mean = df.max(axis=1).mean()
@@ -115,7 +126,8 @@ def calc_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFra
 
             if key not in disparity_stats_dict.keys():
                 disparity_stats_dict[key] = {'mean': [], 'max_mean': [], 'median_mean': [], 'max_min_ratio_mean': [],
-                                             'std': [], 'max_std': [], 'median_std': [], 'max_min_ratio_std': [], 'N': []}
+                                             'std': [], 'max_std': [], 'median_std': [], 'max_min_ratio_std': [],
+                                             'N': [], 'first_second_names': [], 'min_max_names': []}
             disparity_stats_dict[key]['mean'].append((identifier, mean))
             disparity_stats_dict[key]['max_mean'].append((identifier, max_mean))
             disparity_stats_dict[key]['median_mean'].append((identifier, median_mean))
@@ -127,6 +139,8 @@ def calc_disparity_stats(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFra
             disparity_stats_dict[key]['max_min_ratio_std'].append((identifier, max_min_ratio_std))
 
             disparity_stats_dict[key]['N'].append((identifier, len(df)))
+            disparity_stats_dict[key]['min_max_names'].append((identifier, min_max_names))
+            disparity_stats_dict[key]['first_second_names'].append((identifier, first_second_names))
 
     return disparity_stats_dict
 
@@ -164,6 +178,47 @@ def calc_power_disparity(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]
             power = analysis.solve_power(effect_size=abs((mean - 1.0)/std), nobs1=N, ratio=1.0, alpha=alpha)
             stats_dict[key][f'{stat_key}_power'].append((identifier, power))
     return stats_dict
+
+
+def get_county_state_key_portions(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]], state: str) \
+        -> Tuple[Dict[str, float], Dict[str, int]]:
+    """
+    Calculate the portion of ethnicities reported by the county that are reported by the state and count
+    the number of counties using each ethnicity reported by the state
+
+    Arguments:
+        df_dict: Dictionary containing data frames corresponding with the relevant state/county
+        state: State being analyzed
+
+    Returns:
+        county_proportion_dict: Nested dictinary containing state ethnicities as key and state ethnicities reported by a
+                                particular county as a value. The highest level of the dictionary are 'cases' and 'deaths'.
+        state_ethnicity_count_dict: Nested dictionary containing state ethnicities as key and count of how many counties report
+                                    that particular ethnicity as a value. The highest level of the dictionary are 'cases' and 'deaths'.
+    """
+    county_proportion_dict, state_ethnicity_count_dict = {}, {}
+    for key in df_dict.keys():
+        identifier_lst, df_lst = list(zip(*df_dict[key]['counts']))
+        state_idx = [idx for idx, identifier in enumerate(identifier_lst) if identifier == state][0]
+        state_ethnicities = list(df_lst[state_idx].keys())
+        state_ethnicities = [state_ethnicity.lower() for state_ethnicity in state_ethnicities if state_ethnicity != 'date']
+
+        if key not in county_proportion_dict.keys():
+            county_proportion_dict[key] = collections.defaultdict(float)
+        if key not in state_ethnicity_count_dict.keys():
+            state_ethnicity_count_dict[key] = collections.defaultdict(int)
+        for idx, identifier in enumerate(identifier_lst):
+            if identifier != state:
+                identifier_ethnicities = list(df_lst[idx].keys())
+                cnt = 0
+                for ethnicity in identifier_ethnicities:
+                    if ethnicity.lower() in state_ethnicities:
+                        cnt = cnt + 1
+                        state_ethnicity_count_dict[key][ethnicity.lower()] = state_ethnicity_count_dict[key][ethnicity.lower()] + 1
+
+                county_proportion_dict[key][identifier] = cnt/len(state_ethnicities)
+
+    return county_proportion_dict, state_ethnicity_count_dict
 
 
 def open_csvs(csv_path_dict: Dict[str, List[str]]) -> Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]:
@@ -231,7 +286,7 @@ def main():
                 f"CSV file exists that does not contain 'case' or 'death'. All files in {state_path} must have 'case' or 'death' in filename")
     csv_df_dict = open_csvs(csv_path_dict=csv_path_dict)
 
-    aggregated_analysis(csv_df_dict=csv_df_dict)
+    aggregated_analysis(csv_df_dict=csv_df_dict, state=state)
 
 
 if __name__ == "__main__":
