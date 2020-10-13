@@ -5,7 +5,7 @@ import argparse
 import collections
 import operator
 import os
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple, Union
 
 # --------------------------
 # Third Party Imports
@@ -21,7 +21,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 # covid19Tracking Imports
 # --------------------------
 from analysis.analyze_aggregate import open_csvs
-from utils import filter_projector_module, get_projector_module, get_class_in_projector_module
+import utils_lib as util_lib
 
 
 def get_timeseries_counts_df_dict(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
@@ -35,7 +35,6 @@ def get_timeseries_counts_df_dict(df_dict: Dict[str, Dict[str, List[Tuple[str, p
             date_list = pd.to_datetime(df['date']).tolist()
             date_list = [(date_ - date_list[0]).days for date_ in date_list]
             df['time'] = date_list
-            df = df.filter(items=[key for key in df.keys() if key != 'date'])
 
             if key not in time_series_counts_df_dict:
                 time_series_counts_df_dict[key] = []
@@ -43,22 +42,61 @@ def get_timeseries_counts_df_dict(df_dict: Dict[str, Dict[str, List[Tuple[str, p
     return time_series_counts_df_dict
 
 
-def get_identifier_demographics_dict(state: str, county: str) -> Dict[str, float]:
+def get_identifier_demographics_dict(state: str, county: str, date: str) -> Dict[str, float]:
     if state != county:
         state_county_dir = os.path.join('states', f'{state}', 'counties', f'{county}')
     else:
         state_county_dir = os.path.join('states', f'{state}')
+        county = None
 
     state_county_dir_list = os.listdir(state_county_dir)
-    state_county_projector_list = filter_projector_module(projector_candidate_list=state_county_dir_list)
+    state_county_projector_list = util_lib.filter_projector_module(projector_candidate_list=state_county_dir_list)
     if len(state_county_projector_list) != 1:
         raise ValueError(
             f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir}")
 
-    module_name = get_projector_module(state=state, county=county, projector_name=state_county_projector_list[0][0:-3])
+    module_name = util_lib.get_projector_module(state=state, county=county, projector_name=state_county_projector_list[0][0:-3])
+
     state_county_projector_module = importlib.import_module(module_name)
-    projector_class = get_class_in_projector_module(module=state_county_projector_module, module_name=module_name)
-    return projector_class.ethnicity_demographics
+    projector_class = util_lib.get_class_in_projector_module(module=state_county_projector_module, module_name=module_name)
+    projector = projector_class(state=state, county=county, date_string=date)
+
+    demographic_proportion_dict = {}
+    total = sum(list(zip(*projector.ethnicity_demographics.items()))[1])
+    for key, item in projector.ethnicity_demographics.items():
+        demographic_proportion_dict[key] = item/total
+    return demographic_proportion_dict
+
+
+def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 1) -> Dict[str, Union[float, np.ndarray]]:
+    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+    length_scale_list, constant_list, nrmse_list, sigma_list, y_pred_list = [], [], [], [], []
+    y_pred_tot, sigma_tot = None, None
+    for _ in range(N):
+        gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, normalize_y=True)
+        gp.fit(x, y)
+        y_pred, sigma = gp.predict(x, return_std=True)
+        if y_pred_tot is None:
+            y_pred_tot = y_pred
+            sigma_tot = sigma
+        else:
+            y_pred_tot = y_pred_tot + y_pred
+            sigma_tot = sigma_tot + sigma
+
+        nrmse = np.sqrt(np.mean((y_pred - np.array(y)) ** 2)) / np.mean(y)
+
+        constant_list.append(gp.kernel_.k1.constant_value)
+        length_scale_list.append(gp.kernel_.k2.length_scale)
+        nrmse_list.append(nrmse)
+        sigma_list.append(sigma)
+
+    y_pred_tot = y_pred_tot / N
+    sigma_tot = sigma_tot / N
+    bootstrap_dict = {'mn_length_scale': np.mean(length_scale_list), 'mn_constant': np.mean(constant_list),
+                      'mn_nrmse': np.mean(nrmse_list), 'std_length_scale': np.std(length_scale_list), 'std_constant': np.std(constant_list),
+                      'std_nrmse': np.std(nrmse_list), 'mn_y_pred': y_pred_tot.ravel(), 'mn_sigma': sigma_tot, 'y': y.ravel()}
+
+    return bootstrap_dict
 
 
 def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], state: str) \
@@ -69,24 +107,26 @@ def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], s
             time_regression_dict[key] = {}
         for identifier_df_tuple in df_dict[key]:
             identifier, df = identifier_df_tuple
-            identifier_demographics = get_identifier_demographics_dict(state=state, county=identifier)
-            import ipdb
-            ipdb.set_trace()
+
+            identifier_demographics_proportions = get_identifier_demographics_dict(state=state, county=identifier,
+                                                                                   date=df['date'][0])
+            df_filtered = df.filter(items=[key for key in df.keys() if key != 'date' and key != 'time'])
+            df_filtered = df_filtered.sum(axis=1)
+
             if identifier not in time_regression_dict[key].keys():
                 time_regression_dict[key][identifier] = []
             for column in df.keys():
-                if column != 'time':
+                if column != 'time' and column != 'date':
                     num_bool = df[column].notnull()
-                    x_train, y_train = df['time'][num_bool].tolist(), df[column][num_bool].tolist()
-                    x_train, y_train = np.array(x_train).reshape((-1, 1)), np.array(y_train).reshape((-1, 1))
+                    x_train, y_train_real = df['time'][num_bool].tolist(), df[column][num_bool].tolist()
+                    x_train, y_train_real = np.array(x_train).reshape((-1, 1)), np.array(y_train_real).reshape((-1, 1))
 
-                    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
-                    gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, normalize_y=True)
+                    y_train_ideal = identifier_demographics_proportions[column] * df_filtered.to_numpy()
                     try:
-                        gp.fit(x_train, y_train)
-                        y_pred, sigma = gp.predict(x_train, return_std=True)
-                        nrmse = np.sqrt(np.mean((y_pred - np.array(y_train)) ** 2)) / np.mean(y_train)
-                        time_regression_dict[key][identifier].append((column, y_pred.ravel(), y_train.ravel(), gp.kernel_.k1.constant_value, gp.kernel_.k2.length_scale, nrmse))
+                        bootstrap_dict_real = bootstrap_gp_fit(x=x_train, y=y_train_real)
+                        bootstrap_dict_ideal = bootstrap_gp_fit(x=x_train, y=y_train_ideal)
+
+                        time_regression_dict[key][identifier].append([bootstrap_dict_real , bootstrap_dict_ideal])
                     except:
                         pass
 
@@ -97,6 +137,9 @@ def time_series_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Dat
 
     time_series_counts_df_dict = get_timeseries_counts_df_dict(df_dict=csv_df_dict)
     time_regression_dict = fit_time_series_counts(df_dict=time_series_counts_df_dict, state=state)
+
+    import ipdb
+    ipdb.set_trace()
     pass
 
 
