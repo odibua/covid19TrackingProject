@@ -3,7 +3,8 @@
 # --------------------------
 import argparse
 import collections
-import operator
+import joblib
+import multiprocessing
 import os
 from typing import Callable, Dict, List, Tuple, Union
 
@@ -22,6 +23,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 # --------------------------
 from analysis.analyze_aggregate import open_csvs
 import utils_lib as util_lib
+from visualization import timeseries_vis as timeseries_vis_lib
 
 
 def get_timeseries_counts_df_dict(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
@@ -68,33 +70,50 @@ def get_identifier_demographics_dict(state: str, county: str, date: str) -> Dict
     return demographic_proportion_dict
 
 
-def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 1) -> Dict[str, Union[float, np.ndarray]]:
-    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
-    length_scale_list, constant_list, nrmse_list, sigma_list, y_pred_list = [], [], [], [], []
-    y_pred_tot, sigma_tot = None, None
-    for _ in range(N):
-        gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, normalize_y=True)
+def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 10) -> Dict[str, Union[float, np.ndarray]]:
+    def _fit_gaussian(x_, y_):
+        kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+        gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
         gp.fit(x, y)
         y_pred, sigma = gp.predict(x, return_std=True)
-        if y_pred_tot is None:
-            y_pred_tot = y_pred
-            sigma_tot = sigma
-        else:
-            y_pred_tot = y_pred_tot + y_pred
-            sigma_tot = sigma_tot + sigma
 
         nrmse = np.sqrt(np.mean((y_pred - np.array(y)) ** 2)) / np.mean(y)
 
-        constant_list.append(gp.kernel_.k1.constant_value)
-        length_scale_list.append(gp.kernel_.k2.length_scale)
-        nrmse_list.append(nrmse)
-        sigma_list.append(sigma)
+        constant = gp.kernel_.k1.constant_value
+        length_scale = gp.kernel_.k2.length_scale
+        return y_pred.reshape((1, -1)), sigma.reshape((1, -1)), nrmse, constant, length_scale
 
-    y_pred_tot = y_pred_tot / N
-    sigma_tot = sigma_tot / N
+    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+    # length_scale_list, constant_list, nrmse_list, sigma_list, y_pred_list = [], [], [], [], []
+    # y_pred_tot, sigma_tot = None, None
+    results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
+        joblib.delayed(_fit_gaussian)(x, y) for _ in range(N)
+    )
+    y_pred_list, sigma_list, nrmse_list, constant_list, length_scale_list = list(zip(*results))
+    y_pred_arr, sigma_arr = np.array(y_pred_list), np.array(sigma_list)
+    # for _ in range(N):
+    #     gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, normalize_y=True)
+    #     gp.fit(x, y)
+    #     y_pred, sigma = gp.predict(x, return_std=True)
+    #     if y_pred_tot is None:
+    #         y_pred_tot = y_pred
+    #         sigma_tot = sigma
+    #     else:
+    #         y_pred_tot = y_pred_tot + y_pred
+    #         sigma_tot = sigma_tot + sigma
+    #
+    #     nrmse = np.sqrt(np.mean((y_pred - np.array(y)) ** 2)) / np.mean(y)
+    #
+    #     constant_list.append(gp.kernel_.k1.constant_value)
+    #     length_scale_list.append(gp.kernel_.k2.length_scale)
+    #     nrmse_list.append(nrmse)
+    #     sigma_list.append(sigma)
+
+    # y_pred_tot = y_pred_tot / N
+    # sigma_tot = sigma_tot / N
     bootstrap_dict = {'mn_length_scale': np.mean(length_scale_list), 'mn_constant': np.mean(constant_list),
                       'mn_nrmse': np.mean(nrmse_list), 'std_length_scale': np.std(length_scale_list), 'std_constant': np.std(constant_list),
-                      'std_nrmse': np.std(nrmse_list), 'mn_y_pred': y_pred_tot.ravel(), 'mn_sigma': sigma_tot, 'y': y.ravel()}
+                      'std_nrmse': np.std(nrmse_list), 'mn_y_pred': np.mean(y_pred_arr, axis=0), 'mn_sigma': np.mean(sigma_arr, axis=0), 'y': y.ravel()}
 
     return bootstrap_dict
 
@@ -114,7 +133,7 @@ def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], s
             df_filtered = df_filtered.sum(axis=1)
 
             if identifier not in time_regression_dict[key].keys():
-                time_regression_dict[key][identifier] = []
+                time_regression_dict[key][identifier] = {}
             for column in df.keys():
                 if column != 'time' and column != 'date':
                     num_bool = df[column].notnull()
@@ -126,7 +145,7 @@ def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], s
                         bootstrap_dict_real = bootstrap_gp_fit(x=x_train, y=y_train_real)
                         bootstrap_dict_ideal = bootstrap_gp_fit(x=x_train, y=y_train_ideal)
 
-                        time_regression_dict[key][identifier].append([bootstrap_dict_real , bootstrap_dict_ideal])
+                        time_regression_dict[key][identifier][column] = (bootstrap_dict_real, bootstrap_dict_ideal)
                     except:
                         pass
 
@@ -137,9 +156,7 @@ def time_series_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Dat
 
     time_series_counts_df_dict = get_timeseries_counts_df_dict(df_dict=csv_df_dict)
     time_regression_dict = fit_time_series_counts(df_dict=time_series_counts_df_dict, state=state)
-
-    import ipdb
-    ipdb.set_trace()
+    # timeseries_vis_lib.graph_mn_ci_bar(stats_dict=time_regression_dict)
     pass
 
 
