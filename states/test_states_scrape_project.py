@@ -17,7 +17,7 @@ from managers import scrape_manager, add_commit_and_push, case_parser_manager, d
 @pytest.mark.usefixtures("project_bools")
 class TestCaliforniaScrapeAndProject(unittest.TestCase):
     def setUp(self):
-        self.state_name = 'states'
+        self.state_name = ''
         self.state_county_dir = 'states/raw_data/'
 
     def test_scrape_manager(self):

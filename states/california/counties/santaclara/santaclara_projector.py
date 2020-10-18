@@ -15,7 +15,7 @@ import yaml as yaml
 # covid19Tracking Imports
 # --------------------------
 from states.california.counties.alameda.alameda_projector import AlamedaEthnicDataProjector
-from states import utils
+from states import utils_state_lib
 
 
 class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
@@ -58,13 +58,13 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         # Get most recent parsing date with respect to the passed in date_string
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
         self.date_string = date_string
-        self.cases_valid_date_string = utils.get_valid_date_string(
+        self.cases_valid_date_string = utils_state_lib.get_valid_date_string(
             date_list=json_parser_cases_dates, date_string=date_string)
-        self.deaths_valid_date_string = utils.get_valid_date_string(
+        self.deaths_valid_date_string = utils_state_lib.get_valid_date_string(
             date_list=json_parser_deaths_dates, date_string=date_string)
-        self.totalcases_valid_date_string = utils.get_valid_date_string(
+        self.totalcases_valid_date_string = utils_state_lib.get_valid_date_string(
             date_list=json_parser_totalcases_dates, date_string=date_string)
-        self.totaldeaths_valid_date_string = utils.get_valid_date_string(
+        self.totaldeaths_valid_date_string = utils_state_lib.get_valid_date_string(
             date_list=json_parser_totaldeaths_dates, date_string=date_string)
 
         # Get JSON keys for the chosen date
@@ -199,12 +199,12 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         ethnicity_dict, ethnicity_percentages_dict, total_dict = {}, {}, {}
         for key in yaml_keys_dict_keys_map.keys():
             if key in ethnicity_json_keys_map:
-                ethnicity_percentages_dict[yaml_keys_dict_keys_map[key]] = float(utils.get_json_element_int(
+                ethnicity_percentages_dict[yaml_keys_dict_keys_map[key]] = float(utils_state_lib.get_json_element_int(
                     raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key]))
 
         logging.info(f"Use json from {total_valid_date_string} to construct total cases or deaths dictionary")
         key = list(total_yaml_keys_dict_keys_map.keys())[0]
-        total = float(utils.get_json_element_int(
+        total = float(utils_state_lib.get_json_element_int(
             raw_data_json=total_raw_data_json, ethnicity_json_keys_list=total_ethnicity_json_keys_map[key]))
 
         logging.info("Get cases or deaths that are each ethnicity based on known ethnicities")

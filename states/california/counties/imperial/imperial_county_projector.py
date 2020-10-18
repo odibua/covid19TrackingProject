@@ -15,7 +15,7 @@ import yaml as yaml
 # covid19Tracking Imports
 # --------------------------
 from states.california.counties.alameda.alameda_projector import AlamedaEthnicDataProjector
-from states import utils
+from states import utils_state_lib
 
 
 class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
@@ -42,9 +42,9 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
 
         logging.info("Obtain valid map of ethnicities to json containing cases or deaths")
         self.date_string = date_string
-        self.cases_valid_date_string = utils.get_valid_date_string(
+        self.cases_valid_date_string = utils_state_lib.get_valid_date_string(
             date_list=json_parser_cases_dates, date_string=date_string)
-        self.deaths_valid_date_string = utils.get_valid_date_string(
+        self.deaths_valid_date_string = utils_state_lib.get_valid_date_string(
             date_list=json_parser_deaths_dates, date_string=date_string)
         self.cases_ethnicity_json_keys_map = json_parser_cases_config['DATES'][self.cases_valid_date_string]
         self.deaths_ethnicity_json_keys_map = json_parser_deaths_config['DATES'][self.deaths_valid_date_string]

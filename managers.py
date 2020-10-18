@@ -18,7 +18,7 @@ import yaml as yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-import utils
+import utils_lib
 
 
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], str]:
@@ -35,7 +35,7 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     """
     config_files = os.listdir(config_dir)
     config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
-    response_list, response_names, request_type = utils.get_yaml_responses(
+    response_list, response_names, request_type = utils_lib.get_yaml_responses(
         config_dir=config_dir, config_file_list=config_files)
 
     return response_list, response_names, request_type
@@ -67,7 +67,7 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
 
     if not path.isdir(raw_data_dir):
         os.makedirs(raw_data_dir)
-    utils.save_raw_data(
+    utils_lib.save_raw_data(
         save_dir=raw_data_dir,
         response_list=state_response_list,
         data_type_names=state_data_type_names,
@@ -85,7 +85,7 @@ def case_parser_manager(state_name: str, county_name: str = None) -> None:
         state_county_dir = path.join('states', state_name, 'counties', county_name)
         cases_csv_filename = f"{state_name}_{county_name}_ethnicity_cases.csv"
 
-    case_msg = utils.run_ethnicity_to_case_csv(
+    case_msg = utils_lib.run_ethnicity_to_case_csv(
         state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         cases_csv_filename=cases_csv_filename)
 
@@ -113,7 +113,7 @@ def death_parser_manager(state_name: str, county_name: str = None) -> None:
         state_county_dir = path.join('states', state_name, 'counties', county_name)
         deaths_csv_filename = f"{state_name}_{county_name}_ethnicity_deaths.csv"
 
-    death_msg = utils.run_ethnicity_to_death_csv(
+    death_msg = utils_lib.run_ethnicity_to_death_csv(
         state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, state=state_name, county=county_name,
         deaths_csv_filename=deaths_csv_filename)
 

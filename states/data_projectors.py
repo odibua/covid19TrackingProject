@@ -15,7 +15,7 @@ import yaml as yaml
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from states import utils
+from states import utils_state_lib
 
 
 class EthnicDataProjector(ABC):
@@ -152,11 +152,11 @@ class EthnicDataProjector(ABC):
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
             if key in ethnicity_xpath_map:
-                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_element_int(
+                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_element_int(
                     element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
-        total = utils.get_total(numerical_dict=ethnicity_dict)
+        total = utils_state_lib.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():
             ethnicity_percentages_dict[key] = float(ethnicity_dict[key]) / total
         return ethnicity_dict, ethnicity_percentages_dict
@@ -180,11 +180,11 @@ class EthnicDataProjector(ABC):
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
             if key in ethnicity_json_keys_map:
-                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils.get_json_element_int(
+                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_json_element_int(
                     raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key])
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
-        total = utils.get_total(numerical_dict=ethnicity_dict)
+        total = utils_state_lib.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():
             ethnicity_percentages_dict[key] = round(float(ethnicity_dict[key]) / total, 3)
         return ethnicity_dict, ethnicity_percentages_dict
