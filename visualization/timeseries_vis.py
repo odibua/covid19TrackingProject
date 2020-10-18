@@ -26,32 +26,27 @@ from scipy import stats
 # --------------------------
 
 
-def vis_mean_ci_bar(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]]], plot_key: str, std_plot_key: str, state: str, alpha: float = 0.05) -> None:
+def vis_mean_ci_bar(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]]]) -> None:
     """
     Function that populates the Bokeh objects that will be used to plot relevant quantities from the stats_dict
 
     Arguments:
-        stats_dict: Dictionary containing statistics of interest
-        plot_key: String that dictates what statistical quantity is plotted in the bar graphs
-        std_plot_key: String that dictates the standard deviation of the quantity to be plotted
-        state: State for which statisitcs have been calculated
-        alpha: Confidence interval
+        stats_dict: Dictionary containing gaussian fits of interest in a tuple of dictionaries
+                    The dictionary has form:
+                        {'cases': {'alameda': {'Black': (dict_with_gp_preds 1, dict_with_gp_preds 2) ..} ....},
+                         'deaths': {'alameda': ....}}
     """
+    for key1 in stats_dict.keys():
+        for key2 in stats_dict[key1].keys():
+            # Create output file for region to plot line graphs
+
+            #initialize layout to None
+            for key3 in stats_dict[key2].keys():
+                # Create figures for each ethnicity in line graph.
+
+                # Plot real data, ideal data, fit of both along with
+                # uncertainty
+
+            # Display figure
+                pass
     pass
-    # z_score = stats.norm.ppf(1 - 0.5 * alpha)
-    # figure_list, source_list = [], []
-    # for key in stats_dict.keys():
-    #     identifier_list, val_list = list(zip(*stats_dict[key][plot_key]))
-    #     _, std_list = list(zip(*stats_dict[key][std_plot_key]))
-    #     lower_list = [val - z_score * std for val, std in zip(val_list, std_list)]
-    #     upper_list = [val + z_score * std for val, std in zip(val_list, std_list)]
-    #
-    #     source = ColumnDataSource(data=dict(identifiers=identifier_list, vals=val_list, stds=std_list,
-    #                                         lowers=lower_list, uppers=upper_list))
-    #     fig = figure(x_range=identifier_list, plot_height=350, plot_width=1000, toolbar_location=None, title=key.upper(),
-    #                  y_range=(0, max(upper_list) + 0.1 * max(upper_list)))
-    #
-    #     source_list.append(source)
-    #     figure_list.append(fig)
-    #
-    # vis_mean_ci_bar_helper(fig_list=figure_list, source_list=source_list, plot_key=plot_key, state=state)

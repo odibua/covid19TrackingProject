@@ -91,26 +91,7 @@ def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 10) -> Dict[str, Uni
     )
     y_pred_list, sigma_list, nrmse_list, constant_list, length_scale_list = list(zip(*results))
     y_pred_arr, sigma_arr = np.array(y_pred_list), np.array(sigma_list)
-    # for _ in range(N):
-    #     gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, normalize_y=True)
-    #     gp.fit(x, y)
-    #     y_pred, sigma = gp.predict(x, return_std=True)
-    #     if y_pred_tot is None:
-    #         y_pred_tot = y_pred
-    #         sigma_tot = sigma
-    #     else:
-    #         y_pred_tot = y_pred_tot + y_pred
-    #         sigma_tot = sigma_tot + sigma
-    #
-    #     nrmse = np.sqrt(np.mean((y_pred - np.array(y)) ** 2)) / np.mean(y)
-    #
-    #     constant_list.append(gp.kernel_.k1.constant_value)
-    #     length_scale_list.append(gp.kernel_.k2.length_scale)
-    #     nrmse_list.append(nrmse)
-    #     sigma_list.append(sigma)
 
-    # y_pred_tot = y_pred_tot / N
-    # sigma_tot = sigma_tot / N
     bootstrap_dict = {'mn_length_scale': np.mean(length_scale_list), 'mn_constant': np.mean(constant_list),
                       'mn_nrmse': np.mean(nrmse_list), 'std_length_scale': np.std(length_scale_list), 'std_constant': np.std(constant_list),
                       'std_nrmse': np.std(nrmse_list), 'mn_y_pred': np.mean(y_pred_arr, axis=0), 'mn_sigma': np.mean(sigma_arr, axis=0), 'y': y.ravel()}
@@ -156,7 +137,7 @@ def time_series_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Dat
 
     time_series_counts_df_dict = get_timeseries_counts_df_dict(df_dict=csv_df_dict)
     time_regression_dict = fit_time_series_counts(df_dict=time_series_counts_df_dict, state=state)
-    # timeseries_vis_lib.graph_mn_ci_bar(stats_dict=time_regression_dict)
+    timeseries_vis_lib.vis_mean_ci_bar(stats_dict=time_regression_dict)
     pass
 
 
