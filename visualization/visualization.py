@@ -56,10 +56,10 @@ def drop_other_columns(df_list: List[pd.DataFrame]) -> Tuple[pd.DataFrame]:
     return tuple(new_df_list)
 
 
-def split_pandas_into_case_discrepancy(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def split_pandas_by_discrepancy(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     columns = df.columns.tolist()
-    discrepancy_columns = [column for column in columns if 'discrepancy' in column or column ==
-                           'date' or column == 'Unnamed: 0']
+    discrepancy_columns = [column for column in columns if ('discrepancy' in column or column ==
+                           'date' or column == 'Unnamed: 0') and 'other' not in column.lower()]
     columns = [column for column in columns if 'discrepancy' not in column or column == 'date']
 
     return df[columns], df[discrepancy_columns]
@@ -181,8 +181,8 @@ def visualize_summary_stats():
             df_list=[ethnicity_cases_df, ethnicity_deaths_df])
         ethnicity_cases_df, ethnicity_deaths_df = drop_other_columns(df_list=[ethnicity_cases_df, ethnicity_deaths_df])
 
-        _, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(df=ethnicity_cases_df)
-        _, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+        _, ethnicity_cases_discrepancy_df = split_pandas_by_discrepancy(df=ethnicity_cases_df)
+        _, ethnicity_deaths_discrepancy_df = split_pandas_by_discrepancy(
             df=ethnicity_deaths_df)
 
         ethnicity_cases_discrepancy_df = ethnicity_cases_discrepancy_df.drop(columns=['date'])
@@ -205,7 +205,7 @@ def visualize_summary_stats():
                     ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}", index_col=False)
                     ethnicity_cases_df = convert_date_str_to_datetime(
                         df_list=[ethnicity_cases_df])[0]
-                    _, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
+                    _, ethnicity_cases_discrepancy_df = split_pandas_by_discrepancy(
                         df=ethnicity_cases_df)
 
                     ethnicity_cases_discrepancy_df = ethnicity_cases_discrepancy_df.drop(columns=['date'])
@@ -220,7 +220,7 @@ def visualize_summary_stats():
                     ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}", index_col=False)
                     ethnicity_deaths_df = convert_date_str_to_datetime(
                         df_list=[ethnicity_deaths_df])[0]
-                    _, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+                    _, ethnicity_deaths_discrepancy_df = split_pandas_by_discrepancy(
                         df=ethnicity_deaths_df)
                     ethnicity_deaths_discrepancy_df = ethnicity_deaths_discrepancy_df.drop(columns=['date'])
                     death_disparity_mean_dict[county] = get_mean_df(
@@ -278,8 +278,8 @@ def visualize_per_county_stats():
             df_list=[ethnicity_cases_df, ethnicity_deaths_df])
         ethnicity_cases_df, ethnicity_deaths_df = drop_other_columns(df_list=[ethnicity_cases_df, ethnicity_deaths_df])
 
-        ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(df=ethnicity_cases_df)
-        ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+        ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_by_discrepancy(df=ethnicity_cases_df)
+        ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_by_discrepancy(
             df=ethnicity_deaths_df)
 
         state_layout = run_plot_cases_deaths(
@@ -303,7 +303,7 @@ def visualize_per_county_stats():
                     ethnicity_cases_df = pd.read_csv(f"{state_county_dir}/{cases_csv_filename}")
                     ethnicity_cases_df = convert_date_str_to_datetime(
                         df_list=[ethnicity_cases_df])[0]
-                    ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_into_case_discrepancy(
+                    ethnicity_cases_df, ethnicity_cases_discrepancy_df = split_pandas_by_discrepancy(
                         df=ethnicity_cases_df)
                 except BaseException:
                     ethnicity_cases_df, ethnicity_cases_discrepancy_df = {}, {}
@@ -312,7 +312,7 @@ def visualize_per_county_stats():
                     ethnicity_deaths_df = pd.read_csv(f"{state_county_dir}/{deaths_csv_filename}")
                     ethnicity_deaths_df = convert_date_str_to_datetime(
                         df_list=[ethnicity_deaths_df])[0]
-                    ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_into_case_discrepancy(
+                    ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = split_pandas_by_discrepancy(
                         df=ethnicity_deaths_df)
                 except BaseException:
                     ethnicity_deaths_df, ethnicity_deaths_discrepancy_df = {}, {}
