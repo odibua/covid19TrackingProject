@@ -94,8 +94,7 @@ def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 10) -> Dict[str, Uni
 
     bootstrap_dict = {'mn_length_scale': np.mean(length_scale_list), 'mn_constant': np.mean(constant_list),
                       'mn_nrmse': np.mean(nrmse_list), 'std_length_scale': np.std(length_scale_list), 'std_constant': np.std(constant_list),
-                      'std_nrmse': np.std(nrmse_list), 'mn_y_pred': np.mean(y_pred_arr, axis=0), 'mn_sigma': np.mean(sigma_arr, axis=0), 'y': y.ravel()}
-
+                      'std_nrmse': np.std(nrmse_list), 'mn_y_pred': np.mean(y_pred_arr, axis=0)[0], 'mn_sigma': np.mean(sigma_arr, axis=0)[0], 'y': y.ravel(), 'x': x.ravel()}
     return bootstrap_dict
 
 
@@ -137,6 +136,7 @@ def time_series_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.Dat
 
     time_series_counts_df_dict = get_timeseries_counts_df_dict(df_dict=csv_df_dict)
     time_regression_dict = fit_time_series_counts(df_dict=time_series_counts_df_dict, state=state)
+
     timeseries_vis_lib.vis_mean_ci_bar(stats_dict=time_regression_dict)
     pass
 
