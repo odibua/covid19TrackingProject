@@ -28,6 +28,23 @@ from visualization import timeseries_vis as timeseries_vis_lib
 
 def get_timeseries_counts_df_dict(df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]]
                                   ) -> Dict[str, List[Tuple[str, pd.DataFrame]]]:
+    """
+    Processes input dictionary into a dictionary that contains list of tuples where
+    the first element is an identifier that indicates, the second is a dataframe
+    containing counts of cases/deaths with different ethnicities
+
+    Arguments:
+        df_dict: Input dictionary of the form:
+                {'cases': {'counts': [(county/state location, timeseries dataframe with count), ...],
+                          'discrepancies': [(county/state location, timeseries dataframe with discrepancy), ...]},
+                 'deaths': {'counts': [(county/state location, timeseries dataframe with count), ...],
+                          'discrepancies': [(county/state location, timeseries dataframe with discrepancy), ...]}
+                }
+
+    Returns:
+        time_series_counts_df_dict: Dictionary containing count data frame for cases/deaths
+        {'cases': [(county/state location, timeseries dataframe with count), ...]}
+    """
     time_series_counts_df_dict = {}
     for key in df_dict.keys():
         count_list = df_dict[key]['counts']
@@ -45,6 +62,19 @@ def get_timeseries_counts_df_dict(df_dict: Dict[str, Dict[str, List[Tuple[str, p
 
 
 def get_identifier_demographics_dict(state: str, county: str, date: str) -> Dict[str, float]:
+    """
+    Get demographic proportions of each ethnicity in a particular state or county using
+    the projectors associated with that region
+
+    Arguments:
+        state: State for which demographics are being obtained
+        county: County for which demographics are being obtained
+        date: Valid date used to initialize relevant projector
+
+    Returns:
+        demographic_proportion_dict: Dictionary that maps ethnicity to percent of population
+                                     in state and/or county that it represents
+    """
     if state != county:
         state_county_dir = os.path.join('states', f'{state}', 'counties', f'{county}')
     else:
@@ -71,6 +101,18 @@ def get_identifier_demographics_dict(state: str, county: str, date: str) -> Dict
 
 
 def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 10) -> Dict[str, Union[float, np.ndarray]]:
+    """
+    Fit gaussian process to x and y data N times. Return the resulting mean predictions and gp parameters/quantities
+    as well as their standard deviation
+
+    Arguments:
+        x: Inputs to gaussian process
+        y: Outputs to which gaussian process will be fit
+        N: Number of times GP is fit to data
+
+    Returns:
+        bootstrap_dict: Dictionary containing relevant GP parameters
+    """
     def _fit_gaussian(x_, y_):
         kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
         gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
@@ -83,9 +125,6 @@ def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 10) -> Dict[str, Uni
         length_scale = gp.kernel_.k2.length_scale
         return y_pred.reshape((1, -1)), sigma.reshape((1, -1)), nrmse, constant, length_scale
 
-    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
-    # length_scale_list, constant_list, nrmse_list, sigma_list, y_pred_list = [], [], [], [], []
-    # y_pred_tot, sigma_tot = None, None
     results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
         joblib.delayed(_fit_gaussian)(x, y) for _ in range(N)
     )
@@ -100,6 +139,24 @@ def bootstrap_gp_fit(x: np.ndarray, y: np.ndarray, N: int = 10) -> Dict[str, Uni
 
 def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], state: str) \
         -> Dict[str, Dict[str, List[Tuple[str, GaussianProcessRegressor]]]]:
+    """
+    Fit time series data about case/death counts using gaussian process, as well as
+    the case/death count assuming no disparity (i.e. assuming people are impacted
+    based on population demographic). The returned dictionary contains tuples of dictionaries
+    which have bootstrapped gp parameters, predictions, and measures of uncertainty.
+
+    Arguments:
+        df_dict: Dictionary containing count data frame for cases/deaths
+        {'cases': [(county/state location, timeseries dataframe with count), ...]}
+        state: String containing state being analyzed
+
+    Returns:
+        time_regression_dict: Nested dictionary that contains dictionaries which in turn
+                              tuple of two dictionaries. These contain GP predictions/parameters
+                              on real time series data regarding case/death counts and the fit
+                              if the case/death counts matched population distribution.
+                              {'cases': {'alameda': {'Black': ({'mn_sigma':...,'mn_y_pred':,...}, {'mn_sigma':...,'mn_y_pred':,...})}}}
+    """
     time_regression_dict = {}
     for key in df_dict.keys():
         if key not in time_regression_dict.keys():
@@ -107,6 +164,7 @@ def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], s
         for identifier_df_tuple in df_dict[key]:
             identifier, df = identifier_df_tuple
 
+            # Get demographic proportions of each ethnicity in a region
             identifier_demographics_proportions = get_identifier_demographics_dict(state=state, county=identifier,
                                                                                    date=df['date'][0])
             df_filtered = df.filter(items=[key for key in df.keys() if key != 'date' and key != 'time'])
@@ -133,7 +191,14 @@ def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], s
 
 
 def time_series_analysis(csv_df_dict: Dict[str, Dict[str, List[Tuple[str, pd.DataFrame]]]], state: str) -> None:
+    """
+    Performs time series analysis of case/death data for a particular state and corresponding counties
 
+    Arguments:
+        csv_df_dict: Dictionary of pandas dataframe containing counts and disparity ratios by ethnicity. Keys of
+                     a dictionary are cases and deaths
+        state: State for which timeseries analysis is performed
+    """
     time_series_counts_df_dict = get_timeseries_counts_df_dict(df_dict=csv_df_dict)
     time_regression_dict = fit_time_series_counts(df_dict=time_series_counts_df_dict, state=state)
 
