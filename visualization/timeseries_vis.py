@@ -27,6 +27,15 @@ from scipy import stats
 
 
 def get_quants_for_plotting(dict: Dict[str, Union[float, np.ndarray]]) -> ColumnDataSource:
+    """
+    Gets quantities that will be used to form a ColumnDataSource from a dictionary
+
+    Arguments:
+        dict: Dictionary that contains quantities of interest to be plotted
+
+    Returns:
+        source: Columnar data source
+    """
     source = ColumnDataSource({'x': dict['x'], 'y': dict['y'], 'y_pred': dict['mn_y_pred'], 'sigma': dict['mn_sigma'],
                                  'lower': dict['mn_y_pred'] - dict['mn_sigma'], 'upper': dict['mn_y_pred'] + dict['mn_sigma']})
     return source
