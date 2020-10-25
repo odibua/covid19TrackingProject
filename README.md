@@ -1,5 +1,4 @@
 # Tracking COVID19 by Ethnicity
-
 TODO:
    - Make data structure for projectors to be filled in (simple interface)
    - Tableau python parser
@@ -458,8 +457,8 @@ DATES:
     BLACK_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[5]/td[4]
     MULTI_RACE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[6]/td[2]
     MULTI_RACE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[6]/td[4]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[4]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[7]/td[4]
     NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[2]
     NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[8]/td[4]
     OTHER_CASES: /html/body/form/div[1]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[2]/table/tbody/tr[9]/td[2]

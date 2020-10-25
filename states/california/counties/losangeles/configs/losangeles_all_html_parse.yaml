@@ -1,7 +1,7 @@
 DATES:
   '2020-06-14':
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[25]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[39]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[25]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[39]/td[2]
     ASIAN_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[26]/td[2]
     ASIAN_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[40]/td[2]
     BLACK_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[27]/td[2]
@@ -15,8 +15,8 @@ DATES:
     OTHER_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[31]/td[2]
     OTHER_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[45]/td[2]
   '2020-07-02':
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[25]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[39]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[25]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[39]/td[2]
     ASIAN_CASES: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[26]/td[2]
     ASIAN_DEATHS: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[40]/td[2]
     BLACK_CASES: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[27]/td[2]
@@ -30,8 +30,8 @@ DATES:
     OTHER_CASES: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[31]/td[2]
     OTHER_DEATHS: /html/body/div[2]/div[3]/div[3]/table/tbody/tr[45]/td[2]
   '2020-07-06':
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[25]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[39]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[25]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[39]/td[2]
     ASIAN_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[26]/td[2]
     ASIAN_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[40]/td[2]
     BLACK_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[27]/td[2]
@@ -45,8 +45,8 @@ DATES:
     OTHER_CASES: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[31]/td[2]
     OTHER_DEATHS: /html/body/div[2]/div[2]/div[3]/table/tbody/tr[45]/td[2]
   '2020-07-24':
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[29]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[43]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[29]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[43]/td[2]
     ASIAN_CASES: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[30]/td[2]
     ASIAN_DEATHS: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[44]/td[2]
     BLACK_CASES: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[31]/td[2]
@@ -60,8 +60,8 @@ DATES:
     OTHER_CASES: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[35]/td[2]
     OTHER_DEATHS: /html/body/div[2]/div[2]/div[2]/table/tbody/tr[49]/td[2]
   '2020-08-01':
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[6]/tr[1]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[8]/tr[1]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[6]/tr[1]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[8]/tr[1]/td[2]
     ASIAN_CASES: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[6]/tr[2]/td[2]
     ASIAN_DEATHS: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[8]/tr[2]/td[2]
     BLACK_CASES: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[6]/tr[3]/td[2]
@@ -75,8 +75,8 @@ DATES:
     OTHER_CASES: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[6]/tr[7]/td[2]
     OTHER_DEATHS: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[8]/tr[7]/td[2]
   '2020-08-12':
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[1]/td[2]
-    AMERICAN_INDIAN_OR_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[1]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[1]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[1]/td[2]
     ASIAN_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[2]/td[2]
     ASIAN_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[2]/td[2]
     BLACK_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[3]/td[2]

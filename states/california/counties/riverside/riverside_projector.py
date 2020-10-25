@@ -66,7 +66,7 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
             'WHITE_CASES': 'White',
             'ASIAN_PACIFIC_ISLANDER_CASES': 'Asian/Pacific Islander',
             'ASIAN_CASES': 'Asian',
-            'AMERICAN_INDIAN_OR_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native',
+            'AMERICAN_INDIAN_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native',
             'BLACK_CASES': 'Black',
             'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacifc Islander'
         }
