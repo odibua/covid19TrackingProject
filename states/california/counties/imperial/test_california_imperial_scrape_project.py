@@ -11,7 +11,7 @@ import unittest
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from managers import add_commit_and_push, scrape_manager, case_parser_manager, death_parser_manager
+from managers import add_commit_and_push, scrape_manager, metadata_manager, case_parser_manager, death_parser_manager
 
 
 @pytest.mark.usefixtures("project_bools")
@@ -22,10 +22,16 @@ class TestCaliforniaImperialScrapeAndProject(unittest.TestCase):
         self.state_county_dir = f"states/{self.state_name}/counties/{self.county_name}/raw_data/"
 
     def test_scrape_manager(self):
-        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
-            if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
-                scrape_manager(state_name=self.state_name, county_name=self.county_name)
-                add_commit_and_push(state_county_dir=self.state_county_dir)
+        if not self.metadata_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
+                    scrape_manager(state_name=self.state_name, county_name=self.county_name)
+                    add_commit_and_push(state_county_dir=self.state_county_dir)
+
+    def test_metadata_manager(self):
+        if self.metadata_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                metadata_manager(state_name=self.state_name, county_name=self.county_name)
 
     def test_raw_to_ethnicity_case_manager(self):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
