@@ -13,6 +13,7 @@ import warnings
 # --------------------------
 # Third Party Imports
 # --------------------------
+import pandas as pd
 import yaml as yaml
 
 # --------------------------
@@ -39,6 +40,14 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
         config_dir=config_dir, config_file_list=config_files)
 
     return response_list, response_names, request_type
+
+
+def get_metadata_from_config_files(config_dir: str) -> None:
+    config_files = os.listdir(config_dir)
+    config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
+
+    metadata_dict = utils_lib.get_metadata_response(config_dir=config_dir, config_file_list=config_files)
+    return metadata_dict
 
 
 def scrape_manager(state_name: str, county_name: str = None) -> None:
@@ -130,6 +139,38 @@ def death_parser_manager(state_name: str, county_name: str = None) -> None:
             raise ValueError(f"{death_msg}")
 
 
+def metadata_manager(state_name: str, county_name: str = None) -> None:
+    """
+    Scraping manager that uses the config file associated with a particular state and county to collect raw data
+    about COVID cases and deaths. It can be adopted for other purposes.
+
+    Arguments:
+        state_name: State to scrape from
+        county_name: County to scrape from. Defaults to 0
+
+    Returns:
+        None
+    """
+    logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
+    if county_name is None:
+        state_config_path = path.join('states', state_name, 'configs')
+    else:
+        state_config_path = path.join('states', state_name, 'counties', county_name, 'configs')
+
+    metadata_dict = get_metadata_from_config_files(config_dir=state_config_path)
+
+    metadata_df = pd.DataFrame(metadata_dict)
+    state_dirs = os.listdir(path.join('states', state_name))
+    state_dirs = [dir_ for dir_ in state_dirs if os.path.isdir(path.join('states', state_name, dir_))]
+    if 'meta_data_csv' not in state_dirs:
+        os.mkdir(path.join('states', state_name, 'meta_data_csv'))
+
+    state_metadata_file = f'{state_name}'
+    if county_name is not None:
+        state_metadata_file = f'{state_metadata_file}_{county_name}_metadata'
+    metadata_df.to_csv(path.join('states', state_name, 'meta_data_csv', f'{state_metadata_file}.csv'))
+
+
 def add_commit_and_push(state_county_dir: str):
     try:
         logging.info("Add, commit, and push updates to raw data")
@@ -151,6 +192,8 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
         case_parser_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_death':
         death_parser_manager(state_name=state_name, county_name=county_name)
+    elif mode == 'scrape_metadata':
+        metadata_manager(state_name=state_name, county_name=county_name)
 
 
 if __name__ == "__main__":
