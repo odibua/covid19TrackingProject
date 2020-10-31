@@ -84,8 +84,20 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
         """
         Return dictionary that contains percentage of each ethnicity population in Imperial County
 
-        Obtained from here: https://www.census.gov/quickfacts/imperial_countycountycalifornia
+        Obtained from here: https://www.census.gov/quickfacts/riversidecountycalifornia
 
         """
-        return {'Hispanic': 0.50, 'Multi-Race': 0.036, 'White': 0.796, 'Asian/Pacific Islander': 0.076, 'Asian': 0.072,
-                'American Indian/Alaska Native': 0.004, 'Black': 0.073, 'Native Hawaiian/Pacifc Islander': 0.004}
+        return {'Hispanic': 0.50, 'Multi-Race': 0.036, 'White': 0.341, 'Asian/Pacific Islander': 0.076, 'Asian': 0.072,
+                'American Indian/Alaska Native': 0.019, 'Black': 0.073, 'Native Hawaiian/Pacifc Islander': 0.004}
+
+    @property
+    def ethnicity_demographics_total(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains total of each ethnicity population in Imperial County
+
+        Obtained from here: https://www.census.gov/quickfacts/riversidecountycalifornia
+
+        """
+        total = 2470546
+        return {'Hispanic': int(0.50 * total), 'Multi-Race': int(0.036 * total), 'White': int(0.341 * total), 'Asian/Pacific Islander': int(0.076 * total), 'Asian': int(0.072 * total),
+                'American Indian/Alaska Native': int(0.019 * total), 'Black': int(0.073 * total), 'Native Hawaiian/Pacifc Islander': int(0.004 * total)}

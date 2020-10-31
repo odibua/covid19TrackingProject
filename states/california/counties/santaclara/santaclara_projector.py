@@ -142,8 +142,20 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
         Obtained from here: https://www.census.gov/quickfacts/santaclaracountycalifornia
 
         """
-        return {'White': 0.524, 'Hispanic': 0.250, 'Asian': 0.390, 'Black': 0.028,
+        return {'White': 0.306, 'Hispanic': 0.250, 'Asian': 0.390, 'Black': 0.028,
                 'Native Hawaiian/Pacific Islander': 0.005, 'Other': 0.054}
+
+    @property
+    def ethnicity_demographics_total(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains total of each ethnicity population in Sacramento County
+
+        Obtained from here: https://www.census.gov/quickfacts/santaclaracountycalifornia
+
+        """
+        total = 1927852
+        return {'White': int(0.306 * total), 'Hispanic': int(0.250 * total), 'Asian': int(0.390 * total), 'Black': int(0.028 * total),
+                'Native Hawaiian/Pacific Islander': int(0.005 * total), 'Other': int(0.054 * total)}
 
     @property
     def total_cases(self) -> int:
