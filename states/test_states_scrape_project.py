@@ -21,9 +21,10 @@ class TestCaliforniaScrapeAndProject(unittest.TestCase):
         self.state_county_dir = 'states/raw_data/'
 
     def test_scrape_manager(self):
-        if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
-            scrape_manager(state_name=self.state_name)
-            add_commit_and_push(state_county_dir=self.state_county_dir)
+        if not self.metadata_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                scrape_manager(state_name=self.state_name)
+                add_commit_and_push(state_county_dir=self.state_county_dir)
 
     def test_raw_to_ethnicity_case_manager(self):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():

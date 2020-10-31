@@ -427,6 +427,38 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
     return response_list, response_names, request_type
 
 
+def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[str, Dict[str, float]]:
+    """
+    """
+    metadata_dict = {}
+
+    for config_file in config_file_list:
+        config_file_obj = open(path.join(config_dir, config_file))
+        response_config = yaml.safe_load(config_file_obj)
+        if 'ROOT' in response_config.keys():
+            # Get root and region url components
+            url_base = response_config['ROOT']
+            url_region = response_config['REGION'][0]
+            for region in response_config['REGION'][1:]:
+                url_region = url_region + f'&{region}'
+
+            # Construct metadata dictionary using requests to metadata
+            # url in ACS survey
+            for metadata_name in response_config['METADATA']:
+                metadata_dict[metadata_name] = {}
+                metadata_fields = response_config['METADATA'][metadata_name]
+                for field in metadata_fields:
+                    url_use = f'{url_base}get={metadata_fields[field]}&{url_region}'
+                    acs5_response = requests.get(url=url_use)
+
+                    headers, vals = eval(acs5_response.text)
+                    for idx, header_val_tuple in enumerate(zip(headers, vals)):
+                        if header_val_tuple[0] == metadata_fields[field]:
+                            metadata_dict[metadata_name][field] = float(header_val_tuple[1])
+
+    return metadata_dict
+
+
 def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: str,
                               county: Union[str, None], cases_csv_filename: str) -> str:
     """
