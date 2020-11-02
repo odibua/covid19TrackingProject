@@ -490,7 +490,8 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
             state_ethnicity_cases_rates_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
             state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
-        state_ethnicity_full_cases_df = state_ethnicity_full_cases_df.merge(state_ethnicity_cases_rates_df, left_on='date', right_on='date', suffixes=('', '_rates'))
+        state_ethnicity_full_cases_df = state_ethnicity_full_cases_df.merge(
+            state_ethnicity_cases_rates_df, left_on='date', right_on='date', suffixes=('', '_rates'))
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
             change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_cases_df)
@@ -538,7 +539,8 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
 
         state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
             state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
-        state_ethnicity_full_deaths_df = state_ethnicity_full_deaths_df.merge(state_ethnicity_deaths_rates_df, left_on='date', right_on='date', suffixes=('', '_rates'))
+        state_ethnicity_full_deaths_df = state_ethnicity_full_deaths_df.merge(
+            state_ethnicity_deaths_rates_df, left_on='date', right_on='date', suffixes=('', '_rates'))
 
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")
