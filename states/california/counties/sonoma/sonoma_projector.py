@@ -38,7 +38,8 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
 
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.date_string = date_string
-        self.valid_date_string = utils_state_lib.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+        self.valid_date_string = utils_state_lib.get_valid_date_string(
+            date_list=html_parser_dates, date_string=date_string)
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
 
         logging.info("Load raw html data and convert it to lxml")
@@ -75,7 +76,8 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
 
         Obtained from here: census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
         """
-        return {'hispanic': 0.273, 'white': 0.629, 'black': 0.021, 'asian_pacific_islander': 0.05, 'non_hispanic': 0.062}
+        return {'hispanic': 0.273, 'white': 0.629, 'black': 0.021,
+                'asian_pacific_islander': 0.05, 'non_hispanic': 0.062}
 
     @property
     def ethnicity_demographics_total(self) -> Dict[str, float]:
@@ -85,4 +87,5 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
         Obtained from here: census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
         """
         total = 494336
-        return {'hispanic': int(0.273 * total), 'white': int(0.629 * total), 'black': int(0.021 * total), 'asian_pacific_islander': int(0.05 * total), 'non_hispanic': int(0.062 * total)}
+        return {'hispanic': int(0.273 * total), 'white': int(0.629 * total), 'black': int(0.021 * total),
+                'asian_pacific_islander': int(0.05 * total), 'non_hispanic': int(0.062 * total)}

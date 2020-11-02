@@ -26,7 +26,8 @@ from scipy import stats
 # --------------------------
 
 
-def vis_mean_ci_bar_helper(fig_list: List[figure], source_list: List[ColumnDataSource], plot_key: str, state: str) -> None:
+def vis_mean_ci_bar_helper(fig_list: List[figure],
+                           source_list: List[ColumnDataSource], plot_key: str, state: str) -> None:
     """
     Add bar and line graphs to figure and display the plot
 
@@ -44,8 +45,8 @@ def vis_mean_ci_bar_helper(fig_list: List[figure], source_list: List[ColumnDataS
         identifiers = source_.data['identifiers']
         state_idx = identifiers.index(state)
         fig.vbar(x='identifiers', top='vals', source=source_, width=0.9, line_color='white', fill_alpha=.5,
-             fill_color='salmon',
-             line_alpha=.5,)
+                 fill_color='salmon',
+                 line_alpha=.5,)
         if state_idx is not None:
             fig.line(x=identifiers, color='red', y=source_.data['vals'][state_idx], width=3, legend_label=state.upper())
         fig.line(x=identifiers, color='blue', y=fair_list, width=3, legend_label='No Disparity'.upper())
@@ -63,7 +64,8 @@ def vis_mean_ci_bar_helper(fig_list: List[figure], source_list: List[ColumnDataS
     show(layout)
 
 
-def vis_mean_ci_bar(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]]], plot_key: str, std_plot_key: str, state: str, alpha: float = 0.05) -> None:
+def vis_mean_ci_bar(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]]],
+                    plot_key: str, std_plot_key: str, state: str, alpha: float = 0.05) -> None:
     """
     Function that populates the Bokeh objects that will be used to plot relevant quantities from the stats_dict
 
@@ -92,4 +94,3 @@ def vis_mean_ci_bar(stats_dict: Dict[str, Dict[str, List[Tuple[str, float]]]], p
         figure_list.append(fig)
 
     vis_mean_ci_bar_helper(fig_list=figure_list, source_list=source_list, plot_key=plot_key, state=state)
-

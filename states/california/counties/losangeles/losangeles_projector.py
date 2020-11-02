@@ -41,7 +41,8 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
 
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.date_string = date_string
-        self.valid_date_string = utils_state_lib.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+        self.valid_date_string = utils_state_lib.get_valid_date_string(
+            date_list=html_parser_dates, date_string=date_string)
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
         logging.info("Load raw html data and convert it to lxml")
         try:

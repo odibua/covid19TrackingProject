@@ -88,4 +88,5 @@ class KernEthnicDataProjector(AlamedaEthnicDataProjector):
 
         """
         total = 900202
-        return {'Hispanic': int(0.546 * total), 'Black': int(0.063 * total), 'White': int(0.328 * total), 'Asian': int(0.054 * total), 'Other': int(0.061 * total)}
+        return {'Hispanic': int(0.546 * total), 'Black': int(0.063 * total), 'White': int(0.328 *
+                                                                                          total), 'Asian': int(0.054 * total), 'Other': int(0.061 * total)}

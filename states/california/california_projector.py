@@ -46,7 +46,8 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         # Get most recent parsing date with respect to the passed in date_string
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.date_string = date_string
-        self.valid_date_string = utils_state_lib.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+        self.valid_date_string = utils_state_lib.get_valid_date_string(
+            date_list=html_parser_dates, date_string=date_string)
 
         # Get xpath for particular date
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]

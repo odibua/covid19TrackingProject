@@ -121,7 +121,7 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
 
         """
         total = 1671329
-        return {'White': int(0.306 * total), 'Black': int(0.110 * total), 'Native American': int(0.011 * total), 'Asian': int(0.323  * total),
+        return {'White': int(0.306 * total), 'Black': int(0.110 * total), 'Native American': int(0.011 * total), 'Asian': int(0.323 * total),
                 'Pacific Islander': int(0.009 * total), 'Hispanic': int(0.223 * total), 'Multi-Race': int(0.054 * total)}
 
     def process_raw_data_to_cases(self) -> bool:

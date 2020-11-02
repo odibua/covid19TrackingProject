@@ -37,7 +37,7 @@ def get_quants_for_plotting(dict: Dict[str, Union[float, np.ndarray]]) -> Column
         source: Columnar data source
     """
     source = ColumnDataSource({'x': dict['x'], 'y': dict['y'], 'y_pred': dict['mn_y_pred'], 'sigma': dict['mn_sigma'],
-                                 'lower': dict['mn_y_pred'] - dict['mn_sigma'], 'upper': dict['mn_y_pred'] + dict['mn_sigma']})
+                               'lower': dict['mn_y_pred'] - dict['mn_sigma'], 'upper': dict['mn_y_pred'] + dict['mn_sigma']})
     return source
 
 
@@ -71,9 +71,19 @@ def vis_mean_ci_bar(stats_dict: Dict[str, Dict[str, Dict[str, Tuple[Dict[str, fl
                 idx_col = 0
                 legend_labels = [('Real Count', 'Predicted Real Count'), ('Unbiased Count', 'Predicted Unbiased Count')]
                 for legend_label, source in zip(legend_labels, [source_real, source_ideal]):
-                    fig.circle(x='x', y='y', color=color_list[idx_col], source=source_real, legend_label=legend_label[0])
+                    fig.circle(
+                        x='x',
+                        y='y',
+                        color=color_list[idx_col],
+                        source=source_real,
+                        legend_label=legend_label[0])
 
-                    fig.circle(x='x', y='y_pred', color=color_list[idx_col], source=source_ideal, legend_label=legend_label[1])
+                    fig.circle(
+                        x='x',
+                        y='y_pred',
+                        color=color_list[idx_col],
+                        source=source_ideal,
+                        legend_label=legend_label[1])
                     band = Band(base='x', lower='lower', upper='upper', source=source, level='underlay',
                                 fill_alpha=1.0, line_width=1, line_color=color_list[idx_col])
                     fig.add_layout(band)
