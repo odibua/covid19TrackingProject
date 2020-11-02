@@ -156,7 +156,7 @@ def modify_df_with_old_df(old_df: pd.DataFrame, new_df: pd.DataFrame) -> bool:
 
 
 def project_cases(state: str, county: str,
-                  date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], str]:
+                  date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, float]], List[Dict[str, any]], str]:
     """
     For a particular state and county, and an associated projector class, process the raw data for any dates not already stored
     in a csv into numerical format.
@@ -173,7 +173,7 @@ def project_cases(state: str, county: str,
         ethnicity_cases_discrepancies_list: List of dictionaries containing disparity per ethnicity
         msg: Message that is non-empty if an issue occurs rith projecting cases at a particular date
     """
-    ethnicity_cases_list, ethnicity_cases_discrepancies_list = [], []
+    ethnicity_cases_list, ethnicity_cases_rates_list, ethnicity_cases_discrepancies_list = [], [], []
     date_strings.sort()
     msg = ''
     for date_string in date_strings:
@@ -181,6 +181,7 @@ def project_cases(state: str, county: str,
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_cases()
             ethnicity_cases = projector_instance.ethnicity_cases
+            ethnicity_cases_rates = projector_instance.ethnicity_cases_rates
             ethnicity_cases_discrepancies = projector_instance.ethnicity_cases_discrepancies
             valid_change_bool, msg = check_valid_change(
                 state=state, county=county, date_string=date_string, dict1=ethnicity_cases, dict2=most_recent_entry, type_='case')
@@ -190,6 +191,7 @@ def project_cases(state: str, county: str,
             else:
                 most_recent_entry = ethnicity_cases
             ethnicity_cases_list.append(ethnicity_cases)
+            ethnicity_cases_rates_list.append(ethnicity_cases_rates)
             ethnicity_cases_discrepancies_list.append(ethnicity_cases_discrepancies)
         except Exception as e:
             if not projector_instance.cases_raw_bool:
@@ -198,11 +200,11 @@ def project_cases(state: str, county: str,
             else:
                 msg = f'Issue with parsing cases at date: {date_string} with most recent entry {most_recent_entry}'
                 break
-    return ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg
+    return ethnicity_cases_list, ethnicity_cases_rates_list, ethnicity_cases_discrepancies_list, msg
 
 
 def project_deaths(state: str, county: str,
-                   date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], str]:
+                   date_strings: List[str], most_recent_entry: Dict[str, float], projector_class: Callable) -> Tuple[List[Dict[str, int]], List[Dict[str, float]], List[Dict[str, any]], str]:
     """
     For a particular state and county, and an associated projector class, process the raw data for any dates not already stored
     in a csv into numerical format.
@@ -219,7 +221,7 @@ def project_deaths(state: str, county: str,
         ethnicity_deaths_discrepancies_list: List of dictionaries containing disparity per ethnicity
         msg: Message that is non-empty if an issue occurs rith projecting cases at a particular date
     """
-    ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, failed_dates = [], [], []
+    ethnicity_deaths_list, ethnicity_deaths_rates_list, ethnicity_deaths_discrepancies_list = [], [], []
     date_strings.sort()
     msg = ''
     for date_string in date_strings:
@@ -227,6 +229,7 @@ def project_deaths(state: str, county: str,
             projector_instance = projector_class(state=state, county=county, date_string=date_string)
             projector_instance.process_raw_data_to_deaths()
             ethnicity_deaths = projector_instance.ethnicity_deaths
+            ethnicity_deaths_rates = projector_instance.ethnicity_deaths_rates
             ethnicity_deaths_discrepancies = projector_instance.ethnicity_deaths_discrepancies
             valid_change_bool, msg = check_valid_change(
                 state=state, county=county, date_string=date_string, dict1=ethnicity_deaths, dict2=most_recent_entry, type_='death')
@@ -236,6 +239,7 @@ def project_deaths(state: str, county: str,
             else:
                 most_recent_entry = ethnicity_deaths
             ethnicity_deaths_list.append(ethnicity_deaths)
+            ethnicity_deaths_rates_list.append(ethnicity_deaths_rates)
             ethnicity_deaths_discrepancies_list.append(ethnicity_deaths_discrepancies)
         except Exception as e:
             if not projector_instance.deaths_raw_bool:
@@ -244,11 +248,11 @@ def project_deaths(state: str, county: str,
             else:
                 msg = f'Issue with parsing death at date: {date_string} with most recent entry {most_recent_entry}'
                 break
-    return ethnicity_deaths_list, ethnicity_deaths_discrepancies_list, msg
+    return ethnicity_deaths_list, ethnicity_deaths_rates_list, ethnicity_deaths_discrepancies_list, msg
 
 
 def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir: str, state_county_dir: str,
-                                          cases_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], str]:
+                                          cases_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, float]], List[Dict[str, any]], str]:
     """
     Wrapper function that imports projectors for a particular state and county. This projector will be used to parse
     raw data into number of cases per ethnicity for that state/county, and to quantify disparity.
@@ -297,6 +301,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir
         date_list=raw_data_dates, df=state_county_cases_df)
     raw_data_cases_dates.sort()
     raw_data_cases_old_dates.sort()
+
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity. Create if it does not.")
     if state_county_cases_df is not None and len(state_county_cases_df) > 0:
         most_recent_entry = state_county_cases_df[state_county_cases_df.date.eq(
@@ -309,15 +314,15 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir
     else:
         most_recent_entry = None
     try:
-        ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg = project_cases(
+        ethnicity_cases_list, ethnicity_cases_rates_list, ethnicity_cases_discrepancies_list, msg = project_cases(
             state=state, county=county, date_strings=raw_data_cases_dates, most_recent_entry=most_recent_entry, projector_class=projector_class)
     except Exception as e:
         raise ValueError(f"{e}")
-    return ethnicity_cases_list, ethnicity_cases_discrepancies_list, msg
+    return ethnicity_cases_list, ethnicity_cases_rates_list, ethnicity_cases_discrepancies_list, msg
 
 
 def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_dir: str, state_county_dir: str,
-                                           deaths_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, any]], str]:
+                                           deaths_csv_filename: str) -> Tuple[List[Dict[str, int]], List[Dict[str, float]], List[Dict[str, any]], str]:
     """
     Wrapper function that imports projectors for a particular state and county. This projector will be used to parse
     raw data into number of deaths per ethnicity for that state/county, and to quantify disparity.
@@ -377,10 +382,10 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
         most_recent_entry = most_recent_entry_copy
     else:
         most_recent_entry = None
-    ethnicity_dates_list, ethnicity_deaths_discrepancies_list, msg = project_deaths(
+    ethnicity_dates_list, ethnicity_deaths_rates_list, ethnicity_deaths_discrepancies_list, msg = project_deaths(
         state=state, county=county, date_strings=raw_data_deaths_dates, most_recent_entry=most_recent_entry, projector_class=projector_class)
 
-    return ethnicity_dates_list, ethnicity_deaths_discrepancies_list, msg
+    return ethnicity_dates_list, ethnicity_deaths_rates_list, ethnicity_deaths_discrepancies_list, msg
 
 
 def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[List[str], List[str], str]:
@@ -477,13 +482,16 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
     """
     logging.info(f"Get state ethnicity cases counts and discrepancies")
     change_df_key_bool = False
-    state_ethnicity_cases_list, state_ethnicity_cases_discrepancies_list, msg = parse_cases_responses_with_projectors(
+    state_ethnicity_cases_list, state_ethnicity_cases_rates_list, state_ethnicity_cases_discrepancies_list, msg = parse_cases_responses_with_projectors(
         state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
     try:
-        state_ethnicity_cases_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
-            state_ethnicity_cases_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
+        state_ethnicity_cases_df, state_ethnicity_cases_rates_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
+            state_ethnicity_cases_list), pd.DataFrame(
+            state_ethnicity_cases_rates_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
             state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+        state_ethnicity_full_cases_df = state_ethnicity_full_cases_df.merge(
+            state_ethnicity_cases_rates_df, left_on='date', right_on='date', suffixes=('', '_rates'))
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
             change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_cases_df)
@@ -523,14 +531,17 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
     """
     change_df_key_bool = False
     logging.info(f"Get state ethnicity deaths counts and discrepancies")
-    state_ethnicity_deaths_list, state_ethnicity_deaths_discrepancies_list, msg = parse_deaths_responses_with_projectors(
+    state_ethnicity_deaths_list, state_ethnicity_deaths_rates_list, state_ethnicity_deaths_discrepancies_list, msg = parse_deaths_responses_with_projectors(
         state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, deaths_csv_filename=deaths_csv_filename)
     try:
-        state_ethnicity_deaths_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
-            state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
+        state_ethnicity_deaths_df, state_ethnicity_deaths_rates_df, state_ethnicity_deaths_discrepancies_df = pd.DataFrame(
+            state_ethnicity_deaths_list), pd.DataFrame(state_ethnicity_deaths_rates_list), pd.DataFrame(state_ethnicity_deaths_discrepancies_list)
 
         state_ethnicity_full_deaths_df = state_ethnicity_deaths_df.merge(
             state_ethnicity_deaths_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
+        state_ethnicity_full_deaths_df = state_ethnicity_full_deaths_df.merge(
+            state_ethnicity_deaths_rates_df, left_on='date', right_on='date', suffixes=('', '_rates'))
+
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")
             change_df_key_bool = modify_df_with_old_df(

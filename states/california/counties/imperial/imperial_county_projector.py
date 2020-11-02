@@ -101,7 +101,18 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
         """
         Return dictionary that contains percentage of each ethnicity population in Imperial County
 
-        Obtained from here: https://www.census.gov/quickfacts/imperial_countycountycalifornia
+        Obtained from here: https://www.census.gov/quickfacts/imperialcountycalifornia
 
         """
-        return {'Hispanic': 0.85, 'Non-Hispanic': 0.15, 'Other': 0}
+        return {'Hispanic': 0.85, 'Non-Hispanic': 0.198, 'Other': 0}
+
+    @property
+    def ethnicity_demographics_total(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains total of each ethnicity population in Imperial County
+
+        Obtained from here: https://www.census.gov/quickfacts/imperialcountycalifornia
+
+        """
+        total = 181215
+        return {'Hispanic': int(0.85 * total), 'Non-Hispanic': int(0.198 * total), 'Other': int(0 * total)}

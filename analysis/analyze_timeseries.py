@@ -87,16 +87,18 @@ def get_identifier_demographics_dict(state: str, county: str, date: str) -> Dict
         raise ValueError(
             f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir}")
 
-    module_name = util_lib.get_projector_module(state=state, county=county, projector_name=state_county_projector_list[0][0:-3])
+    module_name = util_lib.get_projector_module(
+        state=state, county=county, projector_name=state_county_projector_list[0][0:-3])
 
     state_county_projector_module = importlib.import_module(module_name)
-    projector_class = util_lib.get_class_in_projector_module(module=state_county_projector_module, module_name=module_name)
+    projector_class = util_lib.get_class_in_projector_module(
+        module=state_county_projector_module, module_name=module_name)
     projector = projector_class(state=state, county=county, date_string=date)
 
     demographic_proportion_dict = {}
     total = sum(list(zip(*projector.ethnicity_demographics.items()))[1])
     for key, item in projector.ethnicity_demographics.items():
-        demographic_proportion_dict[key] = item/total
+        demographic_proportion_dict[key] = item / total
     return demographic_proportion_dict
 
 
@@ -184,7 +186,7 @@ def fit_time_series_counts(df_dict: Dict[str, List[Tuple[str, pd.DataFrame]]], s
                         bootstrap_dict_ideal = bootstrap_gp_fit(x=x_train, y=y_train_ideal)
 
                         time_regression_dict[key][identifier][column] = (bootstrap_dict_real, bootstrap_dict_ideal)
-                    except:
+                    except BaseException:
                         pass
 
     return time_regression_dict

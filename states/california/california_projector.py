@@ -46,7 +46,8 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         # Get most recent parsing date with respect to the passed in date_string
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.date_string = date_string
-        self.valid_date_string = utils_state_lib.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+        self.valid_date_string = utils_state_lib.get_valid_date_string(
+            date_list=html_parser_dates, date_string=date_string)
 
         # Get xpath for particular date
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
@@ -88,8 +89,18 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         """
         Return dictionary that contains percentage of each ethnicity population in california
         """
-        return {'Hispanic': 0.393, 'White': 0.366, 'Asian': 0.145, 'Black': 0.055, 'Multi-Race': 0.0308,
+        return {'Hispanic': 0.394, 'White': 0.366, 'Asian': 0.145, 'Black': 0.055, 'Multi-Race': 0.0308,
                 'American Indian/Alaska Native': 0.0035, 'Native Hawaiian/Pacific Islander': 0.0036, 'Other': 0.0025}
+
+    @property
+    def ethnicity_demographics_total(self) -> Dict[str, int]:
+        """
+        Return dictionary that contains total number of each ethnicity population in california
+        based on acs consensus
+        """
+        total = 39512223
+        return {'Hispanic': int(0.394 * total), 'White': int(0.366 * total), 'Asian': int(0.145 * total), 'Black': int(0.055 * total), 'Multi-Race': int(0.0308 * total),
+                'American Indian/Alaska Native': int(0.0035 * total), 'Native Hawaiian/Pacific Islander': int(0.0036 * total), 'Other': int(0.0025 * total)}
 
     def process_raw_data_to_cases(self) -> bool:
         """

@@ -50,6 +50,14 @@ class EthnicDataProjector(ABC):
         return {}
 
     @property
+    @abstractmethod
+    def ethnicity_demographics_total(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains total of each ethnicity population in california
+        """
+        return {}
+
+    @property
     def ethnicity_cases_percentages(self) -> Dict[str, float]:
         """
         Return dictionary of case percentages of ethnicities contained in an area
@@ -66,6 +74,19 @@ class EthnicDataProjector(ABC):
         dict_with_date = self.ethnicity_cases_dict
         dict_with_date['date'] = self.date_string
         return dict_with_date
+
+    @property
+    def ethnicity_cases_rates(self) -> Dict[str, int]:
+        """
+        Return dictionary of cases of ethnicities per 1000
+        """
+        case_rates_dict = {}
+        if self.cases_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
+            for key in self.ethnicity_cases.keys():
+                if key != 'date':
+                    case_rates_dict[key] = self.ethnicity_cases[key] * 1000 / self.ethnicity_demographics_total[key]
+        case_rates_dict['date'] = self.date_string
+        return case_rates_dict
 
     @property
     def ethnicity_cases_discrepancies(self) -> Dict[str, float]:
@@ -100,6 +121,19 @@ class EthnicDataProjector(ABC):
         dict_with_date = self.ethnicity_deaths_dict
         dict_with_date['date'] = self.date_string
         return dict_with_date
+
+    @property
+    def ethnicity_deaths_rates(self) -> Dict[str, int]:
+        """
+        Return dictionary of deaths of ethnicities per 1000
+        """
+        death_rates_dict = {}
+        if self.deaths_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
+            for key in self.ethnicity_deaths.keys():
+                if key != 'date':
+                    death_rates_dict[key] = self.ethnicity_deaths[key] * 1000 / self.ethnicity_demographics_total[key]
+        death_rates_dict['date'] = self.date_string
+        return death_rates_dict
 
     @property
     def ethnicity_deaths_discrepancies(self) -> Dict[str, float]:

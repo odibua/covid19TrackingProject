@@ -41,7 +41,8 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
 
         logging.info("Obtain valid map of ethnicities to xpath containing cases or deaths")
         self.date_string = date_string
-        self.valid_date_string = utils_state_lib.get_valid_date_string(date_list=html_parser_dates, date_string=date_string)
+        self.valid_date_string = utils_state_lib.get_valid_date_string(
+            date_list=html_parser_dates, date_string=date_string)
         self.ethnicity_xpath_map = html_parser_config['DATES'][self.valid_date_string]
         logging.info("Load raw html data and convert it to lxml")
         try:
@@ -77,7 +78,18 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
         """
         Return dictionary that contains percentage of each ethnicity population in Los Angeles
 
-        Obtained from here: https://www.census.gov/quickfacts/losangelescitycalifornia
+        Obtained from here: https://www.census.gov/quickfacts/losangelescountycalifornia
         """
-        return {'Hispanic': 0.486, "White": 0.524, 'Asian': 0.116, 'Black': 0.089,
-                "American Indian/Alaska Native": 0.007, 'Native Hawaiian/Pacific Islander': 0.002, 'Other': 0.036}
+        return {'Hispanic': 0.486, "White": 0.261, 'Asian': 0.154, 'Black': 0.09,
+                "American Indian/Alaska Native": 0.014, 'Native Hawaiian/Pacific Islander': 0.004, 'Other': 0.031}
+
+    @property
+    def ethnicity_demographics_total(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains totalof each ethnicity population in Los Angeles
+
+        Obtained from here: https://www.census.gov/quickfacts/losangelescountycalifornia
+        """
+        total = 10039107
+        return {'Hispanic': int(0.486 * total), "White": int(0.261 * total), 'Asian': int(0.154 * total), 'Black': int(0.09 * total),
+                "American Indian/Alaska Native": int(0.014 * total), 'Native Hawaiian/Pacific Islander': int(0.004 * total), 'Other': int(0.031 * total)}

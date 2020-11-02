@@ -78,3 +78,15 @@ class KernEthnicDataProjector(AlamedaEthnicDataProjector):
 
         """
         return {'Hispanic': 0.546, 'Black': 0.063, 'White': 0.328, 'Asian': 0.054, 'Other': 0.061}
+
+    @property
+    def ethnicity_demographics_total(self) -> Dict[str, float]:
+        """
+        Return dictionary that contains total of each ethnicity population in Kern County.
+
+        Obtained from here: https://www.census.gov/quickfacts/kerncountycalifornia
+
+        """
+        total = 900202
+        return {'Hispanic': int(0.546 * total), 'Black': int(0.063 * total), 'White': int(0.328 *
+                                                                                          total), 'Asian': int(0.054 * total), 'Other': int(0.061 * total)}
