@@ -142,6 +142,18 @@ def get_class_in_projector_module(module: sys.modules, module_name: str) -> Call
         raise ValueError(f"More than one class found {module}. Projector module should only have on projector class")
     return obj_list[0]
 
+def get_projector_class(state: str, county: str, state_county_dir: str) -> Callable:
+    state_county_dir_list = os.listdir(state_county_dir)
+    state_county_projector_list = filter_projector_module(projector_candidate_list=state_county_dir_list)
+    if len(state_county_projector_list) != 1:
+        raise ValueError(
+            f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir}")
+
+    logging.info(f"Get projector class for state: {state}, county: {county}")
+    module_name = get_projector_module(state=state, county=county, projector_name=state_county_projector_list[0][0:-3])
+    state_county_projector_module = importlib.import_module(module_name)
+    projector_class = get_class_in_projector_module(module=state_county_projector_module, module_name=module_name)
+    return projector_class
 
 def modify_df_with_old_df(old_df: pd.DataFrame, new_df: pd.DataFrame) -> bool:
     old_keys, new_keys = old_df.keys(), new_df.keys()
@@ -339,16 +351,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
         msg: Message that is non-empty if an issue occurs rith projecting deatjs at a particular date
     """
     logging.info("Get state/county projector")
-    state_county_dir_list = os.listdir(state_county_dir)
-    state_county_projector_list = filter_projector_module(projector_candidate_list=state_county_dir_list)
-    if len(state_county_projector_list) != 1:
-        raise ValueError(
-            f"ERROR: ONLY ONE PROJECTOR SHOULD BE IMPLEMENTED IN DIRECTORY. Found {len(state_county_projector_list)} for directory {state_county_dir}")
-
-    logging.info(f"Get projector class for state: {state}, county: {county}")
-    module_name = get_projector_module(state=state, county=county, projector_name=state_county_projector_list[0][0:-3])
-    state_county_projector_module = importlib.import_module(module_name)
-    projector_class = get_class_in_projector_module(module=state_county_projector_module, module_name=module_name)
+    projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
 
     logging.info("Create ethnicity cases and deaths csvs if they don't already exist."
                  "Load if they do exist")
@@ -431,37 +434,100 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
 
     return response_list, response_names, request_type
 
+def get_metadata_config(config_dir: str, config_file_list: List[str]) -> Dict:
+    for config_file in config_file_list:
+        config_file_obj = open(path.join(config_dir, config_file))
+        response_config = yaml.safe_load(config_file_obj)
+        if 'ROOT' in response_config.keys():
+            return response_config
 
 def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[str, Dict[str, float]]:
     """
     """
     metadata_dict = {}
+    response_config = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
 
-    for config_file in config_file_list:
-        config_file_obj = open(path.join(config_dir, config_file))
-        response_config = yaml.safe_load(config_file_obj)
-        if 'ROOT' in response_config.keys():
-            # Get root and region url components
-            url_base = response_config['ROOT']
-            url_region = response_config['REGION'][0]
-            for region in response_config['REGION'][1:]:
-                url_region = url_region + f'&{region}'
+    # Get root and region url components
+    url_base = response_config['ROOT']
+    url_region = response_config['REGION'][0]
+    for region in response_config['REGION'][1:]:
+        url_region = url_region + f'&{region}'
 
-            # Construct metadata dictionary using requests to metadata
-            # url in ACS survey
-            for metadata_name in response_config['METADATA']:
-                metadata_dict[metadata_name] = {}
-                metadata_fields = response_config['METADATA'][metadata_name]
-                for field in metadata_fields:
-                    url_use = f'{url_base}get={metadata_fields[field]}&{url_region}'
-                    acs5_response = requests.get(url=url_use)
+    # Construct metadata dictionary using requests to metadata
+    # url in ACS survey
+    for metadata_name in response_config['METADATA']:
+        metadata_dict[metadata_name] = {}
+        metadata_fields = response_config['METADATA'][metadata_name]
+        for field in metadata_fields:
+            url_use = f'{url_base}get={metadata_fields[field]}&{url_region}'
+            acs5_response = requests.get(url=url_use)
 
-                    headers, vals = eval(acs5_response.text)
-                    for idx, header_val_tuple in enumerate(zip(headers, vals)):
-                        if header_val_tuple[0] == metadata_fields[field]:
-                            metadata_dict[metadata_name][field] = float(header_val_tuple[1])
+            headers, vals = eval(acs5_response.text)
+            for idx, header_val_tuple in enumerate(zip(headers, vals)):
+                if header_val_tuple[0] == metadata_fields[field]:
+                    metadata_dict[metadata_name][field] = float(header_val_tuple[1])
 
     return metadata_dict
+
+
+def get_raw_metadata_from_config_files(config_dir: str) -> pd.DataFrame:
+    config_files = os.listdir(config_dir)
+    config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
+
+    metadata_dict = get_metadata_response(config_dir=config_dir, config_file_list=config_files)
+    return pd.DataFrame(metadata_dict)
+
+
+def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: str, county: str, state_county_dir: str) -> pd.DataFrame:
+    def _normalize_df_per_1000(df, key):
+        # Get relevant projector class and use this to get total population
+        # in region per defined ethnicity
+        projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
+        valid_date = os.listdir(path.join(state_county_dir, 'raw_data'))[0]
+        projector_class = projector_class(state=state, county=county, date_string=valid_date)
+        ethnicity_demograpics_total_dict = projector_class.ethnicity_demographics_total
+
+        # Normalize metadata values per 1000 for each ethnicity
+        for ethnicity_key in ethnicity_demograpics_total_dict.keys():
+            metadata_val = df.loc(ethnicity_key, [key])
+            df.at[ethnicity_key, key] = metadata_val * 1000 / ethnicity_demograpics_total_dict[
+                ethnicity_key]
+        return df
+
+    config_files = os.listdir(config_dir)
+    config_file_list = [config_file for config_file in config_files if config_file.endswith('.yaml')]
+    response_config = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
+
+    process_func_dict = response_config['PROCESS_FUNC']
+    processed_metadata_df = copy.deepcopy(raw_metadata_df)
+    for key in process_func_dict.keys():
+        process_func = process_func_dict[key]
+        total = raw_metadata_df.loc('Total', [key])
+        if process_func == 'ratio_wrt_total':
+            processed_metadata_df[key] = processed_metadata_df[key] / total
+        elif process_func == 'perc_of_total_per_1000':
+            # Get percent of total count of particular metadata
+            processed_metadata_df[key] = processed_metadata_df[key] * total
+            processed_metadata_df = _normalize_df_per_1000(df=processed_metadata_df, key=key)
+        elif process_func == 'total_per_1000':
+            processed_metadata_df = _normalize_df_per_1000(df=processed_metadata_df, key=key)
+        else:
+            raise ValueError(f'Processing of metadata function {process_func} not implemented')
+
+    processed_metadata_df.drop(['Total'])
+    return processed_metadata_df
+
+
+def save_data(state_name: str, county_name: str, data_df: pd.DataFrame, data_dir: str, data_suffix: str) -> None:
+    state_dirs = os.listdir(path.join('states', state_name))
+    state_dirs = [dir_ for dir_ in state_dirs if os.path.isdir(path.join('states', state_name, dir_))]
+    if data_dir not in state_dirs:
+        os.mkdir(path.join('states', state_name, data_dir))
+
+    state_metadata_file = f'{state_name}'
+    if county_name is not None:
+        state_metadata_file = f'{state_metadata_file}_{county_name}_{data_suffix}'
+    data_df.to_csv(path.join('states', state_name, data_dir, f'{state_metadata_file}.csv'))
 
 
 def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: str,
