@@ -84,12 +84,15 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
                 "American Indian/Alaska Native": 0.014, 'Native Hawaiian/Pacific Islander': 0.004, 'Other': 0.031}
 
     @property
-    def ethnicity_demographics_total(self) -> Dict[str, float]:
+    def total_population(self) -> int:
+        return 10039107
+
+    @property
+    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains totalof each ethnicity population in Los Angeles
 
         Obtained from here: https://www.census.gov/quickfacts/losangelescountycalifornia
         """
-        total = 10039107
-        return {'Hispanic': int(0.486 * total), "White": int(0.261 * total), 'Asian': int(0.154 * total), 'Black': int(0.09 * total),
-                "American Indian/Alaska Native": int(0.014 * total), 'Native Hawaiian/Pacific Islander': int(0.004 * total), 'Other': int(0.031 * total)}
+        return {'Hispanic': 0.486, 'White': 0.261, 'Asian': 0.154, 'Black': 0.09, 'Multi-Race': 0.031,
+                'American Indian/Alaska Native': 0.014, 'Native Hawaiian/Pacific Islander': 0.004}

@@ -126,13 +126,16 @@ class SacramentoEthnicDataProjector(AlamedaEthnicDataProjector):
                 'Native Hawaiian/Pacific Islander': 0.013, 'American Indian/Alaska Native': 0.015}
 
     @property
-    def ethnicity_demographics_total(self) -> Dict[str, float]:
+    def total_population(self) -> int:
+        return 1552058
+
+    @property
+    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains total of each ethnicity population in Sacramento County
 
         Obtained from here: https://www.census.gov/quickfacts/sacramentocountycalifornia
 
         """
-        total = 1552058
-        return {'White': int(0.438 * total), 'Hispanic': int(0.236 * total), 'Asian': int(0.170 * total), 'Black': int(0.109 * total),
-                'Native Hawaiian/Pacific Islander': int(0.013 * total), 'American Indian/Alaska Native': int(0.015 * total)}
+        return {'White': 0.438, 'Hispanic': 0.236, 'Asian': 0.170, 'Black': 0.109,
+                'Native Hawaiian/Pacific Islander': 0.013, 'American Indian/Alaska Native': 0.015, 'Multi-Race': 0.065}

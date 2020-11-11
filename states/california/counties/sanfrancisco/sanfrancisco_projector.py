@@ -108,13 +108,16 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
                 'Multi-Race': 0.054, 'Black': 0.052, 'Asian': 0.342, 'White': 0.406, 'Hispanic': 0.152}
 
     @property
-    def ethnicity_demographics(self) -> Dict[str, float]:
+    def total_population(self) -> int:
+        return 881549
+
+    @property
+    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains percentage of each ethnicity population in San Francisco County
 
         Obtained from here: https://www.census.gov/quickfacts/sanfranciscocountycalifornia
 
         """
-        total = 881549
-        return {'Native American': int(0.003 * total), 'Native Hawaiian/Pacific Islander': int(0.003 * total),
-                'Multi-Race': int(0.054 * total), 'Black': int(0.052 * total), 'Asian': int(0.342 * total), 'White': int(0.406 * total), 'Hispanic': int(0.152 * total)}
+        return {'Hispanic': 0.152, 'White': 0.402, 'Asian': 0.36, 'Black': 0.056, 'Multi-Race': 0.045,
+                'American Indian/Alaska Native': 0.007, 'Native Hawaiian/Pacific Islander': 0.005}

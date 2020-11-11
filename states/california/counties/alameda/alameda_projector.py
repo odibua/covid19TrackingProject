@@ -113,16 +113,19 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
                 'Pacific Islander': 0.009, 'Hispanic': 0.223, 'Multi-Race': 0.054}
 
     @property
-    def ethnicity_demographics_total(self) -> Dict[str, float]:
+    def total_population(self) -> int:
+        return 1671329
+
+    @property
+    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains percentage of each ethnicity population in Alameda County.
 
         Obtained from here: https://www.census.gov/quickfacts/alamedacountycalifornia
 
         """
-        total = 1671329
-        return {'White': int(0.306 * total), 'Black': int(0.110 * total), 'Native American': int(0.011 * total), 'Asian': int(0.323 * total),
-                'Pacific Islander': int(0.009 * total), 'Hispanic': int(0.223 * total), 'Multi-Race': int(0.054 * total)}
+        return {'Hispanic': 0.223, 'White': 0.30, 'Asian': 0.323, 'Black': 0.11, 'Multi-Race': 0.054,
+                'American Indian/Alaska Native': 0.011, 'Native Hawaiian/Pacific Islander': 0.009}
 
     def process_raw_data_to_cases(self) -> bool:
         """
