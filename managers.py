@@ -190,6 +190,7 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_dir='aggregated_processed_meta_data_csv',
         data_suffix='aggregated_processed_metadata')
 
+
 def add_commit_and_push(state_county_dir: str):
     try:
         logging.info("Add, commit, and push updates to raw data")

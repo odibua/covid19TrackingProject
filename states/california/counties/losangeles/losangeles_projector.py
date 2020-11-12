@@ -91,6 +91,7 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
         return {'Hispanic': ['Hispanic'], 'White': ['White'], 'Asian': ['Asian'], 'Black': ['Black'],
                 'American Indian/Alaska Native': ['American Indian/Alaska Native'],
                 'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander']}
+
     @property
     def total_population(self) -> int:
         return 10039107
