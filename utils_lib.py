@@ -528,6 +528,30 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
     return processed_metadata_df
 
 
+def aggregate_processed_raw_metadata(processed_metadata_df: pd.DataFrame, config_dir: str, state: str,
+                         county: str, state_county_dir: str) -> pd.DataFrame:
+    # Get relevant projector class
+    projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
+    valid_date = os.listdir(path.join(state_county_dir, 'raw_data'))[0]
+    projector_class = projector_class(state=state, county=county, date_string=valid_date)
+
+    # Construct dictionary that aggregates processed metadata based on ethnic demographics
+    # using ACS demographics
+    aggregated_processed_metadata_dict = {}
+    for metadata_name in processed_metadata_df.keys():
+        aggregated_processed_metadata_dict[metadata_name] = {}
+        for ethnicity_key in projector_class.ethnicity_demographics.keys():
+            if ethnicity_key in projector_class.map_acs_to_region_ethnicities.keys():
+                acs_ethnicity_list = projector_class.map_acs_to_region_ethnicities[ethnicity_key]
+                acs_ethnicity_demographics = projector_class.acs_ethnicity_demographics
+                weighted_sum = sum([acs_ethnicity_demographics[acs_ethnicity] for acs_ethnicity in acs_ethnicity_list if processed_metadata_df.loc[acs_ethnicity, metadata_name] >= 0])
+                weighted_metadata_val = sum([processed_metadata_df.loc[acs_ethnicity, metadata_name] * acs_ethnicity_demographics[acs_ethnicity] / weighted_sum for acs_ethnicity in acs_ethnicity_list if processed_metadata_df.loc[acs_ethnicity, metadata_name] >= 0])
+                aggregated_processed_metadata_dict[metadata_name][ethnicity_key] = weighted_metadata_val
+
+    aggregated_processed_metadata_df = pd.DataFrame(aggregated_processed_metadata_dict)
+    return aggregated_processed_metadata_df
+
+
 def save_data(state_name: str, county_name: str, data_df: pd.DataFrame, data_dir: str, data_suffix: str) -> None:
     state_dirs = os.listdir(path.join('states', state_name))
     state_dirs = [dir_ for dir_ in state_dirs if os.path.isdir(path.join('states', state_name, dir_))]
