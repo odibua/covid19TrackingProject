@@ -51,6 +51,14 @@ class EthnicDataProjector(ABC):
 
     @property
     @abstractmethod
+    def total_population(self) -> int:
+        """
+        Return total population for a given region
+        """
+        return None
+
+    @property
+    @abstractmethod
     def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains total of each ethnicity population in california
