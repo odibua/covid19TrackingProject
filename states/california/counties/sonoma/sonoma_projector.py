@@ -80,12 +80,15 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
                 'asian_pacific_islander': 0.05, 'non_hispanic': 0.062}
 
     @property
-    def ethnicity_demographics_total(self) -> Dict[str, float]:
+    def total_population(self) -> int:
+        return 494336
+
+    @property
+    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains total of each ethnicity population in Sonoma County.
 
-        Obtained from here: census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
+        Obtained from here: census.gov/quickfacts/fact/table/sonomacountycalifornia
         """
-        total = 494336
-        return {'hispanic': int(0.273 * total), 'white': int(0.629 * total), 'black': int(0.021 * total),
-                'asian_pacific_islander': int(0.05 * total), 'non_hispanic': int(0.062 * total)}
+        return {'Hispanic': 0.273, 'White': 0.629, 'Asian': 0.046, 'Black': 0.021, 'Multi-Race': 0.04,
+                'American Indian/Alaska Native': 0.022, 'Native Hawaiian/Pacific Islander': 0.004}

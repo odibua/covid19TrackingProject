@@ -42,14 +42,6 @@ def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], 
     return response_list, response_names, request_type
 
 
-def get_metadata_from_config_files(config_dir: str) -> None:
-    config_files = os.listdir(config_dir)
-    config_files = [config_file for config_file in config_files if config_file.endswith('.yaml')]
-
-    metadata_dict = utils_lib.get_metadata_response(config_dir=config_dir, config_file_list=config_files)
-    return metadata_dict
-
-
 def scrape_manager(state_name: str, county_name: str = None) -> None:
     """
     Scraping manager that uses the config file associated with a particular state and county to collect raw data
@@ -154,21 +146,34 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
     logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
     if county_name is None:
         state_config_path = path.join('states', state_name, 'configs')
+        state_county_dir = path.join('states', state_name)
     else:
         state_config_path = path.join('states', state_name, 'counties', county_name, 'configs')
+        state_county_dir = path.join('states', state_name, 'counties', county_name)
 
-    metadata_dict = get_metadata_from_config_files(config_dir=state_config_path)
+    # Get dataframe of raw metadata for a state and/or county and save the data to
+    # a csv file
+    metadata_df = utils_lib.get_raw_metadata_from_config_files(config_dir=state_config_path)
+    utils_lib.save_data(
+        state_name=state_name,
+        county_name=county_name,
+        data_df=metadata_df,
+        data_dir='meta_data_csv',
+        data_suffix='metadata')
 
-    metadata_df = pd.DataFrame(metadata_dict)
-    state_dirs = os.listdir(path.join('states', state_name))
-    state_dirs = [dir_ for dir_ in state_dirs if os.path.isdir(path.join('states', state_name, dir_))]
-    if 'meta_data_csv' not in state_dirs:
-        os.mkdir(path.join('states', state_name, 'meta_data_csv'))
-
-    state_metadata_file = f'{state_name}'
-    if county_name is not None:
-        state_metadata_file = f'{state_metadata_file}_{county_name}_metadata'
-    metadata_df.to_csv(path.join('states', state_name, 'meta_data_csv', f'{state_metadata_file}.csv'))
+    # Process raw metadata and save processed medatada and save data to a csv file
+    processed_metadata_df = utils_lib.process_raw_metadata(
+        raw_metadata_df=metadata_df,
+        config_dir=state_config_path,
+        state=state_name,
+        county=county_name,
+        state_county_dir=state_county_dir)
+    utils_lib.save_data(
+        state_name=state_name,
+        county_name=county_name,
+        data_df=processed_metadata_df,
+        data_dir='processed_meta_data_csv',
+        data_suffix='processed_metadata')
 
 
 def add_commit_and_push(state_county_dir: str):

@@ -93,14 +93,17 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
                 'American Indian/Alaska Native': 0.0035, 'Native Hawaiian/Pacific Islander': 0.0036, 'Other': 0.0025}
 
     @property
-    def ethnicity_demographics_total(self) -> Dict[str, int]:
+    def total_population(self) -> int:
+        return 39512223
+
+    @property
+    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
         """
         Return dictionary that contains total number of each ethnicity population in california
         based on acs consensus
         """
-        total = 39512223
-        return {'Hispanic': int(0.394 * total), 'White': int(0.366 * total), 'Asian': int(0.145 * total), 'Black': int(0.055 * total), 'Multi-Race': int(0.0308 * total),
-                'American Indian/Alaska Native': int(0.0035 * total), 'Native Hawaiian/Pacific Islander': int(0.0036 * total), 'Other': int(0.0025 * total)}
+        return {'Hispanic': 0.394, 'White': 0.365, 'Asian': 0.155, 'Black': 0.065, 'Multi-Race': 0.04,
+                'American Indian/Alaska Native': 0.016, 'Native Hawaiian/Pacific Islander': 0.005}
 
     def process_raw_data_to_cases(self) -> bool:
         """
