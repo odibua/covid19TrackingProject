@@ -489,7 +489,7 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
         projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
         valid_date = os.listdir(path.join(state_county_dir, 'raw_data'))[0]
         projector_class = projector_class(state=state, county=county, date_string=valid_date)
-        ethnicity_demograpics_perc_dict = projector_class.ethnicity_demographics_pop_perc
+        ethnicity_demograpics_perc_dict = projector_class.acs_ethnicity_demographics
         # Normalize metadata values per 1000 for each ethnicity
         for ethnicity_key in ethnicity_demograpics_perc_dict.keys():
             if ethnicity_key in df.index.tolist():
@@ -522,10 +522,38 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
             raise ValueError(f'Processing of metadata function {process_func} not implemented')
 
         if sum(error_bool) > 1:
-            raise ValueError(f'Normalized values per 1000 error for {key}. Following values are greater than 1000 {processed_metadata_df[key][error_bool]}')
+            raise ValueError(
+                f'Normalized values per 1000 error for {key}. Following values are greater than 1000 {processed_metadata_df[key][error_bool]}')
 
     processed_metadata_df = processed_metadata_df.drop(['Total'])
     return processed_metadata_df
+
+
+def aggregate_processed_raw_metadata(processed_metadata_df: pd.DataFrame, config_dir: str, state: str,
+                                     county: str, state_county_dir: str) -> pd.DataFrame:
+    # Get relevant projector class
+    projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
+    valid_date = os.listdir(path.join(state_county_dir, 'raw_data'))[0]
+    projector_class = projector_class(state=state, county=county, date_string=valid_date)
+
+    # Construct dictionary that aggregates processed metadata based on ethnic demographics
+    # using ACS demographics
+    aggregated_processed_metadata_dict = {}
+    for metadata_name in processed_metadata_df.keys():
+        aggregated_processed_metadata_dict[metadata_name] = {}
+        for ethnicity_key in projector_class.ethnicity_demographics.keys():
+            if ethnicity_key in projector_class.map_acs_to_region_ethnicities.keys():
+                acs_ethnicity_list = projector_class.map_acs_to_region_ethnicities[ethnicity_key]
+                acs_ethnicity_demographics = projector_class.acs_ethnicity_demographics
+                weighted_sum = sum([acs_ethnicity_demographics[acs_ethnicity]
+                                    for acs_ethnicity in acs_ethnicity_list if processed_metadata_df.loc[acs_ethnicity, metadata_name] >= 0])
+                weighted_metadata_val = sum([processed_metadata_df.loc[acs_ethnicity, metadata_name] *
+                                             acs_ethnicity_demographics[acs_ethnicity] /
+                                             weighted_sum for acs_ethnicity in acs_ethnicity_list if processed_metadata_df.loc[acs_ethnicity, metadata_name] >= 0])
+                aggregated_processed_metadata_dict[metadata_name][ethnicity_key] = weighted_metadata_val
+
+    aggregated_processed_metadata_df = pd.DataFrame(aggregated_processed_metadata_dict)
+    return aggregated_processed_metadata_df
 
 
 def save_data(state_name: str, county_name: str, data_df: pd.DataFrame, data_dir: str, data_suffix: str) -> None:

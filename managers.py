@@ -175,6 +175,21 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_dir='processed_meta_data_csv',
         data_suffix='processed_metadata')
 
+    # Aggregate processed metadata based on mapping of regionally defined ethnicities
+    # to ACS ethnicities.
+    aggregated_processed_metadata_df = utils_lib.aggregate_processed_raw_metadata(
+        processed_metadata_df=processed_metadata_df,
+        config_dir=state_config_path,
+        state=state_name,
+        county=county_name,
+        state_county_dir=state_county_dir)
+    utils_lib.save_data(
+        state_name=state_name,
+        county_name=county_name,
+        data_df=aggregated_processed_metadata_df,
+        data_dir='aggregated_processed_meta_data_csv',
+        data_suffix='aggregated_processed_metadata')
+
 
 def add_commit_and_push(state_county_dir: str):
     try:

@@ -80,11 +80,18 @@ class KernEthnicDataProjector(AlamedaEthnicDataProjector):
         return {'Hispanic': 0.546, 'Black': 0.063, 'White': 0.328, 'Asian': 0.054, 'Other': 0.061}
 
     @property
+    def map_acs_to_region_ethnicities(self) -> Dict[str, List[str]]:
+        """
+        Return dictionary that maps ACS ethnicities to region ethnicities defined by covid
+        """
+        return {'Hispanic': ['Hispanic'], 'White': ['White'], 'Asian': ['Asian'], 'Black': ['Black']}
+
+    @property
     def total_population(self) -> int:
         return 900202
 
     @property
-    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
+    def acs_ethnicity_demographics(self) -> Dict[str, float]:
         """
         Return dictionary that contains total of each ethnicity population in Kern County.
 

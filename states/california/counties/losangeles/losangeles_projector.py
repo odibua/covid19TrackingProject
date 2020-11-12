@@ -84,11 +84,20 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
                 "American Indian/Alaska Native": 0.014, 'Native Hawaiian/Pacific Islander': 0.004, 'Other': 0.031}
 
     @property
+    def map_acs_to_region_ethnicities(self) -> Dict[str, List[str]]:
+        """
+        Return dictionary that maps ACS ethnicities to region ethnicities defined by covid
+        """
+        return {'Hispanic': ['Hispanic'], 'White': ['White'], 'Asian': ['Asian'], 'Black': ['Black'],
+                'American Indian/Alaska Native': ['American Indian/Alaska Native'],
+                'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander']}
+
+    @property
     def total_population(self) -> int:
         return 10039107
 
     @property
-    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
+    def acs_ethnicity_demographics(self) -> Dict[str, float]:
         """
         Return dictionary that contains totalof each ethnicity population in Los Angeles
 
