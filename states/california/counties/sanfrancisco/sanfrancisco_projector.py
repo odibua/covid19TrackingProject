@@ -116,7 +116,7 @@ class SanFranciscoEthnicDataProjector(AlamedaEthnicDataProjector, EthnicDataProj
                 'Multi-Race': ['Multi-Race'],
                 'Native American': ['American Indian/Alaska Native'],
                 'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander'],
-                'Asian/Pacific Islander': ['Asian', 'Native Hawaiian/Pacifc Islander']}
+                'Asian/Pacific Islander': ['Asian', 'Native Hawaiian/Pacific Islander']}
 
     @property
     def total_population(self) -> int:

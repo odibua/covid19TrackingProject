@@ -68,7 +68,7 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
             'ASIAN_CASES': 'Asian',
             'AMERICAN_INDIAN_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native',
             'BLACK_CASES': 'Black',
-            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacifc Islander'
+            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander'
         }
 
     @property
@@ -77,7 +77,7 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
         Return list of ethnicities contained in data gathered from pages
         """
         return ['Hispanic', 'Multi-Race', 'White', 'Asian/Pacific Islander', 'Asian',
-                'American Indian/Alaska Native', 'Black', 'Native Hawaiian/Pacifc Islander']
+                'American Indian/Alaska Native', 'Black', 'Native Hawaiian/Pacific Islander']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
@@ -88,7 +88,7 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
 
         """
         return {'Hispanic': 0.50, 'Multi-Race': 0.036, 'White': 0.341, 'Asian/Pacific Islander': 0.076, 'Asian': 0.072,
-                'American Indian/Alaska Native': 0.019, 'Black': 0.073, 'Native Hawaiian/Pacifc Islander': 0.004}
+                'American Indian/Alaska Native': 0.019, 'Black': 0.073, 'Native Hawaiian/Pacific Islander': 0.004}
 
     @property
     def map_acs_to_region_ethnicities(self) -> Dict[str, List[str]]:
@@ -98,7 +98,7 @@ class RiverSideEthnicDataProjector(AlamedaEthnicDataProjector):
         return {'Hispanic': ['Hispanic'], 'White': ['White'], 'Asian': ['Asian'], 'Black': ['Black'],
                 'Multi-Race': ['Multi-Race'],
                 'American Indian/Alaska Native': ['American Indian/Alaska Native'],
-                'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander'], 'Asian/Pacific Islander': ['Asian', 'Native Hawaiian/Pacifc Islander']}
+                'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander'], 'Asian/Pacific Islander': ['Asian', 'Native Hawaiian/Pacific Islander']}
 
     @property
     def total_population(self) -> int:
