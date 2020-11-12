@@ -139,7 +139,8 @@ class EthnicDataProjector(ABC):
         if self.deaths_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_deaths.keys():
                 if key != 'date':
-                    death_rates_dict[key] = self.ethnicity_deaths[key] * 1000 / self.ethnicity_demographics_pop_perc[key]
+                    death_rates_dict[key] = self.ethnicity_deaths[key] * \
+                        1000 / self.ethnicity_demographics_pop_perc[key]
         death_rates_dict['date'] = self.date_string
         return death_rates_dict
 

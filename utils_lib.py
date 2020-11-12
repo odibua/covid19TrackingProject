@@ -142,6 +142,7 @@ def get_class_in_projector_module(module: sys.modules, module_name: str) -> Call
         raise ValueError(f"More than one class found {module}. Projector module should only have on projector class")
     return obj_list[0]
 
+
 def get_projector_class(state: str, county: str, state_county_dir: str) -> Callable:
     state_county_dir_list = os.listdir(state_county_dir)
     state_county_projector_list = filter_projector_module(projector_candidate_list=state_county_dir_list)
@@ -154,6 +155,7 @@ def get_projector_class(state: str, county: str, state_county_dir: str) -> Calla
     state_county_projector_module = importlib.import_module(module_name)
     projector_class = get_class_in_projector_module(module=state_county_projector_module, module_name=module_name)
     return projector_class
+
 
 def modify_df_with_old_df(old_df: pd.DataFrame, new_df: pd.DataFrame) -> bool:
     old_keys, new_keys = old_df.keys(), new_df.keys()
@@ -434,12 +436,14 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
 
     return response_list, response_names, request_type
 
+
 def get_metadata_config(config_dir: str, config_file_list: List[str]) -> Dict:
     for config_file in config_file_list:
         config_file_obj = open(path.join(config_dir, config_file))
         response_config = yaml.safe_load(config_file_obj)
         if 'ROOT' in response_config.keys():
             return response_config
+
 
 def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[str, Dict[str, float]]:
     """
@@ -478,7 +482,8 @@ def get_raw_metadata_from_config_files(config_dir: str) -> pd.DataFrame:
     return pd.DataFrame(metadata_dict)
 
 
-def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: str, county: str, state_county_dir: str) -> pd.DataFrame:
+def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: str,
+                         county: str, state_county_dir: str) -> pd.DataFrame:
     def _normalize_df_per_1000(df, key):
         # Get relevant projector class and use this to get total population
         # in region per defined ethnicity

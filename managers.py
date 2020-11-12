@@ -154,11 +154,26 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
     # Get dataframe of raw metadata for a state and/or county and save the data to
     # a csv file
     metadata_df = utils_lib.get_raw_metadata_from_config_files(config_dir=state_config_path)
-    utils_lib.save_data(state_name=state_name, county_name=county_name, data_df=metadata_df, data_dir='meta_data_csv', data_suffix='metadata')
+    utils_lib.save_data(
+        state_name=state_name,
+        county_name=county_name,
+        data_df=metadata_df,
+        data_dir='meta_data_csv',
+        data_suffix='metadata')
 
     # Process raw metadata and save processed medatada and save data to a csv file
-    processed_metadata_df = utils_lib.process_raw_metadata(raw_metadata_df=metadata_df, config_dir=state_config_path, state=state_name, county=county_name, state_county_dir=state_county_dir)
-    utils_lib.save_data(state_name=state_name, county_name=county_name, data_df=processed_metadata_df, data_dir='processed_meta_data_csv', data_suffix='processed_metadata')
+    processed_metadata_df = utils_lib.process_raw_metadata(
+        raw_metadata_df=metadata_df,
+        config_dir=state_config_path,
+        state=state_name,
+        county=county_name,
+        state_county_dir=state_county_dir)
+    utils_lib.save_data(
+        state_name=state_name,
+        county_name=county_name,
+        data_df=processed_metadata_df,
+        data_dir='processed_meta_data_csv',
+        data_suffix='processed_metadata')
 
 
 def add_commit_and_push(state_county_dir: str):

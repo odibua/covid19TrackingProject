@@ -92,4 +92,3 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
         """
         return {'Hispanic': 0.273, 'White': 0.629, 'Asian': 0.046, 'Black': 0.021, 'Multi-Race': 0.04,
                 'American Indian/Alaska Native': 0.022, 'Native Hawaiian/Pacific Islander': 0.004}
-
