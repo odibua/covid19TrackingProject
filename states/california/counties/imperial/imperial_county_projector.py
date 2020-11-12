@@ -107,11 +107,19 @@ class ImperialCountyEthnicDataProjector(AlamedaEthnicDataProjector):
         return {'Hispanic': 0.85, 'Non-Hispanic': 0.198, 'Other': 0}
 
     @property
+    def map_acs_to_region_ethnicities(self) -> Dict[str, List[str]]:
+        """
+        Return dictionary that maps ACS ethnicities to region ethnicities defined by covid
+        """
+        return {'Hispanic': ['Hispanic'], 'Non-Hispanic': ['White', 'Asian', 'Black', 'Multi-Race',
+                                                           'American Indian/Alaska Native', 'Native Hawaiian/Pacific Islander']}
+
+    @property
     def total_population(self) -> int:
         return 181215
 
     @property
-    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
+    def acs_ethnicity_demographics(self) -> Dict[str, float]:
         """
         Return dictionary that contains total of each ethnicity population in Imperial County
 

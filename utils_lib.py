@@ -489,7 +489,7 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
         projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
         valid_date = os.listdir(path.join(state_county_dir, 'raw_data'))[0]
         projector_class = projector_class(state=state, county=county, date_string=valid_date)
-        ethnicity_demograpics_perc_dict = projector_class.ethnicity_demographics_pop_perc
+        ethnicity_demograpics_perc_dict = projector_class.acs_ethnicity_demographics
         # Normalize metadata values per 1000 for each ethnicity
         for ethnicity_key in ethnicity_demograpics_perc_dict.keys():
             if ethnicity_key in df.index.tolist():

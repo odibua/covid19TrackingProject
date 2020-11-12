@@ -97,7 +97,15 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         return 39512223
 
     @property
-    def ethnicity_demographics_pop_perc(self) -> Dict[str, float]:
+    def map_acs_to_region_ethnicities(self) -> Dict[str, List[str]]:
+        """
+        Return dictionary that maps ACS ethnicities to region ethnicities defined by covid
+        """
+        return {'Hispanic': ['Hispanic'], 'White': ['White'], 'Asian': ['Asian'], 'Black': ['Black'], 'Multi-Race': ['Multi-Race'],
+                'American Indian/Alaska Native': ['American Indian/Alaska Native'], 'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander']}
+
+    @property
+    def acs_ethnicity_demographics(self) -> Dict[str, float]:
         """
         Return dictionary that contains total number of each ethnicity population in california
         based on acs consensus
