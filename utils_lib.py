@@ -446,8 +446,7 @@ def get_metadata_config(config_dir: str, config_file_list: List[str]) -> Dict:
 
 
 def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[str, Dict[str, float]]:
-    """
-    """
+
     metadata_dict = {}
     response_config = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
 
@@ -463,14 +462,14 @@ def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[
         metadata_dict[metadata_name] = {}
         metadata_fields = response_config['METADATA'][metadata_name]
         for field in metadata_fields:
-            url_use = f'{url_base}get={metadata_fields[field]}&{url_region}'
-            acs5_response = requests.get(url=url_use)
+            url_use = f'{url_base}get={metadata_fields[field]}&{url_region}&key={response_config["API_KEY"]}'
+            headers = response_config['HEADERS']
+            acs5_response = requests.get(url=url_use, headers=headers)
 
             headers, vals = eval(acs5_response.text)
             for idx, header_val_tuple in enumerate(zip(headers, vals)):
                 if header_val_tuple[0] == metadata_fields[field]:
                     metadata_dict[metadata_name][field] = float(header_val_tuple[1])
-
     return metadata_dict
 
 
@@ -490,13 +489,13 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
         projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
         valid_date = os.listdir(path.join(state_county_dir, 'raw_data'))[0]
         projector_class = projector_class(state=state, county=county, date_string=valid_date)
-        ethnicity_demograpics_total_dict = projector_class.ethnicity_demographics_pop_perc
-
+        ethnicity_demograpics_perc_dict = projector_class.ethnicity_demographics_pop_perc
         # Normalize metadata values per 1000 for each ethnicity
-        for ethnicity_key in ethnicity_demograpics_total_dict.keys():
-            metadata_val = df.loc(ethnicity_key, [key])
-            df.at[ethnicity_key, key] = metadata_val * 1000 / ethnicity_demograpics_total_dict[
-                ethnicity_key]
+        for ethnicity_key in ethnicity_demograpics_perc_dict.keys():
+            if ethnicity_key in df.index.tolist():
+                metadata_val = df.loc[ethnicity_key, key]
+                df.at[ethnicity_key, key] = metadata_val * 1000 / (ethnicity_demograpics_perc_dict[
+                    ethnicity_key] * projector_class.total_population)
         return df
 
     config_files = os.listdir(config_dir)
@@ -507,19 +506,25 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
     processed_metadata_df = copy.deepcopy(raw_metadata_df)
     for key in process_func_dict.keys():
         process_func = process_func_dict[key]
-        total = raw_metadata_df.loc('Total', [key])
+        total = raw_metadata_df.loc['Total', key]
+        error_bool = [False] * (len(processed_metadata_df) - 1)
         if process_func == 'ratio_wrt_total':
             processed_metadata_df[key] = processed_metadata_df[key] / total
         elif process_func == 'perc_of_total_per_1000':
             # Get percent of total count of particular metadata
-            processed_metadata_df[key] = processed_metadata_df[key] * total
+            processed_metadata_df[key] = processed_metadata_df[key] * total * 0.01
             processed_metadata_df = _normalize_df_per_1000(df=processed_metadata_df, key=key)
+            error_bool = processed_metadata_df[key] > 1000
         elif process_func == 'total_per_1000':
             processed_metadata_df = _normalize_df_per_1000(df=processed_metadata_df, key=key)
+            error_bool = processed_metadata_df[key] > 1000
         else:
             raise ValueError(f'Processing of metadata function {process_func} not implemented')
 
-    processed_metadata_df.drop(['Total'])
+        if sum(error_bool) > 1:
+            raise ValueError(f'Normalized values per 1000 error for {key}. Following values are greater than 1000 {processed_metadata_df[key][error_bool]}')
+
+    processed_metadata_df = processed_metadata_df.drop(['Total'])
     return processed_metadata_df
 
 
@@ -532,6 +537,8 @@ def save_data(state_name: str, county_name: str, data_df: pd.DataFrame, data_dir
     state_metadata_file = f'{state_name}'
     if county_name is not None:
         state_metadata_file = f'{state_metadata_file}_{county_name}_{data_suffix}'
+    else:
+        state_metadata_file = f'{state_metadata_file}_{data_suffix}'
     data_df.to_csv(path.join('states', state_name, data_dir, f'{state_metadata_file}.csv'))
 
 

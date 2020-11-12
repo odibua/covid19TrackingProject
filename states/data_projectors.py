@@ -140,7 +140,7 @@ class EthnicDataProjector(ABC):
             for key in self.ethnicity_deaths.keys():
                 if key != 'date':
                     death_rates_dict[key] = self.ethnicity_deaths[key] * \
-                        1000 / self.ethnicity_demographics_pop_perc[key]
+                        1000 / (self.ethnicity_demographics_pop_perc[key] * self.total_population)
         death_rates_dict['date'] = self.date_string
         return death_rates_dict
 

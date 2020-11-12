@@ -102,8 +102,8 @@ class CaliforniaEthnicDataProjector(EthnicDataProjector):
         Return dictionary that contains total number of each ethnicity population in california
         based on acs consensus
         """
-        return {'Hispanic': 0.394, 'White': 0.366, 'Asian': 0.145, 'Black': 0.055, 'Multi-Race': 0.0308,
-                'American Indian/Alaska Native': 0.0035, 'Native Hawaiian/Pacific Islander': 0.0036, 'Other': 0.0025}
+        return {'Hispanic': 0.394, 'White': 0.365, 'Asian': 0.155, 'Black': 0.065, 'Multi-Race': 0.04,
+                'American Indian/Alaska Native': 0.016, 'Native Hawaiian/Pacific Islander': 0.005}
 
     def process_raw_data_to_cases(self) -> bool:
         """
