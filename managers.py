@@ -8,17 +8,17 @@ import os
 from os import path
 import subprocess as cmd
 from typing import List, Tuple
-import warnings
 
 # --------------------------
 # Third Party Imports
 # --------------------------
+import numpy as np
 import pandas as pd
-import yaml as yaml
 
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
+import regression_utils
 import utils_lib
 
 
@@ -253,6 +253,42 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     training_data_df.to_csv(path.join(training_csv_path, training_file))
 
 
+def regression_manager(state_name: str, type: str, county_name: str = None, regression_type: str='multilinear') -> None:
+    logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
+    # Define path and file for training data
+    training_csv_path = path.join('states', state_name, 'training_data_csvs')
+    if county_name is None:
+        training_file = f'{state_name}_training_{type}.csv'
+    else:
+        training_file = f'{state_name}_{county_name}_training_{type}.csv'
+
+    training_data_df = pd.read_csv(path.join(training_csv_path, training_file))
+
+    # Set Y as mortality rate
+    Y = np.array(training_data_df['mortality_rate'])
+
+    # Find range of days that will be used to construct X
+    days_range = training_data_df['time'].max() - training_data_df['time'].min() + 1
+
+    # Construct X
+    X = np.zeros((training_data_df.shape[0], days_range + training_data_df.shape[1]))
+    import ipdb
+    ipdb.set_trace()
+    # Populate first days_range columns with 1 if the day corresponds to the column
+    rows = list(range(len(training_data_df['time'])))
+    X[rows, training_data_df['time']] = 1
+
+    # Populate remaining columns with corresponding metadata
+    metadata_keys = training_data_df.keys()
+    metadata_keys = [key for key in metadata_keys if key not in ['time', 'mortality_rate']]
+
+    idx_use = days_range
+    for idx, key in enumerate(metadata_keys):
+        X[:, idx_use + idx] = training_data_df[key].tolist()
+
+    regression_info = regression_utils.call_multilinear_regression(X=X, Y=Y)
+
+
 def add_commit_and_push(state_county_dir: str):
     try:
         logging.info("Add, commit, and push updates to raw data")
@@ -280,7 +316,10 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
         training_data_manager(state_name=state_name, county_name=county_name, type='cases')
     elif mode == 'create_death_training_data':
         training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
-
+    elif mode == 'perform_cases_multilinear_regression':
+        regression_manager(state_name=state_name, county_name=county_name, type='cases')
+    elif mode == 'perform_deaths_multilinear_regression':
+        regression_manager(state_name=state_name, county_name=county_name, type='deaths')
 
 if __name__ == "__main__":
     logging.basicConfig()
