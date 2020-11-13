@@ -48,6 +48,7 @@ class TestCaliforniaRiversideScrapeAndProject(unittest.TestCase):
         if self.train_data_bool:
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
                 training_data_manager(state_name=self.state_name, county_name=self.county_name, type='cases')
+
     def test_death_training_data_manager(self):
         if self.train_data_bool:
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
