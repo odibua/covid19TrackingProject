@@ -179,7 +179,6 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
     # to ACS ethnicities.
     aggregated_processed_metadata_df = utils_lib.aggregate_processed_raw_metadata(
         processed_metadata_df=processed_metadata_df,
-        config_dir=state_config_path,
         state=state_name,
         county=county_name,
         state_county_dir=state_county_dir)
@@ -189,6 +188,69 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_df=aggregated_processed_metadata_df,
         data_dir='aggregated_processed_meta_data_csv',
         data_suffix='aggregated_processed_metadata')
+
+
+def training_case_data_manager(state_name: str, county_name: str) -> None:
+    logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
+    # Define paths and files containing region covid case rates data
+    # and metadata
+    metadata_path = path.join('states', state_name, 'aggregated_processed_meta_data_csv')
+    csv_path = path.join('states', state_name, 'csvs')
+    training_csv_path = path.join('states', state_name, 'training_data_csvs')
+    if county_name is None:
+        metadata_file = f'{state_name}_aggregated_processed_metadata.csv'
+        csv_file = f'{state_name}_ethnicity_cases.csv'
+        training_file = f'{state_name}_training_cases.csv'
+    else:
+        metadata_file = f'{state_name}_{county_name}_aggregated_processed_metadata.csv'
+        csv_file = f'{state_name}_{county_name}_ethnicity_cases.csv'
+        training_file = f'{state_name}_{county_name}_training_cases.csv'
+
+    # Get earliest date for case files
+    csv_file_list = os.listdir(csv_path)
+    csv_file_list = [path.join(csv_path, csv_file) for csv_file in csv_file_list if 'case' in csv_file]
+    earliest_date = utils_lib.get_earliest_date_string(csv_file_list=csv_file_list)
+
+    # Get rate columns from csv file
+    csv_df = pd.read_csv(path.join(csv_path, csv_file))
+    columns = csv_df.keys()
+    rate_columns = [column for column in columns if 'rates' in column or column == 'date']
+    rate_df = csv_df[rate_columns]
+
+    # Add time column that is based on days
+    rate_df['date'] = pd.to_datetime(rate_df['date'])
+    rate_df['time'] = (rate_df['date'] - earliest_date).dt.days
+
+    # Load aggregated metadata data frame
+    aggregated_processed_metadata_df = pd.read_csv(path.join(metadata_path, metadata_file), index_col=0)
+
+    # Get columns that have values that unique values for mortality rates
+    # and store them in a dictionary along with relevant regional features
+    training_data_dict = {'mortality_rate': [], 'time': []}
+    for metadata_name in aggregated_processed_metadata_df.keys():
+        training_data_dict[metadata_name] = []
+    for column in rate_df.keys():
+        ethnicity = column.split('_')[0]
+        if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
+            column_df = rate_df[column]
+            delta_df = column_df[1:].subtract(column_df[0:-1].tolist())
+            change_bool = (delta_df.abs() > 0).tolist()
+            change_bool = [True] + change_bool
+            column_df = column_df[change_bool]
+
+            training_data_dict['mortality_rate'].extend(column_df.tolist())
+            training_data_dict['time'].extend(rate_df['time'][change_bool])
+
+            # Fill in metadata for the region
+            for metadata_name in aggregated_processed_metadata_df.keys():
+                metadata_vals = aggregated_processed_metadata_df.loc[ethnicity, metadata_name]
+                training_data_dict[metadata_name].extend([metadata_vals] * len(column_df.tolist()))
+    training_data_df = pd.DataFrame(training_data_dict)
+
+    if not os.path.exists(training_csv_path):
+        os.mkdir(training_csv_path)
+
+    training_data_df.to_csv(path.join(training_csv_path, training_file))
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -214,6 +276,8 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
         death_parser_manager(state_name=state_name, county_name=county_name)
     elif mode == 'scrape_metadata':
         metadata_manager(state_name=state_name, county_name=county_name)
+    elif mode == 'create_case_training_data':
+        training_case_data_manager(state_name=state_name, county_name=county_name)
 
 
 if __name__ == "__main__":

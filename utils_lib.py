@@ -101,6 +101,22 @@ def check_valid_change(state: str, county: str, date_string: str,
     return True, ''
 
 
+def get_earliest_date_string(csv_file_list: List[str]) -> str:
+    min_date = None
+    for csv_file in csv_file_list:
+        df = pd.read_csv(csv_file)
+        df['date'] = pd.to_datetime(df['date'])
+        date = df['date'].min()
+
+        if min_date is None:
+            min_date = date
+        else:
+            if date < min_date:
+                min_date = date
+
+    return min_date
+
+
 def get_projector_module(state: str, county: str, projector_name: str) -> str:
     if county is None:
         return f"states.{state}.{projector_name}"
@@ -529,7 +545,7 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
     return processed_metadata_df
 
 
-def aggregate_processed_raw_metadata(processed_metadata_df: pd.DataFrame, config_dir: str, state: str,
+def aggregate_processed_raw_metadata(processed_metadata_df: pd.DataFrame, state: str,
                                      county: str, state_county_dir: str) -> pd.DataFrame:
     # Get relevant projector class
     projector_class = get_projector_class(state=state, county=county, state_county_dir=state_county_dir)
