@@ -11,7 +11,7 @@ import unittest
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from managers import add_commit_and_push, scrape_manager, metadata_manager, case_parser_manager, death_parser_manager
+from managers import add_commit_and_push, scrape_manager, training_data_manager, metadata_manager, case_parser_manager, death_parser_manager
 
 
 @pytest.mark.usefixtures("project_bools")
@@ -44,3 +44,12 @@ class TestCaliforniaSacramentoScrapeAndProject(unittest.TestCase):
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
                 if self.project_death_bool:
                     death_parser_manager(state_name=self.state_name, county_name=self.county_name)
+
+    def test_case_training_data_manager(self):
+        if self.train_data_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                training_data_manager(state_name=self.state_name, county_name=self.county_name, type='cases')
+    def test_death_training_data_manager(self):
+        if self.train_data_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                training_data_manager(state_name=self.state_name, county_name=self.county_name, type='deaths')

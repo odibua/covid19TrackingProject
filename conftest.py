@@ -4,7 +4,10 @@ import pytest
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--metadata_bool", action="store_true", help="Boolean that states whether or not to project deaths to csvs"
+        "--train_data_bool", action="store_true", help="Boolean that states whether or not to save training data from processed data"
+    )
+    parser.addoption(
+        "--metadata_bool", action="store_true", help="Boolean that states whether or not to scrape and process metadata"
     )
     parser.addoption(
         "--project_case_bool", action="store_true", help="Boolean that states whether or not to project cases to csvs"
@@ -22,6 +25,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="class")
 def project_bools(request):
+    request.cls.train_data_bool = request.config.getoption("--train_data_bool")
     request.cls.metadata_bool = request.config.getoption("--metadata_bool")
     request.cls.project_case_bool = request.config.getoption("--project_case_bool")
     request.cls.project_death_bool = request.config.getoption("--project_death_bool")

@@ -190,7 +190,7 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_suffix='aggregated_processed_metadata')
 
 
-def training_data_manager(state_name: str, county_name: str, type: str) -> None:
+def training_data_manager(state_name: str, type: str, county_name: str = None) -> None:
     logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
     # Define paths and files containing region covid case rates data
     # and metadata
@@ -218,8 +218,8 @@ def training_data_manager(state_name: str, county_name: str, type: str) -> None:
     rate_df = csv_df[rate_columns]
 
     # Add time column that is based on days
-    rate_df['date'] = pd.to_datetime(rate_df['date'])
-    rate_df['time'] = (rate_df['date'] - earliest_date).dt.days
+    date_df = pd.to_datetime(rate_df['date'])
+    rate_df['time'] = (date_df - earliest_date).dt.days
 
     # Load aggregated metadata data frame
     aggregated_processed_metadata_df = pd.read_csv(path.join(metadata_path, metadata_file), index_col=0)
@@ -230,7 +230,7 @@ def training_data_manager(state_name: str, county_name: str, type: str) -> None:
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
     for column in rate_df.keys():
-        ethnicity = column.split('_')[0]
+        ethnicity = column.split('_rates')[0]
         if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
             column_df = rate_df[column]
             delta_df = column_df[1:].subtract(column_df[0:-1].tolist())

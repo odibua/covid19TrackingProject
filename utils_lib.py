@@ -338,7 +338,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir
             raw_data_cases_old_dates[-1])].to_dict('record')[0]
         most_recent_entry_copy = copy.deepcopy(most_recent_entry)
         for key in most_recent_entry.keys():
-            if 'discrepancy' in key.lower() or 'unnamed' in key.lower():
+            if 'discrepancy' in key.lower() or 'unnamed' in key.lower() or 'rates' in key.lower():
                 del most_recent_entry_copy[key]
         most_recent_entry = most_recent_entry_copy
     else:
@@ -398,7 +398,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
             raw_data_deaths_old_dates[-1])].to_dict('records')[0]
         most_recent_entry_copy = copy.deepcopy(most_recent_entry)
         for key in most_recent_entry.keys():
-            if 'discrepancy' in key.lower() or 'unnamed' in key.lower():
+            if 'discrepancy' in key.lower() or 'unnamed' in key.lower() or 'rates' in key.lower():
                 del most_recent_entry_copy[key]
         most_recent_entry = most_recent_entry_copy
     else:

@@ -91,8 +91,11 @@ class EthnicDataProjector(ABC):
         case_rates_dict = {}
         if self.cases_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_cases.keys():
-                if key != 'date':
-                    case_rates_dict[key] = self.ethnicity_cases[key] * 1000 / self.acs_ethnicity_demographics[key]
+                if key != 'date' and 'other' not in key.lower():
+                    total = 0
+                    for acs_key in self.map_acs_to_region_ethnicities[key]:
+                        total = total + self.acs_ethnicity_demographics[acs_key] * self.total_population
+                    case_rates_dict[key] = self.ethnicity_cases[key] * 1000 / total
         case_rates_dict['date'] = self.date_string
         return case_rates_dict
 
@@ -138,9 +141,12 @@ class EthnicDataProjector(ABC):
         death_rates_dict = {}
         if self.deaths_yaml_keys_dict_keys_map is not None and self.ethnicity_demographics.keys() is not None:
             for key in self.ethnicity_deaths.keys():
-                if key != 'date':
+                if key != 'date' and 'other' not in key.lower():
+                    total = 0
+                    for acs_key in self.map_acs_to_region_ethnicities[key]:
+                        total = total + self.acs_ethnicity_demographics[acs_key] * self.total_population
                     death_rates_dict[key] = self.ethnicity_deaths[key] * \
-                        1000 / (self.acs_ethnicity_demographics[key] * self.total_population)
+                        1000 / total
         death_rates_dict['date'] = self.date_string
         return death_rates_dict
 
@@ -194,9 +200,10 @@ class EthnicDataProjector(ABC):
         logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
-            if key in ethnicity_xpath_map:
-                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_element_int(
-                    element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
+            if 'other' not in key.lower():
+                if key in ethnicity_xpath_map:
+                    ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_element_int(
+                        element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils_state_lib.get_total(numerical_dict=ethnicity_dict)
@@ -222,9 +229,10 @@ class EthnicDataProjector(ABC):
         logging.info(f"Use json from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
-            if key in ethnicity_json_keys_map:
-                ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_json_element_int(
-                    raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key])
+            if 'other' not in key.lower():
+                if key in ethnicity_json_keys_map:
+                    ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_json_element_int(
+                        raw_data_json=raw_data_json, ethnicity_json_keys_list=ethnicity_json_keys_map[key])
 
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils_state_lib.get_total(numerical_dict=ethnicity_dict)
