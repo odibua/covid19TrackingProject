@@ -281,6 +281,7 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     elif mode == 'create_death_training_data':
         training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
 
+
 if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
