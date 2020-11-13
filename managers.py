@@ -190,7 +190,7 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_suffix='aggregated_processed_metadata')
 
 
-def training_case_data_manager(state_name: str, county_name: str) -> None:
+def training_data_manager(state_name: str, county_name: str, type: str) -> None:
     logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
     # Define paths and files containing region covid case rates data
     # and metadata
@@ -199,12 +199,12 @@ def training_case_data_manager(state_name: str, county_name: str) -> None:
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
     if county_name is None:
         metadata_file = f'{state_name}_aggregated_processed_metadata.csv'
-        csv_file = f'{state_name}_ethnicity_cases.csv'
-        training_file = f'{state_name}_training_cases.csv'
+        csv_file = f'{state_name}_ethnicity_{type}.csv'
+        training_file = f'{state_name}_training_{type}.csv'
     else:
         metadata_file = f'{state_name}_{county_name}_aggregated_processed_metadata.csv'
-        csv_file = f'{state_name}_{county_name}_ethnicity_cases.csv'
-        training_file = f'{state_name}_{county_name}_training_cases.csv'
+        csv_file = f'{state_name}_{county_name}_ethnicity_{type}.csv'
+        training_file = f'{state_name}_{county_name}_training_{type}.csv'
 
     # Get earliest date for case files
     csv_file_list = os.listdir(csv_path)
@@ -277,8 +277,9 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     elif mode == 'scrape_metadata':
         metadata_manager(state_name=state_name, county_name=county_name)
     elif mode == 'create_case_training_data':
-        training_case_data_manager(state_name=state_name, county_name=county_name)
-
+        training_data_manager(state_name=state_name, county_name=county_name, type='cases')
+    elif mode == 'create_death_training_data':
+        training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
 
 if __name__ == "__main__":
     logging.basicConfig()
