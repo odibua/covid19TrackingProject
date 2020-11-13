@@ -123,8 +123,8 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
         """
         return {'Hispanic': ['Hispanic'], 'White': ['White'], 'Asian': ['Asian'], 'Black': ['Black'],
                 'Multi-Race': ['Multi-Race'],
-                'American Indian/Alaska Native': ['American Indian/Alaska Native'],
-                'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander']}
+                'Native American': ['American Indian/Alaska Native'],
+                'Pacific Islander': ['Native Hawaiian/Pacific Islander']}
 
     @property
     def acs_ethnicity_demographics(self) -> Dict[str, float]:

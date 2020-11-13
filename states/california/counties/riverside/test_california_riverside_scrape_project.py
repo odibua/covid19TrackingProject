@@ -11,7 +11,7 @@ import unittest
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from managers import add_commit_and_push, scrape_manager, case_parser_manager, metadata_manager
+from managers import add_commit_and_push, metadata_manager, training_data_manager, scrape_manager, case_parser_manager, metadata_manager
 
 
 @pytest.mark.usefixtures("project_bools")
@@ -33,8 +33,23 @@ class TestCaliforniaRiversideScrapeAndProject(unittest.TestCase):
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
                 metadata_manager(state_name=self.state_name, county_name=self.county_name)
 
+    def test_metadata_manager(self):
+        if self.metadata_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                metadata_manager(state_name=self.state_name, county_name=self.county_name)
+
     def test_raw_to_ethnicity_case_manager(self):
         if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
             if len(self.county_arg) == 0 or self.county_arg.lower() == self.county_name.lower():
                 if self.project_case_bool:
                     case_parser_manager(state_name=self.state_name, county_name=self.county_name)
+
+    def test_case_training_data_manager(self):
+        if self.train_data_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                training_data_manager(state_name=self.state_name, county_name=self.county_name, type='cases')
+
+    def test_death_training_data_manager(self):
+        if self.train_data_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                training_data_manager(state_name=self.state_name, county_name=self.county_name, type='deaths')
