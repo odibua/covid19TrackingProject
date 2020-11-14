@@ -262,7 +262,7 @@ def regression_manager(state_name: str, type: str, county_name: str = None, regr
     else:
         training_file = f'{state_name}_{county_name}_training_{type}.csv'
 
-    training_data_df = pd.read_csv(path.join(training_csv_path, training_file))
+    training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
 
     # Set Y as mortality rate
     Y = np.array(training_data_df['mortality_rate'])
@@ -270,23 +270,21 @@ def regression_manager(state_name: str, type: str, county_name: str = None, regr
     # Find range of days that will be used to construct X
     days_range = training_data_df['time'].max() - training_data_df['time'].min() + 1
 
-    # Construct X
-    X = np.zeros((training_data_df.shape[0], days_range + training_data_df.shape[1]))
-    import ipdb
-    ipdb.set_trace()
-    # Populate first days_range columns with 1 if the day corresponds to the column
-    rows = list(range(len(training_data_df['time'])))
-    X[rows, training_data_df['time']] = 1
-
     # Populate remaining columns with corresponding metadata
+    filter_list = ['mortality_rate']
     metadata_keys = training_data_df.keys()
-    metadata_keys = [key for key in metadata_keys if key not in ['time', 'mortality_rate']]
+    metadata_keys = [key for key in metadata_keys if key not in filter_list]
 
-    idx_use = days_range
+    # Construct X
+    X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list)))
+
     for idx, key in enumerate(metadata_keys):
-        X[:, idx_use + idx] = training_data_df[key].tolist()
+        X[:, idx] = training_data_df[key].tolist()
 
+    X = (X - np.mean(X, axis=0))/np.std(X, axis=0)
     regression_info = regression_utils.call_multilinear_regression(X=X, Y=Y)
+    print(regression_info)
+    print(metadata_keys)
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -320,6 +318,7 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
         regression_manager(state_name=state_name, county_name=county_name, type='cases')
     elif mode == 'perform_deaths_multilinear_regression':
         regression_manager(state_name=state_name, county_name=county_name, type='deaths')
+
 
 if __name__ == "__main__":
     logging.basicConfig()
