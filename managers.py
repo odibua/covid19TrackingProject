@@ -253,7 +253,8 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     training_data_df.to_csv(path.join(training_csv_path, training_file))
 
 
-def regression_manager(state_name: str, type: str, county_name: str = None, regression_type: str='multilinear') -> None:
+def regression_manager(state_name: str, type: str, county_name: str = None,
+                       regression_type: str = 'multilinear') -> None:
     logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
@@ -267,9 +268,6 @@ def regression_manager(state_name: str, type: str, county_name: str = None, regr
     # Set Y as mortality rate
     Y = np.array(training_data_df['mortality_rate'])
 
-    # Find range of days that will be used to construct X
-    days_range = training_data_df['time'].max() - training_data_df['time'].min() + 1
-
     # Populate remaining columns with corresponding metadata
     filter_list = ['mortality_rate']
     metadata_keys = training_data_df.keys()
@@ -281,7 +279,7 @@ def regression_manager(state_name: str, type: str, county_name: str = None, regr
     for idx, key in enumerate(metadata_keys):
         X[:, idx] = training_data_df[key].tolist()
 
-    X = (X - np.mean(X, axis=0))/np.std(X, axis=0)
+    X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
     regression_info = regression_utils.call_multilinear_regression(X=X, Y=Y)
     print(regression_info)
     print(metadata_keys)
