@@ -274,13 +274,15 @@ def regression_manager(state_name: str, type: str, county_name: str = None,
     metadata_keys = [key for key in metadata_keys if key not in filter_list]
 
     # Construct X
-    X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list)))
+    X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
 
+    X[:, 0] = 1
+    metadata_keys.insert(0, 'constant')
     for idx, key in enumerate(metadata_keys):
-        X[:, idx] = training_data_df[key].tolist()
+        X[:, idx + 1] = training_data_df[key].tolist()
 
     X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
-    regression_info = regression_utils.call_multilinear_regression(X=X, Y=Y)
+    regression_info = regression_utils.call_multilinear_regression(X=X, Y=Y, regression_keys=metadata_keys)
     print(regression_info)
     print(metadata_keys)
 
