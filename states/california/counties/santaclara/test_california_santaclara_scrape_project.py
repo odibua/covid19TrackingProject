@@ -58,9 +58,17 @@ class TestCaliforniaSantaClaraScrapeAndProject(unittest.TestCase):
     def test_regression_case_manager(self):
         if self.regression_bool:
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
-                regression_manager(state_name=self.state_name, county_name=self.county_name, type='cases', regression_type=self.regression_type)
+                regression_manager(
+                    state_name=self.state_name,
+                    county_name=self.county_name,
+                    type='cases',
+                    regression_type=self.regression_type)
 
     def test_regression_death_manager(self):
         if self.regression_bool:
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
-                regression_manager(state_name=self.state_name, county_name=self.county_name, type='deaths', regression_type=self.regression_type)
+                regression_manager(
+                    state_name=self.state_name,
+                    county_name=self.county_name,
+                    type='deaths',
+                    regression_type=self.regression_type)

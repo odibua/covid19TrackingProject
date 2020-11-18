@@ -39,7 +39,7 @@ def fit_subset(X: np.ndarray, Y: np.ndarray, feature_indices: List[int]) -> Tupl
     model = sm.OLS(Y, X[:, feature_indices])
     fitted_model = model.fit()
     # Y_pred = fitted_model.fittedvalues
-    metric = -fitted_model.bic #calc_metric(Y=Y, Y_pred=Y_pred)
+    metric = -fitted_model.bic  # calc_metric(Y=Y, Y_pred=Y_pred)
     return metric, fitted_model
 
 
@@ -54,7 +54,15 @@ def fit_subset_sizes(X, Y, subset_size, full_subset, curr_subset, metric_list, f
     for idx in full_subset:
         next_full_subset = copy.deepcopy(full_subset)
         next_full_subset.remove(idx)
-        fit_subset_sizes(X, Y, subset_size, next_full_subset, curr_subset + [idx], metric_list, fitted_model_list, subsets_list)
+        fit_subset_sizes(
+            X,
+            Y,
+            subset_size,
+            next_full_subset,
+            curr_subset + [idx],
+            metric_list,
+            fitted_model_list,
+            subsets_list)
 
 
 def get_best_subset(X: np.ndarray, Y: np.ndarray, tol: float = 0.05) -> Tuple[sm.OLS.fit, List[int]]:
@@ -124,8 +132,10 @@ def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['features'] = features
     regression_info_dict['coef'] = fitted_model.params
-    regression_info_dict['lower_coef'] = regression_info_dict['coef'] - 1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
-    regression_info_dict['upper_coef'] = regression_info_dict['coef'] + 1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
+    regression_info_dict['lower_coef'] = regression_info_dict['coef'] - \
+        1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
+    regression_info_dict['upper_coef'] = regression_info_dict['coef'] + \
+        1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['vif'] = vif_list
     regression_info_dict['std_err'] = np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['R2'] = fitted_model.rsquared

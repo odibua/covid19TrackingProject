@@ -60,4 +60,3 @@ class TestCaliforniaScrapeAndProject(unittest.TestCase):
         if self.regression_bool:
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
                 regression_manager(state_name=self.state_name, type='deaths', regression_type=self.regression_type)
-
