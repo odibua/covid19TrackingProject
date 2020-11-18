@@ -11,7 +11,7 @@ import unittest
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
-from managers import add_commit_and_push, scrape_manager, training_data_manager, metadata_manager, case_parser_manager, death_parser_manager
+from managers import regression_manager, add_commit_and_push, scrape_manager, training_data_manager, metadata_manager, case_parser_manager, death_parser_manager
 
 
 @pytest.mark.usefixtures("project_bools")
@@ -54,3 +54,13 @@ class TestCaliforniaAlamedaScrapeAndProject(unittest.TestCase):
         if self.train_data_bool:
             if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
                 training_data_manager(state_name=self.state_name, county_name=self.county_name, type='deaths')
+
+    def test_regression_case_manager(self):
+        if self.regression_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                regression_manager(state_name=self.state_name, county_name=self.county_name, type='cases', regression_type=self.regression_type)
+
+    def test_regression_death_manager(self):
+        if self.regression_bool:
+            if len(self.state_arg) == 0 or self.state_arg.lower() == self.state_name.lower():
+                regression_manager(state_name=self.state_name, county_name=self.county_name, type='deaths', regression_type=self.regression_type)

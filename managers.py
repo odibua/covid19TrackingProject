@@ -12,7 +12,6 @@ from typing import List, Tuple
 # --------------------------
 # Third Party Imports
 # --------------------------
-import numpy as np
 import pandas as pd
 
 # --------------------------
@@ -233,13 +232,15 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         ethnicity = column.split('_rates')[0]
         if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
             column_df = rate_df[column]
+            time_df = rate_df['time'][column_df.notnull()]
+            column_df = column_df[column_df.notnull()]
             delta_df = column_df[1:].subtract(column_df[0:-1].tolist())
             change_bool = (delta_df.abs() > 0).tolist()
             change_bool = [True] + change_bool
             column_df = column_df[change_bool]
 
             training_data_dict['mortality_rate'].extend(column_df.tolist())
-            training_data_dict['time'].extend(rate_df['time'][change_bool])
+            training_data_dict['time'].extend(time_df[change_bool])
 
             # Fill in metadata for the region
             for metadata_name in aggregated_processed_metadata_df.keys():
@@ -255,36 +256,8 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
 
 def regression_manager(state_name: str, type: str, county_name: str = None,
                        regression_type: str = 'multilinear') -> None:
-    logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
-    # Define path and file for training data
-    training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    if county_name is None:
-        training_file = f'{state_name}_training_{type}.csv'
-    else:
-        training_file = f'{state_name}_{county_name}_training_{type}.csv'
-
-    training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
-
-    # Set Y as mortality rate
-    Y = np.array(training_data_df['mortality_rate'])
-
-    # Populate remaining columns with corresponding metadata
-    filter_list = ['mortality_rate']
-    metadata_keys = training_data_df.keys()
-    metadata_keys = [key for key in metadata_keys if key not in filter_list]
-
-    # Construct X
-    X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
-
-    X[:, 0] = 1
-    metadata_keys.insert(0, 'constant')
-    for idx, key in enumerate(metadata_keys):
-        X[:, idx + 1] = training_data_df[key].tolist()
-
-    X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
-    regression_info = regression_utils.call_multilinear_regression(X=X, Y=Y, regression_keys=metadata_keys)
-    print(regression_info)
-    print(metadata_keys)
+    if regression_type == 'multilinear':
+        regression_utils.multilinear_reg(state_name=state_name, type=type, county_name=county_name)
 
 
 def add_commit_and_push(state_county_dir: str):

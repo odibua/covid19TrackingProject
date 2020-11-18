@@ -10,6 +10,12 @@ def pytest_addoption(parser):
         "--metadata_bool", action="store_true", help="Boolean that states whether or not to scrape and process metadata"
     )
     parser.addoption(
+        "--regression_bool", action="store_true", help="Boolean that states whether to perform regression on trained data"
+    )
+    parser.addoption(
+        "--regression_type", default="multilinear", help="Indicate the type of string for a regression"
+    )
+    parser.addoption(
         "--project_case_bool", action="store_true", help="Boolean that states whether or not to project cases to csvs"
     )
     parser.addoption(
@@ -25,6 +31,9 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="class")
 def project_bools(request):
+    request.cls.regression_bool = request.config.getoption("--regression_bool")
+    request.cls.regression_type = request.config.getoption("--regression_type")
+
     request.cls.train_data_bool = request.config.getoption("--train_data_bool")
     request.cls.metadata_bool = request.config.getoption("--metadata_bool")
     request.cls.project_case_bool = request.config.getoption("--project_case_bool")
