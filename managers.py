@@ -230,7 +230,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         training_data_dict[metadata_name] = []
     for column in rate_df.keys():
         ethnicity = column.split('_rates')[0]
-        if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
+        if column != 'date' and column != 'time' and ethnicity.lower() != 'other' and ethnicity.lower() in ['black', 'white', 'hispanic', 'asian']:
             column_df = rate_df[column]
             time_df = rate_df['time'][column_df.notnull()]
             column_df = column_df[column_df.notnull()]
@@ -258,6 +258,12 @@ def regression_manager(state_name: str, type: str, county_name: str = None,
                        regression_type: str = 'multilinear') -> None:
     if regression_type == 'multilinear':
         regression_utils.multilinear_reg(state_name=state_name, type=type, county_name=county_name)
+    elif regression_type == 'multilinear_pca':
+        regression_utils.multilinear_pca_reg(state_name=state_name, type=type, county_name=county_name)
+    elif regression_type == 'multilinear_ridge':
+        regression_utils.multilinear_ridge_lasso_reg(state_name=state_name, type=type, county_name=county_name, regularizer_type='ridge')
+    elif regression_type == 'multilinear_lasso':
+        regression_utils.multilinear_ridge_lasso_reg(state_name=state_name, type=type, county_name=county_name, regularizer_type='lasso')
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -274,7 +280,7 @@ def add_commit_and_push(state_county_dir: str):
         pass
 
 
-def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
+def main(state_name: str, regression_type: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_case':
@@ -288,9 +294,9 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
     elif mode == 'create_death_training_data':
         training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
     elif mode == 'perform_cases_multilinear_regression':
-        regression_manager(state_name=state_name, county_name=county_name, type='cases')
+        regression_manager(state_name=state_name, county_name=county_name, type='cases', regression_type=regression_type)
     elif mode == 'perform_deaths_multilinear_regression':
-        regression_manager(state_name=state_name, county_name=county_name, type='deaths')
+        regression_manager(state_name=state_name, county_name=county_name, type='deaths', regression_type=regression_type)
 
 
 if __name__ == "__main__":
@@ -298,7 +304,8 @@ if __name__ == "__main__":
     logging.root.setLevel(logging.NOTSET)
     parser = argparse.ArgumentParser(description='Process mode')
     parser.add_argument('--mode', help='Mode that will determine which managers run')
-    parser.add_argument('--state', help='Mode that will determine which managers run')
-    parser.add_argument('--county', help='Mode that will determine which managers run', default=None)
+    parser.add_argument('--regression_type', default='multilinear', help='Mode that will determine which managers run')
+    parser.add_argument('--state', help='State for which mode will be run')
+    parser.add_argument('--county', help='County for which model will be run', default=None)
     args = parser.parse_args()
-    main(mode=args.mode, state_name=args.state, county_name=args.county)
+    main(mode=args.mode, state_name=args.state, county_name=args.county, regression_type=args.regression_type)
