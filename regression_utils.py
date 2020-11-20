@@ -138,7 +138,7 @@ def call_multilinear_lasso_regression(X: np.ndarray, Y: np.ndarray) -> Tuple[flo
 def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    regression_results_path = path.join('states', state_name, 'regression_results_csvs')
+    regression_results_path = path.join('states', state_name, 'regression_results_filter_csvs')
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -213,7 +213,7 @@ def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
 def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh: float = 0.95) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    regression_results_path = path.join('states', state_name, 'regression_results_csvs')
+    regression_results_path = path.join('states', state_name, 'regression_results_filter_csvs')
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'

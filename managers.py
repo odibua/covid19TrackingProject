@@ -216,6 +216,15 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     rate_columns = [column for column in columns if 'rates' in column or column == 'date']
     rate_df = csv_df[rate_columns]
 
+    # Get covid percentages
+    covid_perc_columns = [column for column in columns if 'covidperc' in column or column == 'date']
+    covid_perc_df = csv_df[covid_perc_columns]
+
+    # Get demographic percentages
+    dem_perc_columns = [column for column in columns if 'demperc' in column or column == 'date']
+    dem_perc_df = csv_df[dem_perc_columns]
+
+
     # Add time column that is based on days
     date_df = pd.to_datetime(rate_df['date'])
     rate_df['time'] = (date_df - earliest_date).dt.days
@@ -225,27 +234,39 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
 
     # Get columns that have values that unique values for mortality rates
     # and store them in a dictionary along with relevant regional features
-    training_data_dict = {'mortality_rate': [], 'time': []}
+    training_data_dict = {'mortality_rate': [], 'time': [], 'covid_perc': [], 'dem_perc': []}
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
     for column in rate_df.keys():
         ethnicity = column.split('_rates')[0]
-        if column != 'date' and column != 'time' and ethnicity.lower() != 'other' and ethnicity.lower() in ['black', 'white', 'hispanic', 'asian']:
-            column_df = rate_df[column]
-            time_df = rate_df['time'][column_df.notnull()]
-            column_df = column_df[column_df.notnull()]
-            delta_df = column_df[1:].subtract(column_df[0:-1].tolist())
+        if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
+            rate_column_df = rate_df[column]
+            demperc_column_df = dem_perc_df[f'{ethnicity}_demperc']
+            covidperc_column_df = covid_perc_df[f'{ethnicity}_covidperc']
+
+            time_df = rate_df['time'][rate_column_df.notnull()]
+            demperc_column_df = demperc_column_df[rate_column_df.notnull()]
+            covidperc_column_df = covidperc_column_df[rate_column_df.notnull()]
+            rate_column_df = rate_column_df[rate_column_df.notnull()]
+
+
+            delta_df = rate_column_df[1:].subtract(rate_column_df[0:-1].tolist())
+
             change_bool = (delta_df.abs() > 0).tolist()
             change_bool = [True] + change_bool
-            column_df = column_df[change_bool]
+            rate_column_df = rate_column_df[change_bool]
+            demperc_column_df = demperc_column_df[change_bool]
+            covidperc_column_df = covidperc_column_df[change_bool]
 
-            training_data_dict['mortality_rate'].extend(column_df.tolist())
+            training_data_dict['mortality_rate'].extend(rate_column_df.tolist())
+            training_data_dict['covid_perc'].extend(covidperc_column_df.tolist())
+            training_data_dict['dem_perc'].extend(demperc_column_df.tolist())
             training_data_dict['time'].extend(time_df[change_bool])
 
             # Fill in metadata for the region
             for metadata_name in aggregated_processed_metadata_df.keys():
                 metadata_vals = aggregated_processed_metadata_df.loc[ethnicity, metadata_name]
-                training_data_dict[metadata_name].extend([metadata_vals] * len(column_df.tolist()))
+                training_data_dict[metadata_name].extend([metadata_vals] * len(rate_column_df.tolist()))
     training_data_df = pd.DataFrame(training_data_dict)
 
     if not os.path.exists(training_csv_path):
