@@ -224,7 +224,6 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     dem_perc_columns = [column for column in columns if 'demperc' in column or column == 'date']
     dem_perc_df = csv_df[dem_perc_columns]
 
-
     # Add time column that is based on days
     date_df = pd.to_datetime(rate_df['date'])
     rate_df['time'] = (date_df - earliest_date).dt.days
@@ -248,7 +247,6 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             demperc_column_df = demperc_column_df[rate_column_df.notnull()]
             covidperc_column_df = covidperc_column_df[rate_column_df.notnull()]
             rate_column_df = rate_column_df[rate_column_df.notnull()]
-
 
             delta_df = rate_column_df[1:].subtract(rate_column_df[0:-1].tolist())
 
@@ -282,9 +280,17 @@ def regression_manager(state_name: str, type: str, county_name: str = None,
     elif regression_type == 'multilinear_pca':
         regression_utils.multilinear_pca_reg(state_name=state_name, type=type, county_name=county_name)
     elif regression_type == 'multilinear_ridge':
-        regression_utils.multilinear_ridge_lasso_reg(state_name=state_name, type=type, county_name=county_name, regularizer_type='ridge')
+        regression_utils.multilinear_ridge_lasso_reg(
+            state_name=state_name,
+            type=type,
+            county_name=county_name,
+            regularizer_type='ridge')
     elif regression_type == 'multilinear_lasso':
-        regression_utils.multilinear_ridge_lasso_reg(state_name=state_name, type=type, county_name=county_name, regularizer_type='lasso')
+        regression_utils.multilinear_ridge_lasso_reg(
+            state_name=state_name,
+            type=type,
+            county_name=county_name,
+            regularizer_type='lasso')
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -315,9 +321,17 @@ def main(state_name: str, regression_type: str, county_name: str = None, mode: s
     elif mode == 'create_death_training_data':
         training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
     elif mode == 'perform_cases_multilinear_regression':
-        regression_manager(state_name=state_name, county_name=county_name, type='cases', regression_type=regression_type)
+        regression_manager(
+            state_name=state_name,
+            county_name=county_name,
+            type='cases',
+            regression_type=regression_type)
     elif mode == 'perform_deaths_multilinear_regression':
-        regression_manager(state_name=state_name, county_name=county_name, type='deaths', regression_type=regression_type)
+        regression_manager(
+            state_name=state_name,
+            county_name=county_name,
+            type='deaths',
+            regression_type=regression_type)
 
 
 if __name__ == "__main__":

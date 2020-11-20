@@ -135,6 +135,7 @@ def call_multilinear_lasso_regression(X: np.ndarray, Y: np.ndarray) -> Tuple[flo
     score, fitted_model = get_best_lasso_model(X=X, Y=Y)
     return score, fitted_model
 
+
 def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
@@ -279,8 +280,10 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh
         pca_weighted_components[:, idx] = pca_components[:, idx] * coef[idx + 2]
         pca_upper_weighted_components[:, idx] = pca_components[:, idx] * (coef[idx + 2] + 1.96 * std_params[idx + 2])
     feature_coef = list(coef[0:pca_idx_start]) + list(np.sum(pca_weighted_components, axis=1))
-    lower_feature_coef = list(coef[0:pca_idx_start] - 1.96 * std_params[0:pca_idx_start]) + list(np.sum(pca_lower_weighted_components, axis=1))
-    upper_feature_coef = list(coef[0:pca_idx_start] + 1.96 * std_params[0:pca_idx_start]) + list(np.sum(pca_upper_weighted_components, axis=1))
+    lower_feature_coef = list(coef[0:pca_idx_start] - 1.96 * std_params[0:pca_idx_start]
+                              ) + list(np.sum(pca_lower_weighted_components, axis=1))
+    upper_feature_coef = list(coef[0:pca_idx_start] + 1.96 * std_params[0:pca_idx_start]
+                              ) + list(np.sum(pca_upper_weighted_components, axis=1))
 
     stat_table = fitted_model.summary().tables[-1]
     # Calculate variance inflation factor to check for colinearity
@@ -290,7 +293,6 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh
         feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
         _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
         vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
-
 
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['coef'] = fitted_model.params
@@ -383,7 +385,6 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, re
         score, fitted_model = call_multilinear_lasso_regression(X=X, Y=Y)
         Y_pred = fitted_model.predict(X)
 
-
     feature_subset = list(range(X.shape[1]))
 
     # Get nrmse and rmse
@@ -412,7 +413,8 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, re
     if not os.path.isdir(regression_results_path):
         os.mkdir(regression_results_path)
 
-    regression_results_file = path.join(regression_results_path, f'{type}_linear_{regularizer_type}_regression_results.csv')
+    regression_results_file = path.join(regression_results_path,
+                                        f'{type}_linear_{regularizer_type}_regression_results.csv')
     if not os.path.isfile(regression_results_file):
         regression_info_df.to_csv(regression_results_file, index=False)
     else:

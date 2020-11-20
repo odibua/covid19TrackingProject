@@ -632,7 +632,7 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
     """
     logging.info(f"Get state ethnicity cases counts and discrepancies")
     change_df_key_bool = False
-    state_ethnicity_cases_list, state_ethnicity_cases_rates_list, state_ethnicity_cases_discrepancies_list, state_ethnicity_cases_percentages_list, state_demographic_percentages_list,msg = parse_cases_responses_with_projectors(
+    state_ethnicity_cases_list, state_ethnicity_cases_rates_list, state_ethnicity_cases_discrepancies_list, state_ethnicity_cases_percentages_list, state_demographic_percentages_list, msg = parse_cases_responses_with_projectors(
         state=state, county=county, state_csv_dir=state_csv_dir, state_county_dir=state_county_dir, cases_csv_filename=cases_csv_filename)
     try:
         state_ethnicity_cases_df, state_ethnicity_cases_rates_df, state_ethnicity_cases_discrepancies_df = pd.DataFrame(
