@@ -36,15 +36,6 @@ def calc_rmse(Y: np.ndarray, Y_pred: np.ndarray) -> float:
     return np.mean(np.sqrt(((Y - Y_pred)) ** 2))
 
 
-def construct_graph_from_features(X: np.ndarray) -> Dict[int, List[int]]:
-    index_list = list(range(X.shape[1]))
-    index_graph = collections.defaultdict(list)
-    for idx in index_list:
-        index_graph[idx].extend([idx2 for idx2 in index_list if idx2 != idx])
-
-    return index_graph
-
-
 def fit_subset(X: np.ndarray, Y: np.ndarray, feature_indices: List[int]) -> Tuple[float, sm.OLS.fit]:
     model = sm.OLS(Y, X[:, feature_indices])
     fitted_model = model.fit()
