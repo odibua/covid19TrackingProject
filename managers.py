@@ -207,7 +207,7 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
                         ethnicity_filter_list: List = [], county_name: str = None) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
+    correlation_results_path = path.join('states', state_name, 'correlation_results', state_name, corr_type)
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -382,24 +382,29 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     training_data_df.to_csv(path.join(training_csv_path, training_file))
 
 
-def regression_manager(state_name: str, type: str, county_name: str = None,
+def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[str], reg_key: str, county_name: str = None,
                        regression_type: str = 'multilinear') -> None:
     if regression_type == 'multilinear':
-        regression_utils.multilinear_reg(state_name=state_name, type=type, county_name=county_name)
-    elif regression_type == 'multilinear_pca':
-        regression_utils.multilinear_pca_reg(state_name=state_name, type=type, county_name=county_name)
+        regression_results_df, predictions_df= regression_utils.multilinear_reg(state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list)
     elif regression_type == 'multilinear_ridge':
-        regression_utils.multilinear_ridge_lasso_reg(
+        regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
             type=type,
             county_name=county_name,
-            regularizer_type='ridge')
+            reg_key=reg_key,
+            regularizer_type='ridge',
+            ethnicity_filter_list=ethnicity_filter_list)
     elif regression_type == 'multilinear_lasso':
-        regression_utils.multilinear_ridge_lasso_reg(
+        regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
             type=type,
             county_name=county_name,
-            regularizer_type='lasso')
+            reg_key=reg_key,
+            regularizer_type='lasso',
+            ethnicity_filter_list=ethnicity_filter_list)
+    else:
+        raise ValueError(f'{regression_type} regression logic not implemented')
+    regression_utils.save_regression_results(df=regression_results_df, pred_df=predictions_df, type=type, state_name=state_name, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list, regression_type=regression_type, reg_key=reg_key)
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -417,7 +422,7 @@ def add_commit_and_push(state_county_dir: str):
 
 
 def main(state_name: str, regression_type: str, corr_key: str,
-         ethnicity_list: List[str], corr_type: str, county_name: str = None, mode: str = 'scrape'):
+         ethnicity_list: List[str], corr_type: str, reg_key: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_case':
@@ -451,13 +456,17 @@ def main(state_name: str, regression_type: str, corr_key: str,
             state_name=state_name,
             county_name=county_name,
             type='cases',
-            regression_type=regression_type)
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
     elif mode == 'perform_deaths_multilinear_regression':
         regression_manager(
             state_name=state_name,
             county_name=county_name,
             type='deaths',
-            regression_type=regression_type)
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
 
 
 if __name__ == "__main__":
@@ -465,6 +474,7 @@ if __name__ == "__main__":
     logging.root.setLevel(logging.NOTSET)
     parser = argparse.ArgumentParser(description='Process mode')
     parser.add_argument('--mode', help='Mode that will determine which managers run')
+    parser.add_argument('--reg_key', default='mortality_rate', help='Key that will be regressed on')
     parser.add_argument('--regression_type', default='multilinear', help='Mode that will determine which managers run')
     parser.add_argument('--corr_type', default='spearman', help='Mode that will determine which managers run')
     parser.add_argument('--corr_key', default='mortality_rate', help='Key of quantity to be used in correlation')
@@ -484,6 +494,7 @@ if __name__ == "__main__":
             state_name=args.state,
             county_name=args.county,
             regression_type=args.regression_type,
+            reg_key=args.reg_key,
             corr_type=args.corr_type,
             corr_key=args.corr_key,
             ethnicity_list=args.ethnicity_list)
@@ -493,6 +504,7 @@ if __name__ == "__main__":
             state_name=args.state,
             county_name=None,
             regression_type=args.regression_type,
+            reg_key=args.reg_key,
             corr_type=args.corr_type,
             corr_key=args.corr_key,
             ethnicity_list=args.ethnicity_list)
@@ -507,6 +519,7 @@ if __name__ == "__main__":
                         regression_type=args.regression_type,
                         corr_type=args.corr_type,
                         corr_key=args.corr_key,
+                        reg_key=args.reg_key,
                         ethnicity_list=args.ethnicity_list)
                 except BaseException:
                     pass

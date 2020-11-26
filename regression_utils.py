@@ -39,8 +39,8 @@ def calc_rmse(Y: np.ndarray, Y_pred: np.ndarray) -> float:
 def fit_subset(X: np.ndarray, Y: np.ndarray, feature_indices: List[int]) -> Tuple[float, sm.OLS.fit]:
     model = sm.OLS(Y, X[:, feature_indices])
     fitted_model = model.fit()
-    # Y_pred = fitted_model.fittedvalues
-    metric = -fitted_model.bic  # calc_metric(Y=Y, Y_pred=Y_pred)
+    Y_pred = fitted_model.fittedvalues
+    metric = -calc_nrmse(Y=Y, Y_pred=Y_pred)
     return metric, fitted_model
 
 
@@ -67,7 +67,7 @@ def fit_subset_sizes(X, Y, subset_size, full_subset, curr_subset, metric_list, f
 
 
 def get_best_ridge_model(X: np.ndarray, Y: np.ndarray) -> Tuple[float, Ridge.fit]:
-    alpha_list = np.linspace(0, 1, 100)
+    alpha_list = np.linspace(0, 1, 50)
     fitted_model_list, score_list = [], []
     for alpha in alpha_list:
         model = Ridge(alpha=alpha)
@@ -82,7 +82,7 @@ def get_best_ridge_model(X: np.ndarray, Y: np.ndarray) -> Tuple[float, Ridge.fit
 
 
 def get_best_lasso_model(X: np.ndarray, Y: np.ndarray) -> Tuple[float, Ridge.fit]:
-    alpha_list = np.linspace(0, 1, 100)
+    alpha_list = np.linspace(0, 1, 50)
     fitted_model_list, score_list = [], []
     for alpha in alpha_list:
         model = Lasso(alpha=alpha)
@@ -100,10 +100,10 @@ def get_best_subset(X: np.ndarray, Y: np.ndarray, tol: float = 0.05) -> Tuple[sm
     full_subset = list(range(X.shape[1]))
     delta_metric = float("inf")
     metric_list, fitted_model_list, subsets_list = [], [], []
-    subset_size = 2
     full_subset.remove(0)
+    subset_size = 2
 
-    while subset_size < X.shape[1] and delta_metric > tol:
+    while subset_size <= X.shape[1] and delta_metric > tol:
         fit_subset_sizes(X, Y, subset_size, full_subset, [0], metric_list, fitted_model_list, subsets_list)
         subset_size = subset_size + 1
     best_idx = np.argmax(metric_list)
@@ -127,10 +127,46 @@ def call_multilinear_lasso_regression(X: np.ndarray, Y: np.ndarray) -> Tuple[flo
     return score, fitted_model
 
 
-def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
+def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, state_name: str, county_name: str, reg_key: str, regression_type: str, ethnicity_filter_list: List[str]) -> None:
+    # Save regression results in relevant directory
+    regression_results_path = path.join('states', state_name, 'regression_results_csvs', state_name, regression_type)
+    predictions_path = path.join(regression_results_path, reg_key)
+
+    if not os.path.isdir(regression_results_path):
+        os.makedirs(regression_results_path)
+
+    if not os.path.isdir(predictions_path):
+        os.makedirs(predictions_path)
+
+    predictions_file = f'{type}_{state_name}_{reg_key}' if county_name is None else f'{type}_{state_name}_{county_name}_{reg_key}'
+    if len(ethnicity_filter_list) == 0:
+        results_file = f'{type}_{reg_key}_{regression_type}_results.csv'
+        predictions_file = f'{predictions_file}.csv'
+    else:
+        results_file = f'{type}_{reg_key}_{regression_type}_results'
+        for ethnicity in ethnicity_filter_list:
+            results_file = f'{results_file}_{ethnicity}'
+            predictions_file = f'{predictions_file}_{ethnicity}'
+        results_file = f'{results_file}.csv'
+        predictions_file = f'{predictions_file}.csv'
+
+    regression_results_file = path.join(regression_results_path, results_file)
+    if not os.path.isfile(regression_results_file):
+        df.to_csv(regression_results_file, index=False)
+    else:
+        df.to_csv(regression_results_file, mode='a', header=False, index=False)
+
+    predictions_file = path.join(predictions_path, predictions_file)
+    if not os.path.isfile(predictions_file):
+        pred_df.to_csv(predictions_file, index=False)
+    else:
+        pred_df.to_csv(predictions_file, mode='a', header=False, index=False)
+
+
+def multilinear_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list: List[str], reg_key: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    regression_results_path = path.join('states', state_name, 'regression_results_filter_csvs')
+    # regression_results_path = path.join('states', state_name, 'regression_results_csvs')
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -139,11 +175,25 @@ def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
 
     training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
 
+    # Filter to specific ethnicities
+    if len(ethnicity_filter_list) > 0:
+        ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
+        ethnicities = training_data_df['ethnicity'].str.lower().tolist()
+        ethnicity_bool = [True if ethnicity.lower() in ethnicity_filter_list else False for ethnicity in ethnicities]
+        training_data_df = training_data_df[ethnicity_bool]
+
     # Set Y as mortality rate
-    Y = np.array(training_data_df['mortality_rate'])
+    Y = np.array(training_data_df[reg_key])
 
     # Populate remaining columns with corresponding metadata
-    filter_list = ['mortality_rate']
+    filter_list = [
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity']
     metadata_keys = training_data_df.keys()
     metadata_keys = [key for key in metadata_keys if key not in filter_list]
 
@@ -161,7 +211,7 @@ def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
     features = [metadata_keys[idx] for idx in feature_subset]
     stat_table = fitted_model.summary().tables[-1]
 
-    # Calculate variance inflation factor to check for colinearity
+    # Calculate variance inflation factor to check for co-linearity
     vif_list = []
     for idx in feature_subset:
         Y_feat = X[:, idx]
@@ -192,20 +242,32 @@ def multilinear_reg(state_name: str, type: str, county_name: str) -> None:
 
     regression_info_df = pd.DataFrame(regression_info_dict)
 
-    if not os.path.isdir(regression_results_path):
-        os.mkdir(regression_results_path)
+    # if not os.path.isdir(regression_results_path):
+    #     os.mkdir(regression_results_path)
+    #
+    # if len(ethnicity_filter_list) == 0:
+    #     results_file = f'{type}_{reg_key}_linear_regression_results.csv'
+    # else:
+    #     results_file = f'{type}_{reg_key}_linear_regression_results'
+    #     for ethnicity in ethnicity_filter_list:
+    #         results_file = f'{results_file}_{ethnicity}'
+    #     results_file = f'{results_file}.csv'
+    #
+    # regression_results_file = path.join(regression_results_path, results_file
+    #                                     )
+    # if not os.path.isfile(regression_results_file):
+    #     regression_info_df.to_csv(regression_results_file, index=False)
+    # else:
+    #     regression_info_df.to_csv(regression_results_file, mode='a', header=False, index=False)
 
-    regression_results_file = path.join(regression_results_path, f'{type}_linear_regression_results.csv')
-    if not os.path.isfile(regression_results_file):
-        regression_info_df.to_csv(regression_results_file, index=False)
-    else:
-        regression_info_df.to_csv(regression_results_file, mode='a', header=False, index=False)
+    predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(), 'y': list(Y), 'y_pred': list(fitted_model.fittedvalues)})
+    return regression_info_df, predictions_df
 
 
-def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh: float = 0.95) -> None:
+def multilinear_pca_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list: List[str], reg_key: str, var_thresh: float = 0.95) -> Tuple[np.array, np.array]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    regression_results_path = path.join('states', state_name, 'regression_results_filter_csvs')
+    regression_results_path = path.join('states', state_name, 'regression_results_csvs')
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -214,11 +276,25 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh
 
     training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
 
+    # Filter to specific ethnicities
+    if len(ethnicity_filter_list) > 0:
+        ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
+        ethnicities = training_data_df['ethnicity'].str.lower().tolist()
+        ethnicity_bool = [True if ethnicity.lower() in ethnicity_filter_list else False for ethnicity in ethnicities]
+        training_data_df = training_data_df[ethnicity_bool]
+
     # Set Y as mortality rate
-    Y = np.array(training_data_df['mortality_rate'])
+    Y = np.array(training_data_df[reg_key])
 
     # Populate remaining columns with corresponding metadata
-    filter_list = ['mortality_rate']
+    filter_list = [
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity']
     metadata_keys = training_data_df.keys()
     metadata_keys = [key for key in metadata_keys if key not in filter_list]
 
@@ -252,8 +328,6 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh
     X_pca[:, pca_idx_start:] = np.matmul(X_star, pca_components)
 
     feature_subset = list(range(X_pca.shape[1]))
-    # import ipdb
-    # ipdb.set_trace()
     metric, fitted_model = fit_subset(Y=Y, X=X_pca, feature_indices=feature_subset)
 
     # Get nrmse and rmse
@@ -320,13 +394,23 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh
     regression_pca_info_dict['condition_number'] = fitted_model.condition_number
 
     regression_pca_info_df = pd.DataFrame(regression_pca_info_dict)
-    # import ipdb
-    # ipdb.set_trace()
     if not os.path.isdir(regression_results_path):
         os.mkdir(regression_results_path)
 
-    regression_pca_results_file = path.join(regression_results_path, f'{type}_pca_comp_linear_regression_results.csv')
-    regression_results_file = path.join(regression_results_path, f'{type}_pca_linear_regression_results.csv')
+    if len(ethnicity_filter_list) == 0:
+        pca_comp_results_file = f'{type}_{reg_key}_pca_comp_linear_regression_results.csv'
+        pca_results_file = f'{type}_pca_linear_regression_results.csv'
+    else:
+        pca_comp_results_file = f'{type}_{reg_key}_pca_comp_linear_regression_results'
+        pca_results_file = f'{type}_{reg_key}_pca_linear_regression_results'
+        for ethnicity in ethnicity_filter_list:
+            pca_comp_results_file = f'{pca_comp_results_file}_{ethnicity}'
+            pca_results_file = f'{pca_results_file}_{ethnicity}'
+        pca_comp_results_file = f'{pca_comp_results_file}.csv'
+        pca_results_file = f'{pca_results_file}.csv'
+
+    regression_pca_results_file = path.join(regression_results_path, pca_comp_results_file)
+    regression_results_file = path.join(regression_results_path, pca_results_file)
 
     if not os.path.isfile(regression_pca_results_file):
         regression_pca_info_df.to_csv(regression_pca_results_file, index=False)
@@ -337,12 +421,12 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, var_thresh
         regression_info_df.to_csv(regression_results_file, index=False)
     else:
         regression_info_df.to_csv(regression_results_file, mode='a', header=False, index=False)
+    return Y, fitted_model.fittedvalues
 
 
-def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, regularizer_type: str = 'ridge') -> None:
+def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list: List[str], reg_key: str, regularizer_type: str = 'ridge') -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    regression_results_path = path.join('states', state_name, 'regression_results_csvs')
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -351,11 +435,25 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, re
 
     training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
 
+    # Filter to specific ethnicities
+    if len(ethnicity_filter_list) > 0:
+        ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
+        ethnicities = training_data_df['ethnicity'].str.lower().tolist()
+        ethnicity_bool = [True if ethnicity.lower() in ethnicity_filter_list else False for ethnicity in ethnicities]
+        training_data_df = training_data_df[ethnicity_bool]
+
     # Set Y as mortality rate
-    Y = np.array(training_data_df['mortality_rate'])
+    Y = np.array(training_data_df[reg_key])
 
     # Populate remaining columns with corresponding metadata
-    filter_list = ['mortality_rate']
+    filter_list = [
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity']
     metadata_keys = training_data_df.keys()
     metadata_keys = [key for key in metadata_keys if key not in filter_list]
 
@@ -389,8 +487,6 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, re
         _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
         vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
 
-    # import ipdb
-    # ipdb.set_trace()
     # Regress on features and ca
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['features'] = metadata_keys
@@ -401,12 +497,5 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, re
     regression_info_dict['rmse'] = rmse
     regression_info_df = pd.DataFrame(regression_info_dict)
 
-    if not os.path.isdir(regression_results_path):
-        os.mkdir(regression_results_path)
-
-    regression_results_file = path.join(regression_results_path,
-                                        f'{type}_linear_{regularizer_type}_regression_results.csv')
-    if not os.path.isfile(regression_results_file):
-        regression_info_df.to_csv(regression_results_file, index=False)
-    else:
-        regression_info_df.to_csv(regression_results_file, mode='a', header=False, index=False)
+    predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(), 'y': list(Y), 'y_pred': list(Y_pred)})
+    return regression_info_df, predictions_df
