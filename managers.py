@@ -203,7 +203,8 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_suffix='aggregated_processed_metadata')
 
 
-def correlation_manager(state_name: str, type: str, key: str, corr_type: str, ethnicity_filter_list: List = [], county_name: str = None) -> None:
+def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
+                        ethnicity_filter_list: List = [], county_name: str = None) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
     correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
@@ -223,7 +224,15 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str, et
         training_data_df = training_data_df[ethnicity_bool]
     Y = np.array(training_data_df[key].tolist())
 
-    keys_to_filter = ['time', 'covid_perc', 'dem_perc', 'mortality_rate', 'detrended_mortality_rate', 'discrepancy', 'y_pred', 'ethnicity']
+    keys_to_filter = [
+        'time',
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity']
     corr_keys = [feat_key for feat_key in training_data_df.keys() if feat_key not in keys_to_filter]
 
     corr_dict = {'corr': [], 'Y': [], 'X': [], 'p_val': [], 'state': [], 'county': [], 'n': []}
@@ -232,11 +241,11 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str, et
         X = np.array(training_data_df[corr_key].tolist())
         if corr_type == 'spearman':
             correlation_utils.populate_spearman_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key, state=state_name, county=county_name, n=len(Y),
-                                X=X, Y=Y)
+                                                          X=X, Y=Y)
         elif corr_type == 'distance_corr':
             correlation_utils.populate_dist_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key,
-                                                          state=state_name, county=county_name, n=len(Y),
-                                                          X=X, Y=Y)
+                                                      state=state_name, county=county_name, n=len(Y),
+                                                      X=X, Y=Y)
     filter_empty_list(dict=corr_dict)
     corr_df = pd.DataFrame(corr_dict)
 
@@ -306,7 +315,13 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
 
     # Get columns that have values that unique values for mortality rates
     # and store them in a dictionary along with relevant regional features
-    training_data_dict = {'mortality_rate': [], 'time': [], 'covid_perc': [], 'dem_perc': [], 'discrepancy': [], 'ethnicity': []}
+    training_data_dict = {
+        'mortality_rate': [],
+        'time': [],
+        'covid_perc': [],
+        'dem_perc': [],
+        'discrepancy': [],
+        'ethnicity': []}
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
     for column in rate_df.keys():
@@ -401,7 +416,8 @@ def add_commit_and_push(state_county_dir: str):
         pass
 
 
-def main(state_name: str, regression_type: str, corr_key: str,  ethnicity_list: List[str], corr_type: str, county_name: str = None, mode: str = 'scrape'):
+def main(state_name: str, regression_type: str, corr_key: str,
+         ethnicity_list: List[str], corr_type: str, county_name: str = None, mode: str = 'scrape'):
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_case':
@@ -415,9 +431,21 @@ def main(state_name: str, regression_type: str, corr_key: str,  ethnicity_list: 
     elif mode == 'create_death_training_data':
         training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
     elif mode == 'perform_case_spearman_corr':
-        correlation_manager(state_name=state_name, county_name=county_name, type='cases', key=corr_key, corr_type=corr_type, ethnicity_filter_list=ethnicity_list)
+        correlation_manager(
+            state_name=state_name,
+            county_name=county_name,
+            type='cases',
+            key=corr_key,
+            corr_type=corr_type,
+            ethnicity_filter_list=ethnicity_list)
     elif mode == 'perform_death_spearman_corr':
-        correlation_manager(state_name=state_name, county_name=county_name, type='deaths', key=corr_key, corr_type=corr_type, ethnicity_filter_list=ethnicity_list)
+        correlation_manager(
+            state_name=state_name,
+            county_name=county_name,
+            type='deaths',
+            key=corr_key,
+            corr_type=corr_type,
+            ethnicity_filter_list=ethnicity_list)
     elif mode == 'perform_cases_multilinear_regression':
         regression_manager(
             state_name=state_name,
@@ -442,20 +470,43 @@ if __name__ == "__main__":
     parser.add_argument('--corr_key', default='mortality_rate', help='Key of quantity to be used in correlation')
     parser.add_argument('--state', help='State for which mode will be run')
     parser.add_argument('--county', help='County for which model will be run', default=None)
-    parser.add_argument('--all_counties_bool', action='store_true', help='Boolean that states to run mode for state and all counties in state')
+    parser.add_argument(
+        '--all_counties_bool',
+        action='store_true',
+        help='Boolean that states to run mode for state and all counties in state')
     parser.add_argument('--ethnicity_list', default=[], nargs='+', help='List ethnicities to be filtered when performing correlation or doing'
-                                                            'regressions')
+                        'regressions')
 
     args = parser.parse_args()
     if not args.all_counties_bool:
-        main(mode=args.mode, state_name=args.state, county_name=args.county, regression_type=args.regression_type, corr_type=args.corr_type, corr_key=args.corr_key, ethnicity_list=args.ethnicity_list)
+        main(
+            mode=args.mode,
+            state_name=args.state,
+            county_name=args.county,
+            regression_type=args.regression_type,
+            corr_type=args.corr_type,
+            corr_key=args.corr_key,
+            ethnicity_list=args.ethnicity_list)
     else:
-        main(mode=args.mode, state_name=args.state, county_name=None, regression_type=args.regression_type, corr_type=args.corr_type, corr_key=args.corr_key, ethnicity_list=args.ethnicity_list)
+        main(
+            mode=args.mode,
+            state_name=args.state,
+            county_name=None,
+            regression_type=args.regression_type,
+            corr_type=args.corr_type,
+            corr_key=args.corr_key,
+            ethnicity_list=args.ethnicity_list)
         county_list = os.listdir(path.join('states', args.state, 'counties'))
         for county in county_list:
             if county != 'kern':
                 try:
-                    main(mode=args.mode, state_name=args.state, county_name=county, regression_type=args.regression_type, corr_type=args.corr_type, corr_key=args.corr_key, ethnicity_list=args.ethnicity_list)
-                except:
+                    main(
+                        mode=args.mode,
+                        state_name=args.state,
+                        county_name=county,
+                        regression_type=args.regression_type,
+                        corr_type=args.corr_type,
+                        corr_key=args.corr_key,
+                        ethnicity_list=args.ethnicity_list)
+                except BaseException:
                     pass
-

@@ -45,7 +45,7 @@ def populate_spearman_corr_dict(corr_dict: Dict[str, List[Union[str, float]]], y
 
 
 def populate_dist_corr_dict(corr_dict: Dict[str, Union[str, List[Union[str, float]]]], y_key: str, x_key: str, state: str, county: str, n: int,
-                                X: np.ndarray, Y: np.ndarray) -> None:
+                            X: np.ndarray, Y: np.ndarray) -> None:
     dist_corr = calc_filtered_dist_corr(X=X, Y=Y)
     if dist_corr is not None:
         corr_dict['corr'].append(dist_corr)
