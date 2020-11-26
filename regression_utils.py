@@ -127,7 +127,8 @@ def call_multilinear_lasso_regression(X: np.ndarray, Y: np.ndarray) -> Tuple[flo
     return score, fitted_model
 
 
-def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, state_name: str, county_name: str, reg_key: str, regression_type: str, ethnicity_filter_list: List[str]) -> None:
+def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, state_name: str,
+                            county_name: str, reg_key: str, regression_type: str, ethnicity_filter_list: List[str]) -> None:
     # Save regression results in relevant directory
     regression_results_path = path.join('states', state_name, 'regression_results_csvs', state_name, regression_type)
     predictions_path = path.join(regression_results_path, reg_key)
@@ -163,7 +164,8 @@ def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, 
         pred_df.to_csv(predictions_file, mode='a', header=False, index=False)
 
 
-def multilinear_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list: List[str], reg_key: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def multilinear_reg(state_name: str, type: str, county_name: str,
+                    ethnicity_filter_list: List[str], reg_key: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
     # regression_results_path = path.join('states', state_name, 'regression_results_csvs')
@@ -260,11 +262,13 @@ def multilinear_reg(state_name: str, type: str, county_name: str, ethnicity_filt
     # else:
     #     regression_info_df.to_csv(regression_results_file, mode='a', header=False, index=False)
 
-    predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(), 'y': list(Y), 'y_pred': list(fitted_model.fittedvalues)})
+    predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(
+    ), 'y': list(Y), 'y_pred': list(fitted_model.fittedvalues)})
     return regression_info_df, predictions_df
 
 
-def multilinear_pca_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list: List[str], reg_key: str, var_thresh: float = 0.95) -> Tuple[np.array, np.array]:
+def multilinear_pca_reg(state_name: str, type: str, county_name: str,
+                        ethnicity_filter_list: List[str], reg_key: str, var_thresh: float = 0.95) -> Tuple[np.array, np.array]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
     regression_results_path = path.join('states', state_name, 'regression_results_csvs')
@@ -424,7 +428,8 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str, ethnicity_
     return Y, fitted_model.fittedvalues
 
 
-def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list: List[str], reg_key: str, regularizer_type: str = 'ridge') -> Tuple[pd.DataFrame, pd.DataFrame]:
+def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list:
+                                List[str], reg_key: str, regularizer_type: str = 'ridge') -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
 

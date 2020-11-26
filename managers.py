@@ -385,7 +385,8 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
 def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[str], reg_key: str, county_name: str = None,
                        regression_type: str = 'multilinear') -> None:
     if regression_type == 'multilinear':
-        regression_results_df, predictions_df= regression_utils.multilinear_reg(state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list)
+        regression_results_df, predictions_df = regression_utils.multilinear_reg(
+            state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list)
     elif regression_type == 'multilinear_ridge':
         regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
@@ -404,7 +405,15 @@ def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[s
             ethnicity_filter_list=ethnicity_filter_list)
     else:
         raise ValueError(f'{regression_type} regression logic not implemented')
-    regression_utils.save_regression_results(df=regression_results_df, pred_df=predictions_df, type=type, state_name=state_name, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list, regression_type=regression_type, reg_key=reg_key)
+    regression_utils.save_regression_results(
+        df=regression_results_df,
+        pred_df=predictions_df,
+        type=type,
+        state_name=state_name,
+        county_name=county_name,
+        ethnicity_filter_list=ethnicity_filter_list,
+        regression_type=regression_type,
+        reg_key=reg_key)
 
 
 def add_commit_and_push(state_county_dir: str):
