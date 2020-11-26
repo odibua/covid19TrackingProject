@@ -82,6 +82,7 @@ setup(
         'autopep8',
         'bokeh',
         'beautifulsoup4',
+        'dcor',
         'html5lib',
         'numpy>=1.9.0',
         'pandas',

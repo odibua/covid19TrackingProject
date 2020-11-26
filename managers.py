@@ -2,12 +2,13 @@
 # Standard Python Imports
 # --------------------------
 import argparse
+import copy
 import datetime
 import logging
 import os
 from os import path
 import subprocess as cmd
-from typing import List, Tuple
+from typing import Dict, List, Tuple, Union
 
 # --------------------------
 # Third Party Imports
@@ -25,6 +26,13 @@ import statsmodels.api as sm
 import correlation_utils
 import regression_utils
 import utils_lib
+
+
+def filter_empty_list(dict: Dict[str, List[Union[float, str]]]) -> None:
+    copy_dict = copy.deepcopy(dict)
+    for key in copy_dict.keys():
+        if len(copy_dict[key]) == 0:
+            del dict[key]
 
 
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], str]:
@@ -198,7 +206,7 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
 def correlation_manager(state_name: str, type: str, key: str, corr_type: str, ethnicity_filter_list: List = [], county_name: str = None) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    correlation_results_path = path.join('states', state_name, 'correlation_results')
+    correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -213,7 +221,7 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str, et
         ethnicities = training_data_df['ethnicity'].str.lower().tolist()
         ethnicity_bool = [True if ethnicity.lower() in ethnicity_filter_list else False for ethnicity in ethnicities]
         training_data_df = training_data_df[ethnicity_bool]
-    Y = training_data_df[key].tolist()
+    Y = np.array(training_data_df[key].tolist())
 
     keys_to_filter = ['time', 'covid_perc', 'dem_perc', 'mortality_rate', 'detrended_mortality_rate', 'discrepancy', 'y_pred', 'ethnicity']
     corr_keys = [feat_key for feat_key in training_data_df.keys() if feat_key not in keys_to_filter]
@@ -221,10 +229,15 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str, et
     corr_dict = {'corr': [], 'Y': [], 'X': [], 'p_val': [], 'state': [], 'county': [], 'n': []}
 
     for corr_key in corr_keys:
-        X = training_data_df[corr_key].tolist()
+        X = np.array(training_data_df[corr_key].tolist())
         if corr_type == 'spearman':
             correlation_utils.populate_spearman_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key, state=state_name, county=county_name, n=len(Y),
                                 X=X, Y=Y)
+        elif corr_type == 'distance_corr':
+            correlation_utils.populate_dist_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key,
+                                                          state=state_name, county=county_name, n=len(Y),
+                                                          X=X, Y=Y)
+    filter_empty_list(dict=corr_dict)
     corr_df = pd.DataFrame(corr_dict)
 
     if len(ethnicity_filter_list) == 0:
@@ -237,7 +250,7 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str, et
     correlation_results_file = path.join(correlation_results_path, results_file)
 
     if not os.path.exists(correlation_results_path):
-        os.mkdir(correlation_results_path)
+        os.makedirs(correlation_results_path)
 
     if not os.path.isfile(correlation_results_file):
         corr_df.to_csv(correlation_results_file, index=False)
