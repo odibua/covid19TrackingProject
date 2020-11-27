@@ -15,10 +15,8 @@ from typing import Dict, List, Tuple, Union
 # --------------------------
 import numpy as np
 import pandas as pd
-from scipy import stats
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
-import statsmodels.api as sm
 
 # --------------------------
 # covid19Tracking Imports
@@ -28,11 +26,57 @@ import regression_utils
 import utils_lib
 
 
+class RegDefinitions:
+    reg_list = ['multilinear', 'multilinear_ridge', 'multilinear_lasso']
+    spearman_reg_list = ['multilinear_spearman', 'multilinear_ridge_spearman', 'multilinear_lasso_spearman']
+    dist_reg_list = ['multilinear_distance_corr', 'multilinear_ridge_distance_corr', 'multilinear_lasso_distance_corr']
+
+    multilinear_list = ['multilinear', 'multilinear_spearman', 'multilinear_distance_corr']
+    multilinear_ridge_list = ['multilinear_ridge', 'multilinear_ridge_spearman', 'multilinear_ridge_distance_corr']
+    multilinear_lasso_list = ['multilinear_lasso', 'multilinear_lasso_spearman', 'multilinear_lasso_distance_corr']
+
+
 def filter_empty_list(dict: Dict[str, List[Union[float, str]]]) -> None:
     copy_dict = copy.deepcopy(dict)
     for key in copy_dict.keys():
         if len(copy_dict[key]) == 0:
             del dict[key]
+
+
+def get_metadata_filter(type: str, state_name: str, county_name: str, regression_type: str, reg_key: str, ethnicity_filter_list: List[str]) -> List[str]:
+    metadata_filter = []
+    ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
+    if regression_type in RegDefinitions.reg_list:
+        return metadata_filter
+
+    if regression_type in RegDefinitions.spearman_reg_list:
+        corr_type = 'spearman'
+    elif regression_type in RegDefinitions.dist_reg_list:
+        corr_type = 'distance_corr'
+    else:
+        raise ValueError(f'{regression_type} not valid')
+
+    correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
+    if len(ethnicity_filter_list) == 0:
+        results_file = f'{type}_{reg_key}_{corr_type}_corr_results.csv'
+    else:
+        results_file = f'{type}_{reg_key}_{corr_type}_corr_results'
+        for ethnicity in ethnicity_filter_list:
+            results_file = f'{results_file}_{ethnicity}'
+        results_file = f'{results_file}.csv'
+    correlation_results_file = path.join(correlation_results_path, results_file)
+    correlation_df = pd.read_csv(correlation_results_file)
+
+    state_bool_list = (correlation_df['state'] == state_name).tolist()
+    if county_name is None:
+        county_bool_list = correlation_df['county'].isna().tolist()
+    else:
+        county_bool_list = (correlation_df['county'] == county_name).tolist()
+    keep_bool = state_bool_list and county_bool_list
+    correlation_df = correlation_df[keep_bool]
+    metadata_filter = correlation_df['X'].tolist()
+
+    return metadata_filter
 
 
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], str]:
@@ -207,7 +251,7 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
                         ethnicity_filter_list: List = [], county_name: str = None) -> None:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    correlation_results_path = path.join('states', state_name, 'correlation_results', state_name, corr_type)
+    correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -249,22 +293,22 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
     filter_empty_list(dict=corr_dict)
     corr_df = pd.DataFrame(corr_dict)
 
-    if len(ethnicity_filter_list) == 0:
-        results_file = f'{type}_{key}_{corr_type}_corr_results.csv'
-    else:
-        results_file = f'{type}_{key}_{corr_type}_corr_results'
-        for ethnicity in ethnicity_filter_list:
-            results_file = f'{results_file}_{ethnicity}'
-        results_file = f'{results_file}.csv'
-    correlation_results_file = path.join(correlation_results_path, results_file)
+    if len(corr_df) > 0:
+        if len(ethnicity_filter_list) == 0:
+            results_file = f'{type}_{key}_{corr_type}_corr_results.csv'
+        else:
+            results_file = f'{type}_{key}_{corr_type}_corr_results'
+            for ethnicity in ethnicity_filter_list:
+                results_file = f'{results_file}_{ethnicity}'
+            results_file = f'{results_file}.csv'
+        correlation_results_file = path.join(correlation_results_path, results_file)
+        if not os.path.exists(correlation_results_path):
+            os.makedirs(correlation_results_path)
 
-    if not os.path.exists(correlation_results_path):
-        os.makedirs(correlation_results_path)
-
-    if not os.path.isfile(correlation_results_file):
-        corr_df.to_csv(correlation_results_file, index=False)
-    else:
-        corr_df.to_csv(correlation_results_file, header=False, mode='a', index=False)
+        if not os.path.isfile(correlation_results_file):
+            corr_df.to_csv(correlation_results_file, index=False)
+        else:
+            corr_df.to_csv(correlation_results_file, header=False, mode='a', index=False)
 
 
 def training_data_manager(state_name: str, type: str, county_name: str = None) -> None:
@@ -382,27 +426,32 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     training_data_df.to_csv(path.join(training_csv_path, training_file))
 
 
-def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[str], reg_key: str, county_name: str = None,
-                       regression_type: str = 'multilinear') -> None:
-    if regression_type == 'multilinear':
+def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[str], reg_key: str,
+                       county_name: str = None, regression_type: str = 'multilinear') -> None:
+
+    metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_name, regression_type=regression_type, reg_key=reg_key,
+                                                           ethnicity_filter_list=ethnicity_filter_list)
+    if regression_type in RegDefinitions.multilinear_list:
         regression_results_df, predictions_df = regression_utils.multilinear_reg(
-            state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list)
-    elif regression_type == 'multilinear_ridge':
+            state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter)
+    elif regression_type in RegDefinitions.multilinear_ridge_list:
         regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
             type=type,
             county_name=county_name,
             reg_key=reg_key,
             regularizer_type='ridge',
-            ethnicity_filter_list=ethnicity_filter_list)
-    elif regression_type == 'multilinear_lasso':
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter)
+    elif regression_type in RegDefinitions.multilinear_lasso_list:
         regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
             type=type,
             county_name=county_name,
             reg_key=reg_key,
             regularizer_type='lasso',
-            ethnicity_filter_list=ethnicity_filter_list)
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter)
     else:
         raise ValueError(f'{regression_type} regression logic not implemented')
     regression_utils.save_regression_results(
@@ -508,15 +557,18 @@ if __name__ == "__main__":
             corr_key=args.corr_key,
             ethnicity_list=args.ethnicity_list)
     else:
-        main(
-            mode=args.mode,
-            state_name=args.state,
-            county_name=None,
-            regression_type=args.regression_type,
-            reg_key=args.reg_key,
-            corr_type=args.corr_type,
-            corr_key=args.corr_key,
-            ethnicity_list=args.ethnicity_list)
+        try:
+            main(
+                mode=args.mode,
+                state_name=args.state,
+                county_name=None,
+                regression_type=args.regression_type,
+                reg_key=args.reg_key,
+                corr_type=args.corr_type,
+                corr_key=args.corr_key,
+                ethnicity_list=args.ethnicity_list)
+        except:
+            pass
         county_list = os.listdir(path.join('states', args.state, 'counties'))
         for county in county_list:
             if county != 'kern':

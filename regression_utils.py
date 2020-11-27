@@ -3,6 +3,8 @@
 # --------------------------
 import collections
 import copy
+import joblib
+import multiprocessing
 import os
 from os import path
 from typing import Any, Callable, Dict, List, Tuple, Union
@@ -19,6 +21,24 @@ from sklearn.linear_model import Lasso, Ridge
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
+
+
+def construct_x(X: np.array, metadata_keys: List[str], df: pd.DataFrame, metadata_filter: List[str]) -> Tuple[np.array, List[str]]:
+    idx_meta = 1
+    if len(metadata_filter) == 0:
+        for idx, key in enumerate(metadata_keys):
+            X[:, idx + 1] = df[key].tolist()
+        return X, metadata_keys
+
+    metadata_keys_copy = []
+    if len(metadata_filter) > 0:
+        for idx, key in enumerate(metadata_keys):
+                if key in metadata_filter or key.lower() == 'time':
+                    X[:, idx_meta] = df[key].tolist()
+                    metadata_keys_copy.append(key)
+                    idx_meta = idx_meta + 1
+        X = X[:, 0:idx_meta]
+    return X, metadata_keys_copy
 
 
 def calc_metric(Y: np.ndarray, Y_pred: np.ndarray) -> float:
@@ -130,7 +150,7 @@ def call_multilinear_lasso_regression(X: np.ndarray, Y: np.ndarray) -> Tuple[flo
 def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, state_name: str,
                             county_name: str, reg_key: str, regression_type: str, ethnicity_filter_list: List[str]) -> None:
     # Save regression results in relevant directory
-    regression_results_path = path.join('states', state_name, 'regression_results_csvs', state_name, regression_type)
+    regression_results_path = path.join('states', state_name, 'regression_results_csvs', regression_type)
     predictions_path = path.join(regression_results_path, reg_key)
 
     if not os.path.isdir(regression_results_path):
@@ -165,10 +185,10 @@ def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, 
 
 
 def multilinear_reg(state_name: str, type: str, county_name: str,
-                    ethnicity_filter_list: List[str], reg_key: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                    ethnicity_filter_list: List[str], reg_key: str, metadata_filter: List[str],
+                    bootstrap_bool: bool = True, N: int = 100) -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
-    # regression_results_path = path.join('states', state_name, 'regression_results_csvs')
 
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
@@ -201,15 +221,17 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
 
     # Construct X
     X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
-
-    for idx, key in enumerate(metadata_keys):
-        X[:, idx + 1] = training_data_df[key].tolist()
+    X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys, df=training_data_df, metadata_filter=metadata_filter)
     metadata_keys.insert(0, 'constant')
 
     X[:, 1:] = (X[:, 1:] - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)
     X[:, 0] = 1
 
-    fitted_model, feature_subset = call_multilinear_regression(X=X, Y=Y,)
+    fitted_model, feature_subset = call_multilinear_regression(X=X, Y=Y)
+    # Get nrmse and rmse
+    nrmse = calc_nrmse(Y, fitted_model.fittedvalues)
+    rmse = calc_rmse(Y, fitted_model.fittedvalues)
+
     features = [metadata_keys[idx] for idx in feature_subset]
     stat_table = fitted_model.summary().tables[-1]
 
@@ -221,10 +243,6 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
         _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
         vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
 
-    # Get nrmse and rmse
-    nrmse = calc_nrmse(Y, fitted_model.fittedvalues)
-    rmse = calc_rmse(Y, fitted_model.fittedvalues)
-
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['features'] = features
     regression_info_dict['coef'] = fitted_model.params
@@ -235,32 +253,36 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
     regression_info_dict['vif'] = vif_list
     regression_info_dict['std_err'] = np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['R2'] = fitted_model.rsquared
-    regression_info_dict['nrmse'] = nrmse
-    regression_info_dict['rmse'] = rmse
     regression_info_dict['R2 Adjusted'] = fitted_model.rsquared_adj
     regression_info_dict['Durbin-Watson'] = float(stat_table.data[0][-1])
     regression_info_dict['JB'] = float(stat_table.data[-3][-1])
     regression_info_dict['condition_number'] = fitted_model.condition_number
 
-    regression_info_df = pd.DataFrame(regression_info_dict)
+    regression_info_dict['nrmse'] = nrmse
+    regression_info_dict['rmse'] = rmse
 
-    # if not os.path.isdir(regression_results_path):
-    #     os.mkdir(regression_results_path)
-    #
-    # if len(ethnicity_filter_list) == 0:
-    #     results_file = f'{type}_{reg_key}_linear_regression_results.csv'
-    # else:
-    #     results_file = f'{type}_{reg_key}_linear_regression_results'
-    #     for ethnicity in ethnicity_filter_list:
-    #         results_file = f'{results_file}_{ethnicity}'
-    #     results_file = f'{results_file}.csv'
-    #
-    # regression_results_file = path.join(regression_results_path, results_file
-    #                                     )
-    # if not os.path.isfile(regression_results_file):
-    #     regression_info_df.to_csv(regression_results_file, index=False)
-    # else:
-    #     regression_info_df.to_csv(regression_results_file, mode='a', header=False, index=False)
+    # Get bootstrap values of nrms and rmse if prescribed
+    if bootstrap_bool:
+        n = list(range(X.shape[0]))
+        frac = 0.5
+        nrmse_list, rmse_list, indices_list = [], [], []
+        for idx in range(N):
+            indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
+            indices_list.append(indices)
+        regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(call_multilinear_regression)(X=X[indices, :], Y=Y[indices]) for indices in indices_list)
+        fitted_model_list, _ = zip(*regr_results)
+
+        for idx in range(N):
+            nrmse_bootstrap = calc_nrmse(Y[indices_list[idx]], fitted_model_list[idx].fittedvalues)
+            rmse_bootstrap = calc_rmse(Y[indices_list[idx]], fitted_model_list[idx].fittedvalues)
+            nrmse_list.append(nrmse_bootstrap)
+            rmse_list.append(rmse_bootstrap)
+        low_nrmse, up_nrmse = np.percentile(nrmse_list, 2.5), np.percentile(nrmse_list, 97.5)
+        low_rmse, up_rmse = np.percentile(rmse_list, 2.5), np.percentile(rmse_list, 97.5)
+        regression_info_dict['low_nrmse'], regression_info_dict['up_nrmse'] = low_nrmse, up_nrmse
+        regression_info_dict['low_rmse'], regression_info_dict['up_rmse'] = low_rmse, up_rmse
+
+    regression_info_df = pd.DataFrame(regression_info_dict)
 
     predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(
     ), 'y': list(Y), 'y_pred': list(fitted_model.fittedvalues)})
@@ -382,7 +404,6 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str,
     regression_info_df = pd.DataFrame(regression_info_dict)
 
     # Save information about pca regression
-    # ipdb.set_trace()
     regression_pca_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_pca_info_dict['features'] = metadata_keys
     regression_pca_info_dict['coef'] = feature_coef
@@ -429,7 +450,8 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str,
 
 
 def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, ethnicity_filter_list:
-                                List[str], reg_key: str, regularizer_type: str = 'ridge') -> Tuple[pd.DataFrame, pd.DataFrame]:
+                                List[str], reg_key: str, metadata_filter: List[str],
+                                bootstrap_bool: bool = True, N: int = 100, regularizer_type: str = 'ridge') -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
 
@@ -464,9 +486,7 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, et
 
     # Construct X
     X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
-
-    for idx, key in enumerate(metadata_keys):
-        X[:, idx + 1] = training_data_df[key].tolist()
+    X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys, df=training_data_df, metadata_filter=metadata_filter)
     metadata_keys.insert(0, 'constant')
 
     X[:, 1:] = (X[:, 1:] - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)
@@ -500,6 +520,36 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, et
     regression_info_dict['R2'] = score
     regression_info_dict['nrmse'] = nrmse
     regression_info_dict['rmse'] = rmse
+
+    # Get bootstrap values of nrms and rmse if prescribed
+    if bootstrap_bool:
+        n = list(range(X.shape[0]))
+        frac = 0.5
+        nrmse_list, rmse_list, indices_list = [], [], []
+        for idx in range(N):
+            indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
+            indices_list.append(indices)
+        if regularizer_type == 'ridge':
+            regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
+                joblib.delayed(call_multilinear_ridge_regression)(X=X[indices, :], Y=Y[indices]) for indices in indices_list)
+        elif regularizer_type == 'lasso':
+            regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
+                joblib.delayed(call_multilinear_lasso_regression)(X=X[indices, :], Y=Y[indices]) for indices in indices_list)
+
+        _, fitted_model_list = zip(*regr_results)
+
+        for idx in range(N):
+            X_bs = X[indices_list[idx], :]
+            Y_pred_bs = fitted_model_list[idx].predict(X_bs)
+            nrmse_bootstrap = calc_nrmse(Y[indices_list[idx]], Y_pred_bs)
+            rmse_bootstrap = calc_rmse(Y[indices_list[idx]], Y_pred_bs)
+            nrmse_list.append(nrmse_bootstrap)
+            rmse_list.append(rmse_bootstrap)
+        low_nrmse, up_nrmse = np.percentile(nrmse_list, 2.5), np.percentile(nrmse_list, 97.5)
+        low_rmse, up_rmse = np.percentile(rmse_list, 2.5), np.percentile(rmse_list, 97.5)
+        regression_info_dict['low_nrmse'], regression_info_dict['up_nrmse'] = low_nrmse, up_nrmse
+        regression_info_dict['low_rmse'], regression_info_dict['up_rmse'] = low_rmse, up_rmse
+
     regression_info_df = pd.DataFrame(regression_info_dict)
 
     predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(), 'y': list(Y), 'y_pred': list(Y_pred)})
