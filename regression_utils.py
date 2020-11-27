@@ -87,7 +87,7 @@ def fit_subset_sizes(X, Y, subset_size, full_subset, curr_subset, metric_list, f
 
 
 def get_best_ridge_model(X: np.ndarray, Y: np.ndarray) -> Tuple[float, Ridge.fit]:
-    alpha_list = np.linspace(0, 1, 50)
+    alpha_list = np.linspace(0, 1, 20)
     fitted_model_list, score_list = [], []
     for alpha in alpha_list:
         model = Ridge(alpha=alpha)
@@ -102,7 +102,7 @@ def get_best_ridge_model(X: np.ndarray, Y: np.ndarray) -> Tuple[float, Ridge.fit
 
 
 def get_best_lasso_model(X: np.ndarray, Y: np.ndarray) -> Tuple[float, Ridge.fit]:
-    alpha_list = np.linspace(0, 1, 50)
+    alpha_list = np.linspace(0, 1, 20)
     fitted_model_list, score_list = [], []
     for alpha in alpha_list:
         model = Lasso(alpha=alpha)
@@ -133,7 +133,9 @@ def get_best_subset(X: np.ndarray, Y: np.ndarray, tol: float = 0.05) -> Tuple[sm
 
 
 def call_multilinear_regression(X: np.ndarray, Y: np.ndarray) -> Tuple[sm.OLS.fit, List[int]]:
-    fitted_model, feature_subset = get_best_subset(X=X, Y=Y)
+    # fitted_model, feature_subset = get_best_subset(X=X, Y=Y)
+    feature_subset = list(range(X.shape[1]))
+    metric, fitted_model = fit_subset(X=X, Y=Y, feature_indices=feature_subset)
     return fitted_model, feature_subset
 
 
@@ -235,13 +237,13 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
     features = [metadata_keys[idx] for idx in feature_subset]
     stat_table = fitted_model.summary().tables[-1]
 
-    # Calculate variance inflation factor to check for co-linearity
-    vif_list = []
-    for idx in feature_subset:
-        Y_feat = X[:, idx]
-        feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
-        _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
-        vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
+    # # Calculate variance inflation factor to check for co-linearity
+    # vif_list = []
+    # for idx in feature_subset:
+    #     Y_feat = X[:, idx]
+    #     feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
+    #     _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
+    #     vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
 
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['features'] = features
@@ -250,7 +252,7 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
         1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['upper_coef'] = regression_info_dict['coef'] + \
         1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
-    regression_info_dict['vif'] = vif_list
+    # regression_info_dict['vif'] = vif_list
     regression_info_dict['std_err'] = np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['R2'] = fitted_model.rsquared
     regression_info_dict['R2 Adjusted'] = fitted_model.rsquared_adj
@@ -377,13 +379,13 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str,
                               ) + list(np.sum(pca_upper_weighted_components, axis=1))
 
     stat_table = fitted_model.summary().tables[-1]
-    # Calculate variance inflation factor to check for colinearity
-    vif_list = []
-    for idx in feature_subset:
-        Y_feat = X[:, idx]
-        feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
-        _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
-        vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
+    # # Calculate variance inflation factor to check for colinearity
+    # vif_list = []
+    # for idx in feature_subset:
+    #     Y_feat = X[:, idx]
+    #     feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
+    #     _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
+    #     vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
 
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['coef'] = fitted_model.params
@@ -391,7 +393,7 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str,
         1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['upper_coef'] = regression_info_dict['coef'] + \
         1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
-    regression_info_dict['vif'] = vif_list
+    # regression_info_dict['vif'] = vif_list
     regression_info_dict['std_err'] = np.sqrt(np.diag(fitted_model.cov_params()))
     regression_info_dict['R2'] = fitted_model.rsquared
     regression_info_dict['R2 Adjusted'] = fitted_model.rsquared_adj
@@ -505,18 +507,18 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, et
     nrmse = calc_nrmse(Y, Y_pred)
     rmse = calc_rmse(Y, Y_pred)
     # Calculate variance inflation factor to check for colinearity
-    vif_list = []
-    for idx in feature_subset:
-        Y_feat = X[:, idx]
-        feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
-        _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
-        vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
+    # vif_list = []
+    # for idx in feature_subset:
+    #     Y_feat = X[:, idx]
+    #     feature_indices = [idx2 for idx2 in feature_subset if idx2 != idx]
+    #     _, fitted_feature_model = fit_subset(Y=Y_feat, X=X, feature_indices=feature_indices)
+    #     vif_list.append(1.0 / (1 - fitted_feature_model.rsquared))
 
     # Regress on features and ca
     regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
     regression_info_dict['features'] = metadata_keys
     regression_info_dict['coef'] = list(fitted_model.coef_)
-    regression_info_dict['vif'] = vif_list
+    # regression_info_dict['vif'] = vif_list
     regression_info_dict['R2'] = score
     regression_info_dict['nrmse'] = nrmse
     regression_info_dict['rmse'] = rmse
