@@ -23,7 +23,8 @@ from sklearn.linear_model import Lasso, Ridge
 # --------------------------
 
 
-def construct_x(X: np.array, metadata_keys: List[str], df: pd.DataFrame, metadata_filter: List[str]) -> Tuple[np.array, List[str]]:
+def construct_x(X: np.array, metadata_keys: List[str], df: pd.DataFrame,
+                metadata_filter: List[str]) -> Tuple[np.array, List[str]]:
     idx_meta = 1
     if len(metadata_filter) == 0:
         for idx, key in enumerate(metadata_keys):
@@ -33,10 +34,10 @@ def construct_x(X: np.array, metadata_keys: List[str], df: pd.DataFrame, metadat
     metadata_keys_copy = []
     if len(metadata_filter) > 0:
         for idx, key in enumerate(metadata_keys):
-                if key in metadata_filter or key.lower() == 'time':
-                    X[:, idx_meta] = df[key].tolist()
-                    metadata_keys_copy.append(key)
-                    idx_meta = idx_meta + 1
+            if key in metadata_filter or key.lower() == 'time':
+                X[:, idx_meta] = df[key].tolist()
+                metadata_keys_copy.append(key)
+                idx_meta = idx_meta + 1
         X = X[:, 0:idx_meta]
     return X, metadata_keys_copy
 
@@ -223,7 +224,8 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
 
     # Construct X
     X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
-    X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys, df=training_data_df, metadata_filter=metadata_filter)
+    X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys,
+                                   df=training_data_df, metadata_filter=metadata_filter)
     metadata_keys.insert(0, 'constant')
 
     X[:, 1:] = (X[:, 1:] - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)
@@ -271,7 +273,8 @@ def multilinear_reg(state_name: str, type: str, county_name: str,
         for idx in range(N):
             indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
             indices_list.append(indices)
-        regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(call_multilinear_regression)(X=X[indices, :], Y=Y[indices]) for indices in indices_list)
+        regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(
+            call_multilinear_regression)(X=X[indices, :], Y=Y[indices]) for indices in indices_list)
         fitted_model_list, _ = zip(*regr_results)
 
         for idx in range(N):
@@ -488,7 +491,8 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_name: str, et
 
     # Construct X
     X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
-    X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys, df=training_data_df, metadata_filter=metadata_filter)
+    X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys,
+                                   df=training_data_df, metadata_filter=metadata_filter)
     metadata_keys.insert(0, 'constant')
 
     X[:, 1:] = (X[:, 1:] - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)

@@ -43,7 +43,8 @@ def filter_empty_list(dict: Dict[str, List[Union[float, str]]]) -> None:
             del dict[key]
 
 
-def get_metadata_filter(type: str, state_name: str, county_name: str, regression_type: str, reg_key: str, ethnicity_filter_list: List[str]) -> List[str]:
+def get_metadata_filter(type: str, state_name: str, county_name: str, regression_type: str,
+                        reg_key: str, ethnicity_filter_list: List[str]) -> List[str]:
     metadata_filter = []
     ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
     if regression_type in RegDefinitions.reg_list:
@@ -430,7 +431,7 @@ def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[s
                        county_name: str = None, regression_type: str = 'multilinear') -> None:
 
     metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_name, regression_type=regression_type, reg_key=reg_key,
-                                                           ethnicity_filter_list=ethnicity_filter_list)
+                                          ethnicity_filter_list=ethnicity_filter_list)
     if regression_type in RegDefinitions.multilinear_list:
         regression_results_df, predictions_df = regression_utils.multilinear_reg(
             state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter)
@@ -567,7 +568,7 @@ if __name__ == "__main__":
                 corr_type=args.corr_type,
                 corr_key=args.corr_key,
                 ethnicity_list=args.ethnicity_list)
-        except:
+        except BaseException:
             pass
         county_list = os.listdir(path.join('states', args.state, 'counties'))
         for county in county_list:
