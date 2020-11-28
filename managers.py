@@ -428,27 +428,33 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
 
 
 def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[str], reg_key: str,
-                       county_name: str = None, regression_type: str = 'multilinear') -> None:
+                       county_names: Union[str, List[str]] = [None], regression_type: str = 'multilinear', validate_state_names: List[str] = [], validate_county_names: List[str] = []) -> None:
 
-    metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_name, regression_type=regression_type, reg_key=reg_key,
-                                          ethnicity_filter_list=ethnicity_filter_list)
+    if isinstance(county_names, str) or county_names is None:
+        county_names = [county_names]
+    if len(county_names) == 1:
+        metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_names[0], regression_type=regression_type, reg_key=reg_key,
+                                              ethnicity_filter_list=ethnicity_filter_list)
+    else:
+        metadata_filter = []
+
     if regression_type in RegDefinitions.multilinear_list:
-        regression_results_df, predictions_df = regression_utils.multilinear_reg(
-            state_name=state_name, type=type, reg_key=reg_key, county_name=county_name, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter)
+        regression_results_df, predictions_df, fitted_model = regression_utils.multilinear_reg(
+            state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter)
     elif regression_type in RegDefinitions.multilinear_ridge_list:
-        regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
+        regression_results_df, predictions_df, fitted_model = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
             type=type,
-            county_name=county_name,
+            county_names=county_names,
             reg_key=reg_key,
             regularizer_type='ridge',
             ethnicity_filter_list=ethnicity_filter_list,
             metadata_filter=metadata_filter)
     elif regression_type in RegDefinitions.multilinear_lasso_list:
-        regression_results_df, predictions_df = regression_utils.multilinear_ridge_lasso_reg(
+        regression_results_df, predictions_df, fitted_model = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
             type=type,
-            county_name=county_name,
+            county_names=county_names,
             reg_key=reg_key,
             regularizer_type='lasso',
             ethnicity_filter_list=ethnicity_filter_list,
@@ -460,7 +466,7 @@ def regression_manager(state_name: str, type: str, ethnicity_filter_list: List[s
         pred_df=predictions_df,
         type=type,
         state_name=state_name,
-        county_name=county_name,
+        county_names=county_names,
         ethnicity_filter_list=ethnicity_filter_list,
         regression_type=regression_type,
         reg_key=reg_key)
@@ -513,7 +519,7 @@ def main(state_name: str, regression_type: str, corr_key: str,
     elif mode == 'perform_cases_multilinear_regression':
         regression_manager(
             state_name=state_name,
-            county_name=county_name,
+            county_names=county_name,
             type='cases',
             reg_key=reg_key,
             regression_type=regression_type,
@@ -521,7 +527,7 @@ def main(state_name: str, regression_type: str, corr_key: str,
     elif mode == 'perform_deaths_multilinear_regression':
         regression_manager(
             state_name=state_name,
-            county_name=county_name,
+            county_names=county_name,
             type='deaths',
             reg_key=reg_key,
             regression_type=regression_type,
