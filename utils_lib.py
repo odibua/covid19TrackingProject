@@ -25,6 +25,29 @@ import yaml as yaml
 # --------------------------
 
 
+def create_dir_if_not_exists(dir: str) -> None:
+    if not os.path.isdir(dir):
+        os.makedirs(dir)
+
+
+def create_files_name_with_ethnicity(file: str, ethnicity_filter_list: List[str]) -> str:
+    if len(ethnicity_filter_list) == 0:
+        file = f'{file}.csv'
+    else:
+        for ethnicity in ethnicity_filter_list:
+            file = f'{file}_{ethnicity}'
+        file = f'{file}.csv'
+    return file
+
+
+def save_df_to_path(df: pd.DataFrame, path: str, file: str) -> None:
+    file = os.path.join(path, file)
+    if not os.path.isfile(file):
+        df.to_csv(file, index=False)
+    else:
+        df.to_csv(file, mode='a', header=False, index=False)
+
+
 def check_valid_change(state: str, county: str, date_string: str,
                        dict1: Dict[str, float], dict2: Dict[str, float], type_: str) -> Tuple[bool, str]:
     """
