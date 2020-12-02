@@ -387,7 +387,7 @@ def parse_cases_responses_with_projectors(state: str, county: str, state_csv_dir
         most_recent_entry_copy = copy.deepcopy(most_recent_entry)
         for key in most_recent_entry.keys():
             if 'discrepancy' in key.lower() or 'unnamed' in key.lower() or 'rates' in key.lower() or \
-                    'covidperc' in key.lower() or 'demperc' in key.lower():
+                    'covidperc' in key.lower() or 'demperc' in key.lower() or 'other' in key.lower():
                 del most_recent_entry_copy[key]
         most_recent_entry = most_recent_entry_copy
     else:

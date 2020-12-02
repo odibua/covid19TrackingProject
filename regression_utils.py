@@ -348,8 +348,6 @@ def multilinear_reg(state_name: str, county_names: List[str], type: str,
         regression_info_dict['low_nrmse'], regression_info_dict['up_nrmse'] = low_nrmse, up_nrmse
         regression_info_dict['low_rmse'], regression_info_dict['up_rmse'] = low_rmse, up_rmse
 
-    import ipdb
-    ipdb.set_trace()
     regression_info_df = pd.DataFrame(regression_info_dict)
 
     predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(

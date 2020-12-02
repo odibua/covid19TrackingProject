@@ -500,8 +500,10 @@ def main(state_name: str, regression_type: str, corr_key: str,
          county_names: Union[str, List[str]] = None, mode: str = 'scrape'):
     # if isinstance(county_names, str) or county_names is None:
     #     county_name = county_names
-    if len(county_names) == 1:
-        county_name = county_names[0]
+
+    if isinstance(county_names, list):
+        if len(county_names) == 1:
+            county_name = county_names[0]
     else:
         county_name = county_names
 
@@ -577,16 +579,17 @@ if __name__ == "__main__":
                         'regressions')
 
     args = parser.parse_args()
-    if len(args.county) > 1:
-        main(
-            mode=args.mode,
-            state_name=args.state,
-            county_names=args.county,
-            regression_type=args.regression_type,
-            reg_key=args.reg_key,
-            corr_type=args.corr_type,
-            corr_key=args.corr_key,
-            ethnicity_list=args.ethnicity_list)
+    if isinstance(args.county, list):
+        if len(args.county) > 1:
+            main(
+                mode=args.mode,
+                state_name=args.state,
+                county_names=args.county,
+                regression_type=args.regression_type,
+                reg_key=args.reg_key,
+                corr_type=args.corr_type,
+                corr_key=args.corr_key,
+                ethnicity_list=args.ethnicity_list)
     else:
         if not args.all_counties_bool:
             main(
