@@ -67,3 +67,20 @@ DATES:
     NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/form/div[3]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[8]/td[4]
     OTHER_CASES: /html/body/form/div[3]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[9]/td[2]
     OTHER_DEATHS: /html/body/form/div[3]/div/section/div/div[2]/div[3]/div[1]/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/table/tbody/tr[9]/td[4]
+  '2020-08-16':
+    LATINO_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(2) > td:nth-child(2)
+    LATINO_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(2) > td:nth-child(4)
+    WHITE_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(3) > td:nth-child(2)
+    WHITE_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(3) > td:nth-child(4)
+    ASIAN_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(4) > td:nth-child(2)
+    ASIAN_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(4) > td:nth-child(4)
+    BLACK_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(5) > td:nth-child(2)
+    BLACK_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(5) > td:nth-child(4)
+    MULTI_RACE_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(6) > td:nth-child(2)
+    MULTI_RACE_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(6) > td:nth-child(4)
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(7) > td:nth-child(2)
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(7) > td:nth-child(4)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(8) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(8) > td:nth-child(4)
+    OTHER_CASES: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(9) > td:nth-child(2)
+    OTHER_DEATHS: div.ms-rtestate-field > div.NewsItemContent > table > tbody > tr:nth-child(9) > td:nth-child(4)

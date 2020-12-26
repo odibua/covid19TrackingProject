@@ -113,3 +113,34 @@ DATES:
       - 5
       - attributes
       - Cases
+  '2020-08-21':
+    WHITE_CASES:
+      - features
+      - 0
+      - attributes
+      - Cases
+    HISPANIC_CASES:
+      - features
+      - 1
+      - attributes
+      - Cases
+    ASIAN_CASES:
+      - features
+      - 3
+      - attributes
+      - Cases
+    BLACK_CASES:
+      - features
+      - 2
+      - attributes
+      - Cases
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES:
+      - features
+      - 4
+      - attributes
+      - Cases
+    AMERICAN_INDIAN_ALASKA_NATIVE:
+      - features
+      - 5
+      - attributes
+      - Cases

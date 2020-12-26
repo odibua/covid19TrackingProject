@@ -49,6 +49,8 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
             soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
             raw_data_file_html = soup.prettify()
             self.raw_data_lxml = etree.HTML(raw_data_file_html)
+            if len(self.raw_data_lxml.text.strip(' ')) == 1:
+                self.raw_data_lxml = soup
             self.cases_raw_bool = True
         except BaseException:
             pass
@@ -57,9 +59,13 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
         self.cases_yaml_keys_dict_keys_map = {
             'HISPANIC_CASES': 'hispanic',
             'WHITE_CASES': 'white',
+            'ASIAN_CASES': 'asian',
             'ASIAN_PACIFIC_ISLANDER_CASES': 'asian_pacific_islander',
             'NON_HISPANIC_CASES': 'non_hispanic',
-            'BLACK': 'black'}
+            'BLACK_CASES': 'black',
+            'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander',
+            'AMERICAN_INDIAN_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native',
+            }
         self.deaths_yaml_keys_dict_keys_map = None
 
     @property
@@ -67,7 +73,8 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
         """
         Return list of ethnicities contained in data gathered from pages
         """
-        return ['hispanic', "white", "asian_pacific_islander", "black", "non_hispanic"]
+        return ['hispanic', "white", "asian_pacific_islander", "black", "non_hispanic",
+                "Native Hawaiian/Pacific Islander", 'American Indian/Alaska Native', 'asian']
 
     @property
     def ethnicity_demographics(self) -> Dict[str, float]:
@@ -76,16 +83,18 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
 
         Obtained from here: census.gov/quickfacts/fact/table/sonomacountycalifornia,CA/PST045219
         """
-        return {'hispanic': 0.273, 'white': 0.629, 'black': 0.021,
-                'asian_pacific_islander': 0.05, 'non_hispanic': 0.062}
+        return {'hispanic': 0.273, 'white': 0.629, 'black': 0.021, 'asian': 0.046,
+                'asian_pacific_islander': 0.05, 'non_hispanic': 0.062, "Native Hawaiian/Pacific Islander": 0.004,
+                'American Indian/Alaska Native': 0.022}
 
     @property
     def map_acs_to_region_ethnicities(self) -> Dict[str, List[str]]:
         """
         Return dictionary that maps ACS ethnicities to region ethnicities defined by covid
         """
-        return {'hispanic': ['Hispanic'], 'white': ['White'], 'asian_pacific_islander': ['Asian', 'Native Hawaiian/Pacific Islander'], 'Black': ['Black'],
-                'non_hispanic': ['Black', 'American Indian/Alaska Native', 'Multi-Race', 'Native Hawaiian/Pacific Islander']}
+        return {'hispanic': ['Hispanic'], 'black': ['Black'], 'asian': ['Asian'], 'white': ['White'], 'asian_pacific_islander': ['Asian', 'Native Hawaiian/Pacific Islander'], 'Black': ['black'],
+                'non_hispanic': ['Black', 'American Indian/Alaska Native', 'Multi-Race', 'Native Hawaiian/Pacific Islander'], 'American Indian/Alaska Native': ['American Indian/Alaska Native'],
+                'Native Hawaiian/Pacific Islander': ['Native Hawaiian/Pacific Islander']}
 
     @property
     def total_population(self) -> int:

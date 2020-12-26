@@ -1,6 +1,7 @@
 # --------------------------
 # Standard Python Imports
 # --------------------------
+import datetime
 import json
 import logging
 import os
@@ -8,6 +9,8 @@ import os
 # --------------------------
 # Third Party Imports
 # --------------------------
+import numpy as np
+import pandas as pd
 from typing import Any, Dict, List, Tuple
 import yaml as yaml
 
@@ -198,13 +201,15 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
             if self.ethnicity_json_keys_map is not None:
                 self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict, self.total_deaths_int = self.santa_clara_get_cases_deaths_using_json(
                     raw_data_json=self.raw_data_deaths_json, total_raw_data_json=self.raw_data_totaldeaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, total_ethnicity_json_keys_map=self.totaldeaths_ethnicity_json_keys_map,
-                    yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_deaths_yaml_keys_dict_keys_map, valid_date_string=self.deaths_valid_date_string, total_valid_date_string=self.totaldeaths_valid_date_string)
+                    yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_deaths_yaml_keys_dict_keys_map, valid_date_string=self.deaths_valid_date_string, total_valid_date_string=self.totaldeaths_valid_date_string,
+                date_string=self.date_string)
                 return True
         return False
 
     @staticmethod
     def santa_clara_get_cases_deaths_using_json(raw_data_json: Dict[str, Any], total_raw_data_json: Dict[str, Any], ethnicity_json_keys_map: Dict[str, str],
-                                                total_ethnicity_json_keys_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], total_yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str, total_valid_date_string: str) -> Tuple[
+                                                total_ethnicity_json_keys_map: Dict[str, str], yaml_keys_dict_keys_map: Dict[str, str], total_yaml_keys_dict_keys_map: Dict[str, str], valid_date_string: str, total_valid_date_string: str,
+                                                date_string: str = None) -> Tuple[
             Dict[str, int], Dict[str, float], int]:
         """
         Get the case information from the raw_data_lxml using the ethnicity_xpath_map and yaml to dict keys mapping
@@ -227,8 +232,19 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
 
         logging.info(f"Use json from {total_valid_date_string} to construct total cases or deaths dictionary")
         key = list(total_yaml_keys_dict_keys_map.keys())[0]
-        total = float(utils_state_lib.get_json_element_int(
-            raw_data_json=total_raw_data_json, ethnicity_json_keys_list=total_ethnicity_json_keys_map[key]))
+        cur_date = datetime.datetime.strptime(date_string, '%Y-%m-%d')
+        if sum(['death' in key.lower() for key in ethnicity_json_keys_map.keys()]) > 0:
+            deaths_date_df = pd.read_csv('states/california/counties/santaclara/death_over_time.csv')
+            date_list = deaths_date_df['date'].tolist()
+            death_cnt_list = deaths_date_df['deaths'].tolist()
+            delta_day_list = [abs((datetime.datetime.strptime(date_, '%Y-%m-%d') - cur_date).days) for date_ in date_list]
+            if min(delta_day_list) <= 1:
+                min_idx = np.argmin(delta_day_list)
+                total = death_cnt_list[min_idx]
+            # total = deaths_date_df[deaths_date_df['date'] == date_string]['deaths']
+        else:
+            total = float(utils_state_lib.get_json_element_int(
+                raw_data_json=total_raw_data_json, ethnicity_json_keys_list=total_ethnicity_json_keys_map[key]))
 
         logging.info("Get cases or deaths that are each ethnicity based on known ethnicities")
         for key in ethnicity_percentages_dict.keys():

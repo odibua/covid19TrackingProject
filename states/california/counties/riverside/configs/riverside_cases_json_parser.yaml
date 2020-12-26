@@ -313,3 +313,75 @@ DATES:
       - 6
       - attributes
       - Cases
+  '2020-08-27':
+    MULTI_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Cases
+    WHITE_CASES:
+      - features
+      - 1
+      - attributes
+      - Cases
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES:
+      - features
+      - 4
+      - attributes
+      - Cases
+    BLACK_CASES:
+      - features
+      - 3
+      - attributes
+      - Cases
+    ASIAN_CASES:
+      - features
+      - 2
+      - attributes
+      - Cases
+    HISPANIC_LATINO_CASES:
+      - features
+      - 5
+      - attributes
+      - Cases
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES:
+      - features
+      - 6
+      - attributes
+      - Cases
+  '2020-11-03':
+    MULTI_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Cases
+    WHITE_CASES:
+      - features
+      - 2
+      - attributes
+      - Cases
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES:
+      - features
+      - 4
+      - attributes
+      - Cases
+    BLACK_CASES:
+      - features
+      - 3
+      - attributes
+      - Cases
+    ASIAN_CASES:
+      - features
+      - 1
+      - attributes
+      - Cases
+    HISPANIC_LATINO_CASES:
+      - features
+      - 5
+      - attributes
+      - Cases
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES:
+      - features
+      - 6
+      - attributes
+      - Cases

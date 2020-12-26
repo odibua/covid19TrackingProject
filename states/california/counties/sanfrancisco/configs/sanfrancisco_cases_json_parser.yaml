@@ -126,3 +126,130 @@ DATES:
       - 8
       - C
       - 2
+  '2020-08-22':
+    NATIVE_AMERICAN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 7
+      - C
+      - 2
+    OTHER_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 8
+      - C
+      - 2
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 6
+      - C
+      - 2
+    MULTI_RACE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 5
+      - C
+      - 2
+    BLACK_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 4
+      - C
+      - 2
+    ASIAN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 3
+      - C
+      - 2
+    UNKNOWN_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 2
+      - C
+      - 2
+    WHITE_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 1
+      - C
+      - 2
+    HISPANIC_CASES:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 0
+      - C
+      - 2

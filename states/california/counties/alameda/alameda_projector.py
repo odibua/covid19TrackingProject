@@ -53,6 +53,7 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
             self.ethnicity_json_keys_map = {**self.cases_ethnicity_json_keys_map, **self.deaths_ethnicity_json_keys_map}
 
             logging.info("Load raw json data")
+
             try:
                 cases_file_obj = open(raw_data_cases_file, 'r')
                 self.cases_raw_bool = True
@@ -66,6 +67,7 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
             try:
                 deaths_file_obj = open(raw_data_deaths_file, 'r')
                 self.deaths_raw_bool = True
+                self.raw_data_deaths_json = json.load(deaths_file_obj)
             except BaseException:
                 try:
                     deaths_file_obj = open(raw_data_deaths_file_html, 'r')
@@ -73,9 +75,15 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
                 except BaseException:
                     pass
 
-            self.raw_data_cases_json = json.load(cases_file_obj)
-            self.raw_data_deaths_json = json.load(deaths_file_obj)
+            try:
+                self.raw_data_cases_json = json.load(cases_file_obj)
+            except:
+                pass
 
+            try:
+                self.raw_data_deaths_json = json.load(deaths_file_obj)
+            except:
+                pass
             logging.info("Define yaml keys to dictionary maps for cases and deaths")
             self.cases_yaml_keys_dict_keys_map = {
                 'HISPANIC_LATINO_CASES': 'Hispanic',
