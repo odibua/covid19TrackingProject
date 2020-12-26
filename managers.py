@@ -331,6 +331,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     # Get earliest date for case files
     csv_file_list = os.listdir(csv_path)
     csv_file_list = [path.join(csv_path, csv_file) for csv_file in csv_file_list if 'case' in csv_file]
+
     earliest_date = utils_lib.get_earliest_date_string(csv_file_list=csv_file_list)
 
     # Get rate columns from csv file
@@ -355,6 +356,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     date_df = pd.to_datetime(rate_df['date'])
     rate_df['time'] = (date_df - earliest_date).dt.days
 
+
     # Load aggregated metadata data frame
     aggregated_processed_metadata_df = pd.read_csv(path.join(metadata_path, metadata_file), index_col=0)
 
@@ -369,10 +371,13 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         'ethnicity': []}
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
+
     for column in rate_df.keys():
         ethnicity = column.split('_rates')[0]
         if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
             rate_column_df = rate_df[column]
+            if sum(pd.isna(rate_column_df)) == len(rate_column_df):
+                continue
             demperc_column_df = dem_perc_df[f'{ethnicity}_demperc']
             covidperc_column_df = covid_perc_df[f'{ethnicity}_covidperc']
             discrep_column_df = discrep_df[f'{ethnicity}_discrepancy']
@@ -406,6 +411,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             for metadata_name in aggregated_processed_metadata_df.keys():
                 metadata_vals = aggregated_processed_metadata_df.loc[ethnicity, metadata_name]
                 training_data_dict[metadata_name].extend([metadata_vals] * len(rate_column_df.tolist()))
+
 
     # Detrend mortality rate
     X = np.zeros((len(training_data_dict['mortality_rate']), 1))
@@ -580,7 +586,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if isinstance(args.county, list):
-        if len(args.county) > 1:
+        if len(args.county) == 1:
             main(
                 mode=args.mode,
                 state_name=args.state,

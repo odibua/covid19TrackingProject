@@ -136,7 +136,6 @@ def get_earliest_date_string(csv_file_list: List[str]) -> str:
         else:
             if date < min_date:
                 min_date = date
-
     return min_date
 
 
@@ -243,6 +242,17 @@ def project_cases(state: str, county: str,
 
             demographic_percentages['date'] = date_string
             ethnicity_cases_percentages['date'] = date_string
+
+            for ethnicity in demographic_percentages.keys():
+                if ethnicity not in ethnicity_cases:
+                    ethnicity_cases[ethnicity] = float("nan")
+                if ethnicity not in ethnicity_cases_percentages:
+                    ethnicity_cases_percentages[ethnicity] = float("nan")
+                if ethnicity not in ethnicity_cases_rates:
+                    ethnicity_cases_rates[ethnicity] = float("nan")
+                if ethnicity not in ethnicity_cases_discrepancies:
+                    ethnicity_cases_discrepancies[ethnicity] = float("nan")
+
             other_key = [key for key in ethnicity_cases_percentages.keys() if 'other' in key.lower()]
             if len(other_key) > 0:
                 del ethnicity_cases_percentages[other_key[0]]
@@ -303,6 +313,17 @@ def project_deaths(state: str, county: str,
 
             demographic_percentages['date'] = date_string
             ethnicity_deaths_percentages['date'] = date_string
+
+            for ethnicity in demographic_percentages.keys():
+                if ethnicity not in ethnicity_deaths:
+                    ethnicity_deaths[ethnicity] = float("nan")
+                if ethnicity not in ethnicity_deaths_percentages:
+                    ethnicity_deaths_percentages[ethnicity] = float("nan")
+                if ethnicity not in ethnicity_deaths_rates:
+                    ethnicity_deaths_rates[ethnicity] = float("nan")
+                if ethnicity not in ethnicity_deaths_discrepancies:
+                    ethnicity_deaths_discrepancies[ethnicity] = float("nan")
+
             other_key = [key for key in ethnicity_deaths_percentages.keys() if 'other' in key.lower()]
             if len(other_key) > 0:
                 del ethnicity_deaths_percentages[other_key[0]]
@@ -437,10 +458,14 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
 
     logging.info(f"Get raw data dates if not already in the deathsdata frames.")
     raw_data_dates = os.listdir(raw_data_dir)
+
+
     raw_data_deaths_dates, raw_data_deaths_old_dates = filter_dates_from_df(
         date_list=raw_data_dates, df=state_county_deaths_df)
-    raw_data_deaths_dates.sort()
+
     raw_data_deaths_old_dates.sort()
+    raw_data_deaths_dates.sort()
+    raw_data_deaths_dates = [date_ for date_ in raw_data_deaths_dates if date_ > raw_data_deaths_old_dates[-1]]
 
     logging.info(f"Get case per ethnicity and case discrepancies for each ethnicity")
     if state_county_deaths_df is not None and len(state_county_deaths_df) > 0:
@@ -449,7 +474,7 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
         most_recent_entry_copy = copy.deepcopy(most_recent_entry)
         for key in most_recent_entry.keys():
             if 'discrepancy' in key.lower() or 'unnamed' in key.lower() or 'rates' in key.lower()\
-                    or 'covidperc' in key.lower() or 'demperc' in key.lower():
+                    or 'covidperc' in key.lower() or 'demperc' in key.lower() or 'other' in key.lower():
                 del most_recent_entry_copy[key]
         most_recent_entry = most_recent_entry_copy
     else:
@@ -585,6 +610,8 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
         elif process_func == 'total_per_1000':
             processed_metadata_df = _normalize_df_per_1000(df=processed_metadata_df, key=key)
             error_bool = processed_metadata_df[key] > 1000
+        elif process_func == 'identity':
+            pass
         else:
             raise ValueError(f'Processing of metadata function {process_func} not implemented')
 
@@ -664,6 +691,7 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
         state_ethnicity_cases_perc_df, state_demographic_perc_df = pd.DataFrame(
             state_ethnicity_cases_percentages_list), pd.DataFrame(state_demographic_percentages_list)
 
+
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
             state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))
         state_ethnicity_full_cases_df = state_ethnicity_full_cases_df.merge(
@@ -674,6 +702,16 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
             state_demographic_perc_df, left_on='date', right_on='date', suffixes=('', '_demperc'))
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{cases_csv_filename}")
+
+            ordered_cols = []
+            for col in old_state_county_df.keys():
+                if col in state_ethnicity_full_cases_df.keys():
+                    ordered_cols.append(col)
+            for col in state_ethnicity_full_cases_df.keys():
+                if col not in state_ethnicity_full_cases_df.keys():
+                    ordered_cols.append(col)
+            state_ethnicity_full_cases_df = state_ethnicity_full_cases_df[ordered_cols]
+
             change_df_key_bool = modify_df_with_old_df(old_df=old_state_county_df, new_df=state_ethnicity_full_cases_df)
             if len(old_state_county_df) > 0 and not change_df_key_bool:
                 state_ethnicity_full_cases_df.to_csv(f"{state_csv_dir}/{cases_csv_filename}", mode='a', index=False,
@@ -729,6 +767,16 @@ def run_ethnicity_to_death_csv(state_csv_dir: str, state_county_dir: str, state:
             state_demographic_perc_df, left_on='date', right_on='date', suffixes=('', '_demperc'))
         try:
             old_state_county_df = pd.read_csv(f"{state_csv_dir}/{deaths_csv_filename}")
+
+            ordered_cols = []
+            for col in old_state_county_df.keys():
+                if col in state_ethnicity_full_deaths_df.keys():
+                    ordered_cols.append(col)
+            for col in state_ethnicity_full_deaths_df.keys():
+                if col not in state_ethnicity_full_deaths_df.keys():
+                    ordered_cols.append(col)
+            state_ethnicity_full_deaths_df = state_ethnicity_full_deaths_df[ordered_cols]
+
             change_df_key_bool = modify_df_with_old_df(
                 old_df=old_state_county_df, new_df=state_ethnicity_full_deaths_df)
             if len(old_state_county_df) > 0 and not change_df_key_bool:
