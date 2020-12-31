@@ -1,0 +1,2 @@
+nrmse,rmse,state,county,train_state,train_county
+0.8175867104722607,0.49116718536878884,california,None,california,"sacramento,sonoma,imperial,sanfrancisco,riverside,alameda"

@@ -560,6 +560,8 @@ def add_commit_and_push(state_county_dir: str):
 def main(state_name: str, regression_type: str, corr_key: str,
          ethnicity_list: List[str], corr_type: str, reg_key: str, validate_state_name: str = None, validate_county_names: List[str] = [],
          county_names: Union[str, List[str]] = None, mode: str = 'scrape'):
+    # import ipdb
+    # ipdb.set_trace()
     if isinstance(county_names, list):
         if len(county_names) == 1:
             county_name = county_names[0]
@@ -650,7 +652,8 @@ if __name__ == "__main__":
                         'regressions')
     parser.add_argument('--validate_state_name', default='california', help='State on which validation will be run')
     parser.add_argument('--validate_county_names', default=[None], nargs='+', help='List of counties on which validation will be run')
-
+    # import ipdb
+    # ipdb.set_trace()
 
     args = parser.parse_args()
     if isinstance(args.county, list):
