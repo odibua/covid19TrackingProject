@@ -328,6 +328,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         csv_file = f'{state_name}_{county_name}_ethnicity_{type}.csv'
         training_file = f'{state_name}_{county_name}_training_{type}.csv'
 
+
     # Get earliest date for case files
     csv_file_list = os.listdir(csv_path)
     csv_file_list = [path.join(csv_path, csv_file) for csv_file in csv_file_list if 'case' in csv_file]
@@ -356,7 +357,6 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     date_df = pd.to_datetime(rate_df['date'])
     rate_df['time'] = (date_df - earliest_date).dt.days
 
-
     # Load aggregated metadata data frame
     aggregated_processed_metadata_df = pd.read_csv(path.join(metadata_path, metadata_file), index_col=0)
 
@@ -368,10 +368,12 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         'covid_perc': [],
         'dem_perc': [],
         'discrepancy': [],
-        'ethnicity': []}
+        'ethnicity': [],
+        'date': []}
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
-
+    import ipdb
+    # ipdb.set_trace()
     for column in rate_df.keys():
         ethnicity = column.split('_rates')[0]
         if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
@@ -383,6 +385,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             discrep_column_df = discrep_df[f'{ethnicity}_discrepancy']
 
             time_df = rate_df['time'][rate_column_df.notnull()]
+            date_df = rate_df['date'][rate_column_df.notnull()]
             demperc_column_df = demperc_column_df[rate_column_df.notnull()]
             covidperc_column_df = covidperc_column_df[rate_column_df.notnull()]
             discrep_column_df = discrep_column_df[rate_column_df.notnull()]
@@ -402,6 +405,9 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             training_data_dict['dem_perc'].extend(demperc_column_df.tolist())
             training_data_dict['discrepancy'].extend(discrep_column_df.tolist())
             training_data_dict['time'].extend(time_df[change_bool])
+            # import ipdb
+            # ipdb.set_trace()
+            training_data_dict['date'].extend(date_df[change_bool])
 
             # Fill in ethnicity for the region
             ethnicity_list = [ethnicity] * len(time_df[change_bool])
@@ -411,7 +417,6 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             for metadata_name in aggregated_processed_metadata_df.keys():
                 metadata_vals = aggregated_processed_metadata_df.loc[ethnicity, metadata_name]
                 training_data_dict[metadata_name].extend([metadata_vals] * len(rate_column_df.tolist()))
-
 
     # Detrend mortality rate
     X = np.zeros((len(training_data_dict['mortality_rate']), 1))
@@ -472,6 +477,7 @@ def regression_manager(state_name: str, type: str, validate_state_name: str, val
     else:
         raise ValueError(f'{regression_type} regression logic not implemented')
 
+
     regression_utils.save_regression_results(
         df=regression_results_df,
         pred_df=predictions_df,
@@ -479,12 +485,62 @@ def regression_manager(state_name: str, type: str, validate_state_name: str, val
         state_name=state_name,
         county_names=county_names,
         ethnicity_filter_list=ethnicity_filter_list,
+        fitted_model=fitted_model,
         regression_type=regression_type,
         reg_key=reg_key,
         validate_state_name=validate_state_name,
         validate_county_names=validate_county_names,
         val_info_df=val_info_df,
         val_predictions_df=val_predictions_df)
+
+
+def test_manager(state_name: str, type: str, validate_state_name: str, validate_county_names: List[str], ethnicity_filter_list: List[str], reg_key: str,
+                       county_names: Union[str, List[str]] = None, regression_type: str = 'multilinear') -> None:
+    if isinstance(county_names, str) or county_names is None:
+        county_names = [county_names]
+    if len(county_names) == 1:
+        metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_names[0], regression_type=regression_type, reg_key=reg_key,
+                                              ethnicity_filter_list=ethnicity_filter_list)
+    else:
+        metadata_filter = []
+
+    if regression_type in RegDefinitions.multilinear_list or regression_type in RegDefinitions.multilinear_ridge_list \
+            or regression_type in RegDefinitions.multilinear_lasso_list:
+        test_info_df, test_predictions_df = regression_utils.test_multilinear_regs(
+        state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter)
+    # elif regression_type in RegDefinitions.multilinear_ridge_list:
+    #     test_info_df, test_predictions_df = regression_utils.test_multilinear_ridge_lasso_reg(
+    #         state_name=state_name,
+    #         type=type,
+    #         county_names=county_names,
+    #         reg_key=reg_key,
+    #         regularizer_type='ridge',
+    #         ethnicity_filter_list=ethnicity_filter_list,
+    #         metadata_filter=metadata_filter,
+    #         validate_state_name=validate_state_name,
+    #         validate_county_names=validate_county_names)
+    # elif regression_type in RegDefinitions.multilinear_lasso_list:
+    #     test_info_df, test_predictions_df= regression_utils.test_multilinear_ridge_lasso_reg(
+    #         state_name=state_name,
+    #         type=type,
+    #         county_names=county_names,
+    #         reg_key=reg_key,
+    #         regularizer_type='lasso',
+    #         ethnicity_filter_list=ethnicity_filter_list,
+    #         metadata_filter=metadata_filter)
+    else:
+        raise ValueError(f'{regression_type} regression logic not implemented')
+
+
+    regression_utils.save_test_results(
+        test_pred_df=test_predictions_df,
+        type=type,
+        ethnicity_filter_list=ethnicity_filter_list,
+        regression_type=regression_type,
+        reg_key=reg_key,
+        test_state_name=validate_state_name,
+        test_county_names=validate_county_names,
+        test_info_df=test_info_df)
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -502,14 +558,13 @@ def add_commit_and_push(state_county_dir: str):
 
 
 def main(state_name: str, regression_type: str, corr_key: str,
-         ethnicity_list: List[str], corr_type: str, reg_key: str, validate_state_name: str = 'california', validate_county_names: List[str] = [None],
+         ethnicity_list: List[str], corr_type: str, reg_key: str, validate_state_name: str = None, validate_county_names: List[str] = [],
          county_names: Union[str, List[str]] = None, mode: str = 'scrape'):
-    # if isinstance(county_names, str) or county_names is None:
-    #     county_name = county_names
-
     if isinstance(county_names, list):
         if len(county_names) == 1:
             county_name = county_names[0]
+        else:
+            county_name = county_names
     else:
         county_name = county_names
 
@@ -561,6 +616,16 @@ def main(state_name: str, regression_type: str, corr_key: str,
             reg_key=reg_key,
             regression_type=regression_type,
             ethnicity_filter_list=ethnicity_list)
+    elif mode == 'test_case_model':
+        test_manager(
+            state_name=state_name,
+            county_names=county_name,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names,
+            type='deaths',
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
 
 
 if __name__ == "__main__":
@@ -583,6 +648,9 @@ if __name__ == "__main__":
         help='Boolean that states to run mode for state and all counties in state')
     parser.add_argument('--ethnicity_list', default=[], nargs='+', help='List ethnicities to be filtered when performing correlation or doing'
                         'regressions')
+    parser.add_argument('--validate_state_name', default='california', help='State on which validation will be run')
+    parser.add_argument('--validate_county_names', default=[None], nargs='+', help='List of counties on which validation will be run')
+
 
     args = parser.parse_args()
     if isinstance(args.county, list):
@@ -595,7 +663,23 @@ if __name__ == "__main__":
                 reg_key=args.reg_key,
                 corr_type=args.corr_type,
                 corr_key=args.corr_key,
-                ethnicity_list=args.ethnicity_list)
+                ethnicity_list=args.ethnicity_list,
+                validate_state_name=args.validate_state_name,
+                validate_county_names=args.validate_county_names
+            )
+        elif len(args.county) > 1:
+            main(
+                mode=args.mode,
+                state_name=args.state,
+                county_names=args.county,
+                regression_type=args.regression_type,
+                reg_key=args.reg_key,
+                corr_type=args.corr_type,
+                corr_key=args.corr_key,
+                ethnicity_list=args.ethnicity_list,
+                validate_state_name=args.validate_state_name,
+                validate_county_names=args.validate_county_names
+            )
     else:
         if not args.all_counties_bool:
             main(
@@ -606,7 +690,10 @@ if __name__ == "__main__":
                 reg_key=args.reg_key,
                 corr_type=args.corr_type,
                 corr_key=args.corr_key,
-                ethnicity_list=args.ethnicity_list)
+                ethnicity_list=args.ethnicity_list,
+                validate_state_name=args.validate_state_name,
+                validate_county_names=args.validate_county_names
+            )
         else:
             if not args.state_bool:
                 try:
@@ -618,7 +705,10 @@ if __name__ == "__main__":
                         reg_key=args.reg_key,
                         corr_type=args.corr_type,
                         corr_key=args.corr_key,
-                        ethnicity_list=args.ethnicity_list)
+                        ethnicity_list=args.ethnicity_list,
+                        validate_state_name=args.validate_state_name,
+                        validate_county_names=args.validate_county_names
+                    )
                 except Exception as e:
                     print(f'Exception occured for state: {args.state} and county: {args.county}')
                     print(f'Exception is {e.args}')
@@ -635,7 +725,10 @@ if __name__ == "__main__":
                             corr_type=args.corr_type,
                             corr_key=args.corr_key,
                             reg_key=args.reg_key,
-                            ethnicity_list=args.ethnicity_list)
+                            ethnicity_list=args.ethnicity_list,
+                            validate_state_name=args.validate_state_name,
+                            validate_county_names=args.validate_county_names
+                        )
                     except Exception as e:
                         print(f'Exception occured for state: {args.state} and county: {county}')
                         print(f'Exception is {e.args}')
