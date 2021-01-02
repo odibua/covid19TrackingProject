@@ -459,7 +459,6 @@ def parse_deaths_responses_with_projectors(state: str, county: str, state_csv_di
     logging.info(f"Get raw data dates if not already in the deathsdata frames.")
     raw_data_dates = os.listdir(raw_data_dir)
 
-
     raw_data_deaths_dates, raw_data_deaths_old_dates = filter_dates_from_df(
         date_list=raw_data_dates, df=state_county_deaths_df)
 
@@ -690,7 +689,6 @@ def run_ethnicity_to_case_csv(state_csv_dir: str, state_county_dir: str, state: 
             state_ethnicity_cases_rates_list), pd.DataFrame(state_ethnicity_cases_discrepancies_list)
         state_ethnicity_cases_perc_df, state_demographic_perc_df = pd.DataFrame(
             state_ethnicity_cases_percentages_list), pd.DataFrame(state_demographic_percentages_list)
-
 
         state_ethnicity_full_cases_df = state_ethnicity_cases_df.merge(
             state_ethnicity_cases_discrepancies_df, left_on='date', right_on='date', suffixes=('', '_discrepancy'))

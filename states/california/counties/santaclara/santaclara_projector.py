@@ -202,7 +202,7 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
                 self.ethnicity_deaths_dict, self.ethnicity_deaths_percentages_dict, self.total_deaths_int = self.santa_clara_get_cases_deaths_using_json(
                     raw_data_json=self.raw_data_deaths_json, total_raw_data_json=self.raw_data_totaldeaths_json, ethnicity_json_keys_map=self.ethnicity_json_keys_map, total_ethnicity_json_keys_map=self.totaldeaths_ethnicity_json_keys_map,
                     yaml_keys_dict_keys_map=self.deaths_yaml_keys_dict_keys_map, total_yaml_keys_dict_keys_map=self.totals_deaths_yaml_keys_dict_keys_map, valid_date_string=self.deaths_valid_date_string, total_valid_date_string=self.totaldeaths_valid_date_string,
-                date_string=self.date_string)
+                    date_string=self.date_string)
                 return True
         return False
 
@@ -237,7 +237,8 @@ class SantaClaraEthnicDataProjector(AlamedaEthnicDataProjector):
             deaths_date_df = pd.read_csv('states/california/counties/santaclara/death_over_time.csv')
             date_list = deaths_date_df['date'].tolist()
             death_cnt_list = deaths_date_df['deaths'].tolist()
-            delta_day_list = [abs((datetime.datetime.strptime(date_, '%Y-%m-%d') - cur_date).days) for date_ in date_list]
+            delta_day_list = [abs((datetime.datetime.strptime(date_, '%Y-%m-%d') - cur_date).days)
+                              for date_ in date_list]
             if min(delta_day_list) <= 1:
                 min_idx = np.argmin(delta_day_list)
                 total = death_cnt_list[min_idx]

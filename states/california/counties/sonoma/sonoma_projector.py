@@ -65,7 +65,7 @@ class SonomaEthnicDataProjector(CaliforniaEthnicDataProjector):
             'BLACK_CASES': 'black',
             'NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES': 'Native Hawaiian/Pacific Islander',
             'AMERICAN_INDIAN_ALASKA_NATIVE_CASES': 'American Indian/Alaska Native',
-            }
+        }
         self.deaths_yaml_keys_dict_keys_map = None
 
     @property

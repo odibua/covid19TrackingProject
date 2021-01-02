@@ -379,7 +379,6 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         csv_file = f'{state_name}_{county_name}_ethnicity_{type}.csv'
         training_file = f'{state_name}_{county_name}_training_{type}.csv'
 
-
     # Get earliest date for case files
     csv_file_list = os.listdir(csv_path)
     csv_file_list = [path.join(csv_path, csv_file) for csv_file in csv_file_list if 'case' in csv_file]
@@ -512,7 +511,7 @@ def regression_manager(state_name: str, type: str, validate_state_name: str, val
     if regression_type in RegDefinitions.multilinear_list:
         regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.multilinear_reg(
             state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter,
-        validate_state_name=validate_state_name, validate_county_names=validate_county_names)
+            validate_state_name=validate_state_name, validate_county_names=validate_county_names)
     elif regression_type in RegDefinitions.multilinear_ridge_list:
         regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.multilinear_ridge_lasso_reg(
             state_name=state_name,
@@ -565,7 +564,7 @@ def regression_manager(state_name: str, type: str, validate_state_name: str, val
 
 
 def test_manager(state_name: str, county_names: List[str], type: str, validate_state_name: str, validate_county_names: List[str], ethnicity_filter_list: List[str], reg_key: str,
-                       test_state_name: str, test_county_names: List[str], regression_type: str = 'multilinear') -> None:
+                 test_state_name: str, test_county_names: List[str], regression_type: str = 'multilinear') -> None:
     """
     Runs saved models on test state/counties and store the results
 
@@ -591,11 +590,10 @@ def test_manager(state_name: str, county_names: List[str], type: str, validate_s
     if regression_type in RegDefinitions.multilinear_list or regression_type in RegDefinitions.multilinear_ridge_list \
             or regression_type in RegDefinitions.multilinear_lasso_list:
         test_info_df, test_predictions_df = regression_utils.test_multilinear_regs(
-        state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, validate_state_name=validate_state_name, validate_county_names=validate_county_names,
+            state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, validate_state_name=validate_state_name, validate_county_names=validate_county_names,
             test_state_name=test_state_name, test_county_names=test_county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter, regression_type=regression_type)
     else:
         raise ValueError(f'{regression_type} regression logic not implemented')
-
 
     regression_utils.save_test_results(
         state_name=state_name,
@@ -750,7 +748,11 @@ if __name__ == "__main__":
     parser.add_argument('--ethnicity_list', default=[], nargs='+', help='List ethnicities to be filtered when performing correlation or doing'
                         'regressions')
     parser.add_argument('--validate_state_name', default=None, help='State on which validation will be run')
-    parser.add_argument('--validate_county_names', default=[None], nargs='+', help='List of counties on which validation will be run')
+    parser.add_argument(
+        '--validate_county_names',
+        default=[None],
+        nargs='+',
+        help='List of counties on which validation will be run')
     parser.add_argument('--test_state_name', default=None, help='State on which test will be run')
     parser.add_argument('--test_county_names', default=[None], nargs='+', help='List of counties on test will be run')
 

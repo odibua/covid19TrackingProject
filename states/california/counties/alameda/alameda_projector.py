@@ -77,12 +77,12 @@ class AlamedaEthnicDataProjector(EthnicDataProjector):
 
             try:
                 self.raw_data_cases_json = json.load(cases_file_obj)
-            except:
+            except BaseException:
                 pass
 
             try:
                 self.raw_data_deaths_json = json.load(deaths_file_obj)
-            except:
+            except BaseException:
                 pass
             logging.info("Define yaml keys to dictionary maps for cases and deaths")
             self.cases_yaml_keys_dict_keys_map = {

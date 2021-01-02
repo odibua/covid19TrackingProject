@@ -1,6 +1,7 @@
 # --------------------------
 # Standard Python Imports
 # --------------------------
+import ipdb
 import datetime
 import json
 import os
@@ -20,7 +21,6 @@ import yaml as yaml
 santaclara_raw_data_dir = 'states/california/counties/santaclara/raw_data'
 santaclara_config_file = 'states/california/counties/santaclara/configs/santaclara_timeseries_deaths.yaml'
 
-import ipdb
 ipdb.set_trace()
 raw_data_dates = os.listdir(santaclara_raw_data_dir)
 config_file_obj = open(santaclara_config_file)
@@ -46,8 +46,5 @@ for death in death_list:
         results_dict['date'].append(date)
         results_dict['deaths'].append(num_deaths)
 results_df = pd.DataFrame(results_dict)
-import ipdb
 ipdb.set_trace()
 results_df.to_csv('states/california/counties/santaclara/death_over_time.csv')
-
-

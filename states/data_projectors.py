@@ -210,7 +210,7 @@ class EthnicDataProjector(ABC):
                             element = raw_data_lxml.xpath(ethnicity_xpath_map[key])
                         ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_element_int(
                             element=element)
-            except:
+            except BaseException:
                 pass
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils_state_lib.get_total(numerical_dict=ethnicity_dict)
