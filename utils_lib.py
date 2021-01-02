@@ -30,13 +30,13 @@ def create_dir_if_not_exists(dir: str) -> None:
         os.makedirs(dir)
 
 
-def create_files_name_with_ethnicity(file: str, ethnicity_filter_list: List[str]) -> str:
+def create_files_name_with_ethnicity(file: str, ethnicity_filter_list: List[str], ext: str = 'csv') -> str:
     if len(ethnicity_filter_list) == 0:
-        file = f'{file}.csv'
+        file = f'{file}.{ext}'
     else:
         for ethnicity in ethnicity_filter_list:
             file = f'{file}_{ethnicity}'
-        file = f'{file}.csv'
+        file = f'{file}.{ext}'
     return file
 
 
