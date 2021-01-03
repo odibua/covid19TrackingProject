@@ -75,17 +75,47 @@ DATES:
     OTHER_CASES: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[6]/tr[7]/td[2]
     OTHER_DEATHS: /html/body/div[2]/div[2]/div[2]/table[1]/tbody[8]/tr[7]/td[2]
   '2020-08-12':
-    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[1]/td[2]
-    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[1]/td[2]
-    ASIAN_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[2]/td[2]
-    ASIAN_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[2]/td[2]
-    BLACK_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[3]/td[2]
-    BLACK_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[3]/td[2]
-    HISPANIC_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[4]/td[2]
-    HISPANIC_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[4]/td[2]
-    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[5]/td[2]
-    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[5]/td[2]
-    WHITE_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[6]/td[2]
-    WHITE_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[6]/td[2]
-    OTHER_CASES: /html/body/div[2]/div/div[2]/table[1]/tbody[6]/tr[7]/td[2]
-    OTHER_DEATHS: /html/body/div[2]/div/div[2]/table[1]/tbody[8]/tr[7]/td[2]
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(1) > td:nth-child(2)
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(1) > td:nth-child(2)
+    ASIAN_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(2) > td:nth-child(2)
+    ASIAN_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(2) > td:nth-child(2)
+    BLACK_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(3) > td:nth-child(2)
+    BLACK_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(3) > td:nth-child(2)
+    HISPANIC_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(4) > td:nth-child(2)
+    HISPANIC_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(4) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(5) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(5) > td:nth-child(2)
+    WHITE_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(6) > td:nth-child(2)
+    WHITE_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(6) > td:nth-child(2)
+    OTHER_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(7) > td:nth-child(2)
+    OTHER_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(7) > td:nth-child(2)
+  '2020-09-18':
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(1) > td:nth-child(2)
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(1) > td:nth-child(2)
+    ASIAN_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(2) > td:nth-child(2)
+    ASIAN_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(2) > td:nth-child(2)
+    BLACK_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(3) > td:nth-child(2)
+    BLACK_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(3) > td:nth-child(2)
+    HISPANIC_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(4) > td:nth-child(2)
+    HISPANIC_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(4) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(5) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(5) > td:nth-child(2)
+    WHITE_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(6) > td:nth-child(2)
+    WHITE_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(6) > td:nth-child(2)
+    OTHER_CASES: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(12) > tr:nth-child(7) > td:nth-child(2)
+    OTHER_DEATHS: div:nth-child(1) > table:nth-child(4) > tbody:nth-child(16) > tr:nth-child(7) > td:nth-child(2)
+  '2020-09-21':
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(1) > td:nth-child(2)
+    AMERICAN_INDIAN_ALASKA_NATIVE_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(1) > td:nth-child(2)
+    ASIAN_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(2) > td:nth-child(2)
+    ASIAN_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(2) > td:nth-child(2)
+    BLACK_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(3) > td:nth-child(2)
+    BLACK_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(3) > td:nth-child(2)
+    HISPANIC_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(4) > td:nth-child(2)
+    HISPANIC_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(4) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(5) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(5) > td:nth-child(2)
+    WHITE_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(6) > td:nth-child(2)
+    WHITE_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(6) > td:nth-child(2)
+    OTHER_CASES: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(12) > tr:nth-child(7) > td:nth-child(2)
+    OTHER_DEATHS: div:nth-child(1) > div:nth-child(3) > div > div > table:nth-child(1) > tbody:nth-child(16) > tr:nth-child(7) > td:nth-child(2)

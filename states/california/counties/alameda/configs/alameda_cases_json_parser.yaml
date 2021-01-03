@@ -40,6 +40,47 @@ DATES:
       - 0
       - attributes
       - Unknown_Race
+  '2020-07-15':
+    HISPANIC_LATINO_CASES:
+      - features
+      - 0
+      - attributes
+      - Hispanic_Latino
+    ASIAN_CASES:
+      - features
+      - 0
+      - attributes
+      - Asian
+    BLACK_CASES:
+      - features
+      - 0
+      - attributes
+      - African_American_Black
+    WHITE_CASES:
+      - features
+      - 0
+      - attributes
+      - White
+    PACIFIC_ISLANDER_CASES:
+      - features
+      - 0
+      - attributes
+      - Pacific_Islander
+    NATIVE_AMERICAN_CASES:
+      - features
+      - 0
+      - attributes
+      - Native_American
+    MULTI_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Multirace
+    UNKNOWN_RACE_CASES:
+      - features
+      - 0
+      - attributes
+      - Unknown_Race
   '2020-08-14':
     HISPANIC_LATINO_CASES:
       - results

@@ -9,6 +9,7 @@ from lxml import etree
 # --------------------------
 # Third Party Imports
 # --------------------------
+import bs4
 from typing import Any, Dict, List, Tuple
 import yaml as yaml
 
@@ -200,11 +201,17 @@ class EthnicDataProjector(ABC):
         logging.info(f"Use xpaths from {valid_date_string} to construct cases or deaths dictionary")
         ethnicity_dict, ethnicity_percentages_dict = {}, {}
         for key in yaml_keys_dict_keys_map.keys():
-            if 'other' not in key.lower():
-                if key in ethnicity_xpath_map:
-                    ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_element_int(
-                        element=raw_data_lxml.xpath(ethnicity_xpath_map[key]))
-
+            try:
+                if 'other' not in key.lower():
+                    if key in ethnicity_xpath_map:
+                        if isinstance(raw_data_lxml, bs4.BeautifulSoup):
+                            element = raw_data_lxml.select(ethnicity_xpath_map[key])
+                        else:
+                            element = raw_data_lxml.xpath(ethnicity_xpath_map[key])
+                        ethnicity_dict[yaml_keys_dict_keys_map[key]] = utils_state_lib.get_element_int(
+                            element=element)
+            except BaseException:
+                pass
         logging.info("Get percentage of cases or deaths that are each ethnicity based on known ethnicities")
         total = utils_state_lib.get_total(numerical_dict=ethnicity_dict)
         for key in ethnicity_dict.keys():

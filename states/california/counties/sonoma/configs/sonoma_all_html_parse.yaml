@@ -34,3 +34,22 @@ DATES:
     HISPANIC_CASES: /html/body/div[1]/div[4]/div/div/div/div/div[5]/div[1]/div/div/div[4]/div/table/tbody/tr[4]/td[1]
     WHITE_CASES: /html/body/div[1]/div[4]/div/div/div/div/div[5]/div[1]/div/div/div[4]/div/table/tbody/tr[1]/td[1]
     NON_HISPANIC_CASES: /html/body/div[1]/div[4]/div/div/div/div/div[5]/div[1]/div/div/div[4]/div/table/tbody/tr[2]/td[1]
+  '2020-08-12':
+    ASIAN_PACIFIC_ISLANDER_CASES: div > div.grve-container > div > div > div > div > div:nth-child(6) > div.grve-container > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(3) > td:nth-child(2)
+    HISPANIC_CASES: div > div.grve-container > div > div > div > div > div:nth-child(6) > div.grve-container > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(4) > td:nth-child(2)
+    WHITE_CASES: div > div.grve-container > div > div > div > div > div:nth-child(6) > div.grve-container > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(1) > td:nth-child(2)
+    NON_HISPANIC_CASES: div > div.grve-container > div > div > div > div > div:nth-child(6) > div.grve-container > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(2) > td:nth-child(2)
+  '2020-08-13':
+    ASIAN_PACIFIC_ISLANDER_CASES: div:nth-child(4) > div.grve-container > div > div > div:nth-child(5) > div > table > tbody > tr:nth-child(3) > td:nth-child(2)
+    HISPANIC_CASES: div:nth-child(4) > div.grve-container > div > div > div:nth-child(5) > div > table > tbody > tr:nth-child(1) > td:nth-child(2)
+    WHITE_CASES: div:nth-child(4) > div.grve-container > div > div > div:nth-child(5) > div > table > tbody > tr:nth-child(2) > td:nth-child(2)
+    BLACK_CASES: div:nth-child(4) > div.grve-container > div > div > div:nth-child(5) > div > table > tbody > tr:nth-child(5) > td:nth-child(2)
+    MULTI_RACE_CASES: div:nth-child(4) > div.grve-container > div > div > div:nth-child(5) > div > table > tbody > tr:nth-child(4) > td:nth-child(2)
+  '2020-11-03':
+    ASIAN_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(3) > td:nth-child(2)
+    HISPANIC_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(1) > td:nth-child(2)
+    WHITE_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2)
+    BLACK_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(5) > td:nth-child(2)
+    MULTI_RACE_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(4) > td:nth-child(2)
+    AMERICAN_INDIAN_ALASKA_NATIVE_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(6) > td:nth-child(2)
+    NATIVE_HAWAIIAN_PACIFIC_ISLANDER_CASES: div:nth-child(8) > div.grve-container > div > div > div > div > table > tbody > tr:nth-child(7) > td:nth-child(2)

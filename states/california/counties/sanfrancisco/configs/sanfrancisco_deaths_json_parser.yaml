@@ -269,78 +269,8 @@ DATES:
       - 4
       - C
       - 1
-  '2020-08-06':
+  '2020-08-22':
     MULTI_RACE_DEATHS:
-      - results
-      - 0
-      - result
-      - data
-      - dsr
-      - DS
-      - 0
-      - PH
-      - 0
-      - DM0
-      - 0
-      - C
-      - 1
-    UNKNOWN_DEATHS:
-      - results
-      - 0
-      - result
-      - data
-      - dsr
-      - DS
-      - 0
-      - PH
-      - 0
-      - DM0
-      - 1
-      - C
-      - 1
-    BLACK_DEATHS:
-      - results
-      - 0
-      - result
-      - data
-      - dsr
-      - DS
-      - 0
-      - PH
-      - 0
-      - DM0
-      - 2
-      - C
-      - 1
-    HISPANIC_DEATHS:
-      - results
-      - 0
-      - result
-      - data
-      - dsr
-      - DS
-      - 0
-      - PH
-      - 0
-      - DM0
-      - 4
-      - C
-      - 1
-    WHITE_DEATHS:
-      - results
-      - 0
-      - result
-      - data
-      - dsr
-      - DS
-      - 0
-      - PH
-      - 0
-      - DM0
-      - 3
-      - C
-      - 1
-    ASIAN_DEATHS:
       - results
       - 0
       - result
@@ -353,4 +283,131 @@ DATES:
       - DM0
       - 5
       - C
+      - 2
+    BLACK_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 3
+      - C
+      - 2
+    HISPANIC_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
       - 1
+      - C
+      - 2
+    WHITE_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 2
+      - C
+      - 2
+    ASIAN_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 0
+      - C
+      - 2
+  '2020-10-14':
+    MULTI_RACE_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 5
+      - C
+      - 2
+    BLACK_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 4
+      - C
+      - 2
+    HISPANIC_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 1
+      - C
+      - 2
+    WHITE_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 2
+      - C
+      - 2
+    ASIAN_DEATHS:
+      - results
+      - 0
+      - result
+      - data
+      - dsr
+      - DS
+      - 0
+      - PH
+      - 0
+      - DM0
+      - 0
+      - C
+      - 2

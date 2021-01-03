@@ -2,24 +2,97 @@
 # Standard Python Imports
 # --------------------------
 import argparse
+import copy
 import datetime
 import logging
 import os
 from os import path
 import subprocess as cmd
-from typing import List, Tuple
-import warnings
+from typing import Dict, List, Tuple, Union
 
 # --------------------------
 # Third Party Imports
 # --------------------------
+import numpy as np
 import pandas as pd
-import yaml as yaml
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
+import correlation_utils
+import regression_utils
 import utils_lib
+
+
+class RegDefinitions:
+    reg_list = ['multilinear', 'multilinear_ridge', 'multilinear_lasso', 'gp']
+    spearman_reg_list = ['multilinear_spearman', 'multilinear_ridge_spearman', 'multilinear_lasso_spearman']
+    dist_reg_list = ['multilinear_distance_corr', 'multilinear_ridge_distance_corr', 'multilinear_lasso_distance_corr']
+
+    multilinear_list = ['multilinear', 'multilinear_spearman', 'multilinear_distance_corr']
+    multilinear_ridge_list = ['multilinear_ridge', 'multilinear_ridge_spearman', 'multilinear_ridge_distance_corr']
+    multilinear_lasso_list = ['multilinear_lasso', 'multilinear_lasso_spearman', 'multilinear_lasso_distance_corr']
+    gp_list = ['gp']
+
+
+def filter_empty_list(dict: Dict[str, List[Union[float, str]]]) -> None:
+    copy_dict = copy.deepcopy(dict)
+    for key in copy_dict.keys():
+        if len(copy_dict[key]) == 0:
+            del dict[key]
+
+
+def get_metadata_filter(type: str, state_name: str, county_name: str, regression_type: str,
+                        reg_key: str, ethnicity_filter_list: List[str]) -> List[str]:
+    """
+    Get fields that will be used to filter metadata values for the purpose of regression
+
+    type: Type of covid quantity ('cases' or 'deaths') analysis will be done on
+    state_name: State for which metadata filter is run
+    county_name: County for which metadata filter is run
+    regression_type: Type of regression for which filtering will be done
+    reg_key: Quantity for which filtering will be done
+    ethnicity_filter_list: Ethnicities for which metadata will be filtered
+
+    Returns:
+        metadata_filter: List of metadata to be filtered out of metadata for regression
+    """
+
+    metadata_filter = []
+    ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
+    if regression_type in RegDefinitions.reg_list:
+        return metadata_filter
+
+    if regression_type in RegDefinitions.spearman_reg_list:
+        corr_type = 'spearman'
+    elif regression_type in RegDefinitions.dist_reg_list:
+        corr_type = 'distance_corr'
+    else:
+        raise ValueError(f'{regression_type} not valid')
+
+    correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
+    if len(ethnicity_filter_list) == 0:
+        results_file = f'{type}_{reg_key}_{corr_type}_corr_results.csv'
+    else:
+        results_file = f'{type}_{reg_key}_{corr_type}_corr_results'
+        for ethnicity in ethnicity_filter_list:
+            results_file = f'{results_file}_{ethnicity}'
+        results_file = f'{results_file}.csv'
+    correlation_results_file = path.join(correlation_results_path, results_file)
+    correlation_df = pd.read_csv(correlation_results_file)
+
+    state_bool_list = (correlation_df['state'] == state_name).tolist()
+    if county_name is None:
+        county_bool_list = correlation_df['county'].isna().tolist()
+    else:
+        county_bool_list = (correlation_df['county'] == county_name).tolist()
+    keep_bool = state_bool_list and county_bool_list
+    correlation_df = correlation_df[keep_bool]
+    metadata_filter = correlation_df['X'].tolist()
+
+    return metadata_filter
 
 
 def get_responses_from_config_files_in_dir(config_dir: str) -> Tuple[List[str], List[str], str]:
@@ -76,6 +149,14 @@ def scrape_manager(state_name: str, county_name: str = None) -> None:
 
 
 def case_parser_manager(state_name: str, county_name: str = None) -> None:
+    """
+    Parse raw covid casefiles to obtain csvs that contain both case counts, and processed
+    values such as discrepancy and mortality rate
+
+    Arguments:
+        state_name: State for which cases will be parsed
+        county_name: County for which cases will be passed
+    """
     state_csv_dir = os.path.join('states', state_name, 'csvs')
     if not os.path.isdir(state_csv_dir):
         os.makedirs(state_csv_dir)
@@ -104,6 +185,14 @@ def case_parser_manager(state_name: str, county_name: str = None) -> None:
 
 
 def death_parser_manager(state_name: str, county_name: str = None) -> None:
+    """
+    Parse raw covid death files to obtain csvs that contain both case counts, and processed
+    values such as discrepancy and mortality rate
+
+    Arguments:
+        state_name: State for which deaths will be parsed
+        county_name: County for which deaths will be passed
+    """
     state_csv_dir = os.path.join('states', state_name, 'csvs')
     if not os.path.isdir(state_csv_dir):
         os.makedirs(state_csv_dir)
@@ -190,7 +279,91 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
         data_suffix='aggregated_processed_metadata')
 
 
+def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
+                        ethnicity_filter_list: List = [], county_name: str = None) -> None:
+    """
+    Runs correlation between metadata of different ethnicities and a quantity (such as mortality rate,
+    discrepancy, etc....)
+
+    state_name: State for which correlation is run
+    type: Type of quantity for which correlation will be run ('cases' or 'deaths')
+    key: Value for which correlation will be run (like discrepancy etc..)
+    corr_type: Type of correlation to be run
+    ethnicity_filter_list: List of ethnicities for which correlation between metadata and key value will be run
+    county_name: County for which correlation is run
+    """
+    # Define path and file for training data
+    training_csv_path = path.join('states', state_name, 'training_data_csvs')
+    correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
+
+    if county_name is None:
+        training_file = f'{state_name}_training_{type}.csv'
+    else:
+        training_file = f'{state_name}_{county_name}_training_{type}.csv'
+
+    training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
+
+    # Filter to specific ethnicities
+    if len(ethnicity_filter_list) > 0:
+        ethnicity_filter_list = [ethnicity.lower() for ethnicity in ethnicity_filter_list]
+        ethnicities = training_data_df['ethnicity'].str.lower().tolist()
+        ethnicity_bool = [True if ethnicity.lower() in ethnicity_filter_list else False for ethnicity in ethnicities]
+        training_data_df = training_data_df[ethnicity_bool]
+    Y = np.array(training_data_df[key].tolist())
+
+    keys_to_filter = [
+        'time',
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity']
+    corr_keys = [feat_key for feat_key in training_data_df.keys() if feat_key not in keys_to_filter]
+
+    corr_dict = {'corr': [], 'Y': [], 'X': [], 'p_val': [], 'state': [], 'county': [], 'n': []}
+
+    for corr_key in corr_keys:
+        X = np.array(training_data_df[corr_key].tolist())
+        if corr_type == 'spearman':
+            correlation_utils.populate_spearman_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key, state=state_name, county=county_name, n=len(Y),
+                                                          X=X, Y=Y)
+        elif corr_type == 'distance_corr':
+            correlation_utils.populate_dist_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key,
+                                                      state=state_name, county=county_name, n=len(Y),
+                                                      X=X, Y=Y)
+    filter_empty_list(dict=corr_dict)
+    corr_df = pd.DataFrame(corr_dict)
+
+    if len(corr_df) > 0:
+        if len(ethnicity_filter_list) == 0:
+            results_file = f'{type}_{key}_{corr_type}_corr_results.csv'
+        else:
+            results_file = f'{type}_{key}_{corr_type}_corr_results'
+            for ethnicity in ethnicity_filter_list:
+                results_file = f'{results_file}_{ethnicity}'
+            results_file = f'{results_file}.csv'
+        correlation_results_file = path.join(correlation_results_path, results_file)
+        if not os.path.exists(correlation_results_path):
+            os.makedirs(correlation_results_path)
+
+        if not os.path.isfile(correlation_results_file):
+            corr_df.to_csv(correlation_results_file, index=False)
+        else:
+            corr_df.to_csv(correlation_results_file, header=False, mode='a', index=False)
+
+
 def training_data_manager(state_name: str, type: str, county_name: str = None) -> None:
+    """
+    Manager that trains a regression model for 'case' or 'death' quantities and stores
+    the resulting errors and predictions. It calls the regression manager
+
+    Arguments:
+        state_name: State for which training will be done
+        type: Type of quantity for which training will be done ('cases' or 'deaths')
+        county_name: County for which training will be done
+    """
     logging.info(f"Create raw data and config directory for state: {state_name} county: {county_name}")
     # Define paths and files containing region covid case rates data
     # and metadata
@@ -209,6 +382,7 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     # Get earliest date for case files
     csv_file_list = os.listdir(csv_path)
     csv_file_list = [path.join(csv_path, csv_file) for csv_file in csv_file_list if 'case' in csv_file]
+
     earliest_date = utils_lib.get_earliest_date_string(csv_file_list=csv_file_list)
 
     # Get rate columns from csv file
@@ -216,6 +390,18 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     columns = csv_df.keys()
     rate_columns = [column for column in columns if 'rates' in column or column == 'date']
     rate_df = csv_df[rate_columns]
+
+    # Get covid percentages
+    covid_perc_columns = [column for column in columns if 'covidperc' in column or column == 'date']
+    covid_perc_df = csv_df[covid_perc_columns]
+
+    # Get demographic percentages
+    dem_perc_columns = [column for column in columns if 'demperc' in column or column == 'date']
+    dem_perc_df = csv_df[dem_perc_columns]
+
+    # Get discrepancy
+    discrep_columns = [column for column in columns if 'discrepancy' in column or column == 'date']
+    discrep_df = csv_df[discrep_columns]
 
     # Add time column that is based on days
     date_df = pd.to_datetime(rate_df['date'])
@@ -226,31 +412,202 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
 
     # Get columns that have values that unique values for mortality rates
     # and store them in a dictionary along with relevant regional features
-    training_data_dict = {'mortality_rate': [], 'time': []}
+    training_data_dict = {
+        'mortality_rate': [],
+        'time': [],
+        'covid_perc': [],
+        'dem_perc': [],
+        'discrepancy': [],
+        'ethnicity': [],
+        'date': []}
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
     for column in rate_df.keys():
         ethnicity = column.split('_rates')[0]
         if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
-            column_df = rate_df[column]
-            delta_df = column_df[1:].subtract(column_df[0:-1].tolist())
+            rate_column_df = rate_df[column]
+            if sum(pd.isna(rate_column_df)) == len(rate_column_df):
+                continue
+            demperc_column_df = dem_perc_df[f'{ethnicity}_demperc']
+            covidperc_column_df = covid_perc_df[f'{ethnicity}_covidperc']
+            discrep_column_df = discrep_df[f'{ethnicity}_discrepancy']
+
+            time_df = rate_df['time'][rate_column_df.notnull()]
+            date_df = rate_df['date'][rate_column_df.notnull()]
+            demperc_column_df = demperc_column_df[rate_column_df.notnull()]
+            covidperc_column_df = covidperc_column_df[rate_column_df.notnull()]
+            discrep_column_df = discrep_column_df[rate_column_df.notnull()]
+            rate_column_df = rate_column_df[rate_column_df.notnull()]
+
+            delta_df = rate_column_df[1:].subtract(rate_column_df[0:-1].tolist())
+
             change_bool = (delta_df.abs() > 0).tolist()
             change_bool = [True] + change_bool
-            column_df = column_df[change_bool]
+            rate_column_df = rate_column_df[change_bool]
+            demperc_column_df = demperc_column_df[change_bool]
+            covidperc_column_df = covidperc_column_df[change_bool]
+            discrep_column_df = discrep_column_df[change_bool]
 
-            training_data_dict['mortality_rate'].extend(column_df.tolist())
-            training_data_dict['time'].extend(rate_df['time'][change_bool])
+            training_data_dict['mortality_rate'].extend(rate_column_df.tolist())
+            training_data_dict['covid_perc'].extend(covidperc_column_df.tolist())
+            training_data_dict['dem_perc'].extend(demperc_column_df.tolist())
+            training_data_dict['discrepancy'].extend(discrep_column_df.tolist())
+            training_data_dict['time'].extend(time_df[change_bool])
+
+            training_data_dict['date'].extend(date_df[change_bool])
+
+            # Fill in ethnicity for the region
+            ethnicity_list = [ethnicity] * len(time_df[change_bool])
+            training_data_dict['ethnicity'].extend(ethnicity_list)
 
             # Fill in metadata for the region
             for metadata_name in aggregated_processed_metadata_df.keys():
                 metadata_vals = aggregated_processed_metadata_df.loc[ethnicity, metadata_name]
-                training_data_dict[metadata_name].extend([metadata_vals] * len(column_df.tolist()))
+                training_data_dict[metadata_name].extend([metadata_vals] * len(rate_column_df.tolist()))
+
+    # Detrend mortality rate
+    X = np.zeros((len(training_data_dict['mortality_rate']), 1))
+    X[:, 0] = training_data_dict['time']
+    Y = np.array(training_data_dict['mortality_rate']).reshape((-1, 1))
+    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+    gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
+    gp.fit(X, Y)
+    y_pred, _ = gp.predict(X, return_std=True)
+    detrended_mortality_rate = np.array(training_data_dict['mortality_rate']).reshape((-1, 1)) - y_pred
+    training_data_dict['detrended_mortality_rate'] = list(detrended_mortality_rate[:, 0])
+    training_data_dict['y_pred'] = list(y_pred[:, 0])
+
     training_data_df = pd.DataFrame(training_data_dict)
 
     if not os.path.exists(training_csv_path):
         os.mkdir(training_csv_path)
 
     training_data_df.to_csv(path.join(training_csv_path, training_file))
+
+
+def regression_manager(state_name: str, type: str, validate_state_name: str, validate_county_names: List[str], ethnicity_filter_list: List[str], reg_key: str,
+                       county_names: Union[str, List[str]] = None, regression_type: str = 'multilinear') -> None:
+    """
+    Manager that is used to call different regression methods, and save the resulting models/results.
+    It is also used for validation. It saves those validation models and results.
+
+    state_name: State containing covid data to be regressed on
+    type: Type of quantity to be revived on ('cases' or 'deaths')
+    validate_state_name: State containing data on which regressed models be validated
+    validate_county_names: List of counties containing data on which regression models will be validated
+    ethnicity_filter_list: List of ethnicities for which regression will be done
+    reg_key: Quantity for which regression will be done ('discrepancy', 'mortality_rate', etc...)
+    county_names: County for which regressions will be done
+    regression_type: Type of regression to be performed
+    """
+    if isinstance(county_names, str) or county_names is None:
+        county_names = [county_names]
+    if len(county_names) == 1:
+        metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_names[0], regression_type=regression_type, reg_key=reg_key,
+                                              ethnicity_filter_list=ethnicity_filter_list)
+    else:
+        metadata_filter = []
+
+    if regression_type in RegDefinitions.multilinear_list:
+        regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.multilinear_reg(
+            state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter,
+            validate_state_name=validate_state_name, validate_county_names=validate_county_names)
+    elif regression_type in RegDefinitions.multilinear_ridge_list:
+        regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.multilinear_ridge_lasso_reg(
+            state_name=state_name,
+            type=type,
+            county_names=county_names,
+            reg_key=reg_key,
+            regularizer_type='ridge',
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names)
+    elif regression_type in RegDefinitions.multilinear_lasso_list:
+        regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.multilinear_ridge_lasso_reg(
+            state_name=state_name,
+            type=type,
+            county_names=county_names,
+            reg_key=reg_key,
+            regularizer_type='lasso',
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names)
+    elif regression_type == 'gp':
+        regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.gp_reg(
+            state_name=state_name,
+            type=type,
+            county_names=county_names,
+            reg_key=reg_key,
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names)
+    else:
+        raise ValueError(f'{regression_type} regression logic not implemented')
+
+    regression_utils.save_regression_results(
+        df=regression_results_df,
+        pred_df=predictions_df,
+        type=type,
+        state_name=state_name,
+        county_names=county_names,
+        ethnicity_filter_list=ethnicity_filter_list,
+        fitted_model=fitted_model,
+        regression_type=regression_type,
+        reg_key=reg_key,
+        validate_state_name=validate_state_name,
+        validate_county_names=validate_county_names,
+        val_info_df=val_info_df,
+        val_predictions_df=val_predictions_df)
+
+
+def test_manager(state_name: str, county_names: List[str], type: str, validate_state_name: str, validate_county_names: List[str], ethnicity_filter_list: List[str], reg_key: str,
+                 test_state_name: str, test_county_names: List[str], regression_type: str = 'multilinear') -> None:
+    """
+    Runs saved models on test state/counties and store the results
+
+    state_name: State that model to be run on was trained on
+    county_names: List of counties that model to be run was trained on
+    type: Type of quantity to be tested ('cases' or 'deaths')
+    validate_state_name: State on which trained model was validated
+    validate_county_names: List of counties on which trained model was validated
+    ethnicity_filter_list: List of ethnicities on which regression model will be used
+    reg_key: Quantity predicted by the regression model
+    test_state_name: State containing data on which regression model will be applied
+    test_county_names: List of counties containing data on which regression model will be applied
+    regression_type: Type of regression model used for testing
+    """
+    if isinstance(county_names, str) or county_names is None:
+        county_names = [county_names]
+    if len(county_names) == 1:
+        metadata_filter = get_metadata_filter(type=type, state_name=state_name, county_name=county_names[0], regression_type=regression_type, reg_key=reg_key,
+                                              ethnicity_filter_list=ethnicity_filter_list)
+    else:
+        metadata_filter = []
+
+    if regression_type in RegDefinitions.multilinear_list or regression_type in RegDefinitions.multilinear_ridge_list \
+            or regression_type in RegDefinitions.multilinear_lasso_list:
+        test_info_df, test_predictions_df = regression_utils.test_multilinear_regs(
+            state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, validate_state_name=validate_state_name, validate_county_names=validate_county_names,
+            test_state_name=test_state_name, test_county_names=test_county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter, regression_type=regression_type)
+    else:
+        raise ValueError(f'{regression_type} regression logic not implemented')
+
+    regression_utils.save_test_results(
+        state_name=state_name,
+        county_names=county_names,
+        test_pred_df=test_predictions_df,
+        type=type,
+        ethnicity_filter_list=ethnicity_filter_list,
+        regression_type=regression_type,
+        reg_key=reg_key,
+        validate_state_name=validate_state_name,
+        validate_county_names=validate_county_names,
+        test_state_name=test_state_name,
+        test_county_names=test_county_names,
+        test_info_df=test_info_df)
 
 
 def add_commit_and_push(state_county_dir: str):
@@ -267,7 +624,35 @@ def add_commit_and_push(state_county_dir: str):
         pass
 
 
-def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
+def main(state_name: str, regression_type: str, corr_key: str,
+         ethnicity_list: List[str], corr_type: str, reg_key: str, validate_state_name: str = None, validate_county_names: List[str] = [None],
+         test_state_name: str = None, test_county_names: List[str] = [None],
+         county_names: Union[str, List[str]] = None, mode: str = 'scrape'):
+    """
+    Calls functions based on mode provided by the user and other arguments.
+
+    state_name: State for which mode will be run
+    regression_type: Type of regression on which to train, test, or validate data
+    corr_key: Quantity to be used in correlation
+    ethnicity_list: List of ethnicities on which functionality acts
+    corr_type: Type of correlation to be performed (either 'sperman' or 'distance_corr'
+    reg_key: Quantity to be regressed on
+    validate_state_name: State on which validation will be run
+    validate_county_names: List of counties (if any) on which to run validation
+    test_state_name: State on which validated model is used to predict testing
+    test_county_names: List of counties (if any) on which to run testing code
+    county_names: List of counties on which to run a particulcar mode
+    mode: Mode being run
+    """
+
+    if isinstance(county_names, list):
+        if len(county_names) == 1:
+            county_name = county_names[0]
+        else:
+            county_name = county_names
+    else:
+        county_name = county_names
+
     if mode == 'scrape':
         scrape_manager(state_name=state_name, county_name=county_name)
     elif mode == 'project_case':
@@ -280,6 +665,66 @@ def main(state_name: str, county_name: str = None, mode: str = 'scrape'):
         training_data_manager(state_name=state_name, county_name=county_name, type='cases')
     elif mode == 'create_death_training_data':
         training_data_manager(state_name=state_name, county_name=county_name, type='deaths')
+    elif mode == 'perform_case_spearman_corr':
+        correlation_manager(
+            state_name=state_name,
+            county_name=county_name,
+            type='cases',
+            key=corr_key,
+            corr_type=corr_type,
+            ethnicity_filter_list=ethnicity_list)
+    elif mode == 'perform_death_spearman_corr':
+        correlation_manager(
+            state_name=state_name,
+            county_name=county_name,
+            type='deaths',
+            key=corr_key,
+            corr_type=corr_type,
+            ethnicity_filter_list=ethnicity_list)
+    elif mode == 'perform_cases_multilinear_regression':
+        regression_manager(
+            state_name=state_name,
+            county_names=county_name,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names,
+            type='cases',
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
+    elif mode == 'perform_deaths_multilinear_regression':
+        regression_manager(
+            state_name=state_name,
+            county_names=county_name,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names,
+            type='deaths',
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
+    elif mode == 'test_cases_model':
+        test_manager(
+            state_name=state_name,
+            county_names=county_name,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names,
+            test_state_name=args.test_state_name,
+            test_county_names=args.test_county_names,
+            type='cases',
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
+    elif mode == 'test_deaths_model':
+        test_manager(
+            state_name=state_name,
+            county_names=county_name,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names,
+            test_state_name=test_state_name,
+            test_county_names=test_county_names,
+            type='deaths',
+            reg_key=reg_key,
+            regression_type=regression_type,
+            ethnicity_filter_list=ethnicity_list)
 
 
 if __name__ == "__main__":
@@ -287,7 +732,118 @@ if __name__ == "__main__":
     logging.root.setLevel(logging.NOTSET)
     parser = argparse.ArgumentParser(description='Process mode')
     parser.add_argument('--mode', help='Mode that will determine which managers run')
-    parser.add_argument('--state', help='Mode that will determine which managers run')
-    parser.add_argument('--county', help='Mode that will determine which managers run', default=None)
+    parser.add_argument('--reg_key', default='mortality_rate', help='Key that will be regressed on')
+    parser.add_argument('--regression_type', default='multilinear', help='Mode that will determine which managers run')
+    parser.add_argument('--corr_type', default='spearman', help='Mode that will determine which managers run')
+    parser.add_argument('--corr_key', default='mortality_rate', help='Key of quantity to be used in correlation')
+    parser.add_argument('--state', help='State for which mode will be run')
+    parser.add_argument('--val_state', help='State for which mode will be validated')
+    parser.add_argument('--county', help='County for which model will be run', nargs='+', default=None)
+    parser.add_argument('--val_county', help='County for which model will be validated', nargs='+', default=None)
+    parser.add_argument('--state_bool', help='Whether state should be regressed on', action='store_false')
+    parser.add_argument(
+        '--all_counties_bool',
+        action='store_true',
+        help='Boolean that states to run mode for state and all counties in state')
+    parser.add_argument('--ethnicity_list', default=[], nargs='+', help='List ethnicities to be filtered when performing correlation or doing'
+                        'regressions')
+    parser.add_argument('--validate_state_name', default=None, help='State on which validation will be run')
+    parser.add_argument(
+        '--validate_county_names',
+        default=[None],
+        nargs='+',
+        help='List of counties on which validation will be run')
+    parser.add_argument('--test_state_name', default=None, help='State on which test will be run')
+    parser.add_argument('--test_county_names', default=[None], nargs='+', help='List of counties on test will be run')
+
     args = parser.parse_args()
-    main(mode=args.mode, state_name=args.state, county_name=args.county)
+    if isinstance(args.county, list):
+        if len(args.county) == 1:
+            main(
+                mode=args.mode,
+                state_name=args.state,
+                county_names=args.county,
+                regression_type=args.regression_type,
+                reg_key=args.reg_key,
+                corr_type=args.corr_type,
+                corr_key=args.corr_key,
+                ethnicity_list=args.ethnicity_list,
+                validate_state_name=args.validate_state_name,
+                validate_county_names=args.validate_county_names,
+                test_state_name=args.test_state_name,
+                test_county_names=args.test_county_names,
+            )
+        elif len(args.county) > 1:
+            main(
+                mode=args.mode,
+                state_name=args.state,
+                county_names=args.county,
+                regression_type=args.regression_type,
+                reg_key=args.reg_key,
+                corr_type=args.corr_type,
+                corr_key=args.corr_key,
+                ethnicity_list=args.ethnicity_list,
+                validate_state_name=args.validate_state_name,
+                validate_county_names=args.validate_county_names,
+                test_state_name=args.test_state_name,
+                test_county_names=args.test_county_names,
+            )
+    else:
+        if not args.all_counties_bool:
+            main(
+                mode=args.mode,
+                state_name=args.state,
+                county_names=args.county,
+                regression_type=args.regression_type,
+                reg_key=args.reg_key,
+                corr_type=args.corr_type,
+                corr_key=args.corr_key,
+                ethnicity_list=args.ethnicity_list,
+                validate_state_name=args.validate_state_name,
+                validate_county_names=args.validate_county_names,
+                test_state_name=args.test_state_name,
+                test_county_names=args.test_county_names,
+            )
+        else:
+            if not args.state_bool:
+                try:
+                    main(
+                        mode=args.mode,
+                        state_name=args.state,
+                        county_names=None,
+                        regression_type=args.regression_type,
+                        reg_key=args.reg_key,
+                        corr_type=args.corr_type,
+                        corr_key=args.corr_key,
+                        ethnicity_list=args.ethnicity_list,
+                        validate_state_name=args.validate_state_name,
+                        validate_county_names=args.validate_county_names,
+                        test_state_name=args.test_state_name,
+                        test_county_names=args.test_county_names,
+                    )
+                except Exception as e:
+                    print(f'Exception occured for state: {args.state} and county: {args.county}')
+                    print(f'Exception is {e.args}')
+                    pass
+            county_list = os.listdir(path.join('states', args.state, 'counties'))
+            for county in county_list:
+                if county != 'kern':
+                    try:
+                        main(
+                            mode=args.mode,
+                            state_name=args.state,
+                            county_names=county,
+                            regression_type=args.regression_type,
+                            corr_type=args.corr_type,
+                            corr_key=args.corr_key,
+                            reg_key=args.reg_key,
+                            ethnicity_list=args.ethnicity_list,
+                            validate_state_name=args.validate_state_name,
+                            validate_county_names=args.validate_county_names,
+                            test_state_name=args.test_state_name,
+                            test_county_names=args.test_county_names,
+                        )
+                    except Exception as e:
+                        print(f'Exception occured for state: {args.state} and county: {county}')
+                        print(f'Exception is {e.args}')
+                        pass

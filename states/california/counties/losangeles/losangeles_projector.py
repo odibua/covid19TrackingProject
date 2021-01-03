@@ -51,6 +51,8 @@ class LosAngelesEthnicDataProjector(CaliforniaEthnicDataProjector):
             soup = bs4.BeautifulSoup(raw_data_file_html, 'html5lib')
             raw_data_file_html = soup.prettify()
             self.raw_data_lxml = etree.HTML(raw_data_file_html)
+            if len(self.raw_data_lxml.text.strip(' ')) == 1:
+                self.raw_data_lxml = soup
             self.cases_raw_bool, self.deaths_raw_bool = True, True
         except BaseException:
             pass

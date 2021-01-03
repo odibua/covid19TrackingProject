@@ -1,0 +1,29 @@
+NAME: SantaClara
+DATA_TYPE: TotalDeaths
+IFRAME: https://app.powerbigov.us/view?r=eyJrIjoiNWY1ODIzYjUtZjgwNS00NTc5LTg0OGItOTA2MWM2YzQ3NTBiIiwidCI6IjBhYzMyMDJmLWMzZTktNGY1Ni04MzBkLTAxN2QwOWQxNmIzZiJ9
+
+REQUEST:
+  TYPE: POST
+  URL: https://wabi-us-gov-virginia-api.analysis.usgovcloudapi.net/public/reports/querydata?synchronous=true
+  HEADERS:
+    Accept: application/json, text/plain, */*
+    Accept-Encoding: gzip, deflate, br
+    Accept-Language: en-US,en;q=0.9
+    ActivityId: f3ec6379-d748-4ba9-9790-ebc249ca0993
+    Connection: keep-alive
+    Content-Length: '2029'
+    Content-Type: application/json;charset=UTF-8
+    Host: wabi-us-gov-virginia-api.analysis.usgovcloudapi.net
+    Origin: https://app.powerbigov.us
+    Referer: https://app.powerbigov.us/
+    RequestId: 3c60a457-71a7-f2d9-74a5-78b6382f02a4
+    sec-ch-ua: '"Google Chrome";v="87", " Not;A Brand";v="99", "Chromium";v="87"'
+    sec-ch-ua-mobile: ?0
+    Sec-Fetch-Dest: empty
+    Sec-Fetch-Mode: cors
+    Sec-Fetch-Site: cross-site
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36
+    X-PowerBI-ResourceKey: 5f5823b5-f805-4579-848b-9061c6c4750b
+  PAYLOAD: {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"d","Entity":"death_date","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Date"},"Name":"death_date.Date"},{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Non_ltcf"}},"Function":0},"Name":"Sum(death_date.Non_ltcf)"},{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"LTCF"}},"Function":0},"Name":"Sum(death_date.LTCF)"},{"Aggregation":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Cumulative"}},"Function":0},"Name":"Sum(death_date.Cumulative)"}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2,3]}]},"DataReduction":{"DataVolume":4,"Primary":{"Sample":{}}},"Version":1}}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"death_date\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Date\"},\"Name\":\"death_date.Date\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Non_ltcf\"}},\"Function\":0},\"Name\":\"Sum(death_date.Non_ltcf)\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"LTCF\"}},\"Function\":0},\"Name\":\"Sum(death_date.LTCF)\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"Cumulative\"}},\"Function\":0},\"Name\":\"Sum(death_date.Cumulative)\"}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2,3]}]},\"DataReduction\":{\"DataVolume\":4,\"Primary\":{\"Sample\":{}}},\"Version\":1}}}]}","QueryId":"","ApplicationContext":{"DatasetId":"af9678ae-d901-4e62-8dc1-7f01ddda4f61","Sources":[{"ReportId":"0814c897-cde8-45f4-bb7d-4ec57edcb077"}]}}],"cancelQueries":[],"modelId":344055}
+
+WEBSITE: https://www.sccgov.org/sites/covid19/Pages/dashboard-demographics-of-cases-and-deaths.aspx

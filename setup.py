@@ -83,6 +83,7 @@ setup(
         'bokeh',
         'cython>=0.28.5'
         'beautifulsoup4',
+        'dcor',
         'html5lib',
         'numpy>=1.9.0',
         'pandas',
