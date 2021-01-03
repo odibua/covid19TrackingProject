@@ -5,7 +5,10 @@ corr,Y,X,state,county,n
 0.999600883922545,discrepancy,PUBLIC_TRANSPORTATION,california,imperial,18
 0.9996008839224241,discrepancy,CAR_TRUCK_VAN_ALONE,california,imperial,18
 0.9996008839239704,discrepancy,CAR_TRUCK_VAN_CARPOOL,california,imperial,18
+0.2974486900237004,discrepancy,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sacramento,224
 0.41731376648954194,discrepancy,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,224
+0.3117975098197547,discrepancy,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,224
+0.3711908796374295,discrepancy,PUBLIC_TRANSPORTATION,california,sacramento,224
 0.42091523625715654,discrepancy,CAR_TRUCK_VAN_ALONE,california,sacramento,224
 0.6045488080167564,discrepancy,CAR_TRUCK_VAN_CARPOOL,california,sacramento,224
 0.9910882366013011,discrepancy,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,alameda,183
@@ -19,6 +22,7 @@ corr,Y,X,state,county,n
 0.41653709333398353,discrepancy,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,losangeles,516
 0.5328308448667908,discrepancy,PUBLIC_TRANSPORTATION,california,losangeles,516
 0.5774513490101761,discrepancy,CAR_TRUCK_VAN_ALONE,california,losangeles,516
+0.363517042999107,discrepancy,CAR_TRUCK_VAN_CARPOOL,california,losangeles,516
 0.9099232933720789,discrepancy,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sanfrancisco,92
 0.8483319610662161,discrepancy,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sanfrancisco,92
 0.9234664228630396,discrepancy,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,sanfrancisco,92

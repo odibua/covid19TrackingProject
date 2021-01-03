@@ -1,5 +1,13 @@
 corr,Y,X,state,county,n
+0.0,discrepancy,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,imperial,17
+0.0,discrepancy,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,imperial,17
+0.0,discrepancy,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,imperial,17
+0.0,discrepancy,PUBLIC_TRANSPORTATION,california,imperial,17
+0.0,discrepancy,CAR_TRUCK_VAN_ALONE,california,imperial,17
+0.0,discrepancy,CAR_TRUCK_VAN_CARPOOL,california,imperial,17
+0.35399389353285887,discrepancy,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sacramento,215
 0.5948866497719536,discrepancy,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,215
+0.3478931550239098,discrepancy,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,215
 0.41585141085110755,discrepancy,PUBLIC_TRANSPORTATION,california,sacramento,215
 0.5894924783656256,discrepancy,CAR_TRUCK_VAN_ALONE,california,sacramento,215
 0.780290229079672,discrepancy,CAR_TRUCK_VAN_CARPOOL,california,sacramento,215

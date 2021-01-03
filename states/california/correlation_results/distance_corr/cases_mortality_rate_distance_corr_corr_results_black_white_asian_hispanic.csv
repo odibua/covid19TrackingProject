@@ -1,7 +1,15 @@
 corr,Y,X,state,county,n
+0.0,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,imperial,105
+0.0,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,imperial,105
+0.0002911989526457907,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,imperial,105
+0.00047512897092010637,mortality_rate,PUBLIC_TRANSPORTATION,california,imperial,105
+0.0003039083641465147,mortality_rate,CAR_TRUCK_VAN_ALONE,california,imperial,105
+0.0,mortality_rate,CAR_TRUCK_VAN_CARPOOL,california,imperial,105
 0.5218246427478102,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,riverside,375
 0.5680847605625975,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,riverside,375
 0.6000785477317345,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,riverside,375
+0.3481851084323751,mortality_rate,PUBLIC_TRANSPORTATION,california,riverside,375
+0.3790232968060336,mortality_rate,CAR_TRUCK_VAN_ALONE,california,riverside,375
 0.4751840501151994,mortality_rate,CAR_TRUCK_VAN_CARPOOL,california,riverside,375
 0.6310570599045936,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sonoma,110
 0.6463808252489088,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sonoma,110
@@ -9,6 +17,12 @@ corr,Y,X,state,county,n
 0.4821948223555467,mortality_rate,PUBLIC_TRANSPORTATION,california,sonoma,110
 0.6077343040315626,mortality_rate,CAR_TRUCK_VAN_ALONE,california,sonoma,110
 0.641013413779257,mortality_rate,CAR_TRUCK_VAN_CARPOOL,california,sonoma,110
+0.3690328081211669,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sacramento,424
+0.25369455250886,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,424
+0.3837147203215124,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,424
+0.20575924137554313,mortality_rate,PUBLIC_TRANSPORTATION,california,sacramento,424
+0.21834969094902815,mortality_rate,CAR_TRUCK_VAN_ALONE,california,sacramento,424
+0.18234008937219218,mortality_rate,CAR_TRUCK_VAN_CARPOOL,california,sacramento,424
 0.5812403750581103,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,alameda,467
 0.7344572690859283,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,alameda,467
 0.7194411477331447,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,alameda,467
@@ -20,6 +34,7 @@ corr,Y,X,state,county,n
 0.6106575480565245,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,losangeles,508
 0.5451126192520115,mortality_rate,PUBLIC_TRANSPORTATION,california,losangeles,508
 0.416854555030974,mortality_rate,CAR_TRUCK_VAN_ALONE,california,losangeles,508
+0.365493629385723,mortality_rate,CAR_TRUCK_VAN_CARPOOL,california,losangeles,508
 0.5473891317092696,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sanfrancisco,453
 0.5897412880319628,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sanfrancisco,453
 0.581924520148002,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,sanfrancisco,453
@@ -29,4 +44,6 @@ corr,Y,X,state,county,n
 0.5921328263670391,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,santaclara,456
 0.6940979615636984,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,santaclara,456
 0.7217286725708864,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,santaclara,456
+0.28062175010970786,mortality_rate,PUBLIC_TRANSPORTATION,california,santaclara,456
+0.38208337204110365,mortality_rate,CAR_TRUCK_VAN_ALONE,california,santaclara,456
 0.7214899214305438,mortality_rate,CAR_TRUCK_VAN_CARPOOL,california,santaclara,456

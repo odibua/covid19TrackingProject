@@ -1,4 +1,10 @@
 corr,Y,X,state,county,n
+0.0,covid_perc,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,imperial,105
+0.0,covid_perc,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,imperial,105
+0.0,covid_perc,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,imperial,105
+0.0011109533023789745,covid_perc,PUBLIC_TRANSPORTATION,california,imperial,105
+0.0009473148171763207,covid_perc,CAR_TRUCK_VAN_ALONE,california,imperial,105
+0.0,covid_perc,CAR_TRUCK_VAN_CARPOOL,california,imperial,105
 0.7252217488164179,covid_perc,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,riverside,375
 0.8429645115381753,covid_perc,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,riverside,375
 0.816919669576132,covid_perc,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,riverside,375
@@ -13,6 +19,7 @@ corr,Y,X,state,county,n
 0.871849609320246,covid_perc,CAR_TRUCK_VAN_CARPOOL,california,sonoma,110
 0.40495701718366894,covid_perc,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,california,sacramento,424
 0.6870433060354159,covid_perc,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,424
+0.3677643657064619,covid_perc,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,california,sacramento,424
 0.5943870842708842,covid_perc,PUBLIC_TRANSPORTATION,california,sacramento,424
 0.7619997225185525,covid_perc,CAR_TRUCK_VAN_ALONE,california,sacramento,424
 0.5112820327779894,covid_perc,CAR_TRUCK_VAN_CARPOOL,california,sacramento,424
