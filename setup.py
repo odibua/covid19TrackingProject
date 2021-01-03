@@ -81,6 +81,7 @@ setup(
     install_requires=[
         'autopep8',
         'bokeh',
+        'cython>=0.28.5'
         'beautifulsoup4',
         'dcor',
         'html5lib',
