@@ -319,7 +319,8 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
         'detrended_mortality_rate',
         'discrepancy',
         'y_pred',
-        'ethnicity']
+        'ethnicity',
+        'date']
     corr_keys = [feat_key for feat_key in training_data_df.keys() if feat_key not in keys_to_filter]
 
     corr_dict = {'corr': [], 'Y': [], 'X': [], 'p_val': [], 'state': [], 'county': [], 'n': []}
