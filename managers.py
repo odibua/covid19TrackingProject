@@ -589,7 +589,7 @@ def test_manager(state_name: str, county_names: List[str], type: str, validate_s
         metadata_filter = []
 
     if regression_type in RegDefinitions.multilinear_list or regression_type in RegDefinitions.multilinear_ridge_list \
-            or regression_type in RegDefinitions.multilinear_lasso_list:
+            or regression_type in RegDefinitions.multilinear_lasso_list or regression_type == 'gp':
         test_info_df, test_predictions_df = regression_utils.test_multilinear_regs(
             state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, validate_state_name=validate_state_name, validate_county_names=validate_county_names,
             test_state_name=test_state_name, test_county_names=test_county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter, regression_type=regression_type)

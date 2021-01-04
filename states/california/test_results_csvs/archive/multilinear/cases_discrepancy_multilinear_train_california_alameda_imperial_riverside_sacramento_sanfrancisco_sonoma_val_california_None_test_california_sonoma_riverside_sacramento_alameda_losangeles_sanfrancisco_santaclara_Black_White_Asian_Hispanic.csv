@@ -1,0 +1,16 @@
+nrmse,rmse,state,county,model,mu_X,std_X
+0.663899338312129,0.4064517837934768,"0    california
+0    california
+0    california
+0    california
+0    california
+0    california
+Name: state, dtype: object","0        sonoma
+0     riverside
+0    sacramento
+0       alameda
+0    losangeles
+0    santaclara
+Name: county, dtype: object",states/california/val_results_csvs/multilinear/discrepancy/model/cases_california_None_train_california_alameda_imperial_riverside_sacramento_sanfrancisco_sonoma_discrepancy_Black_White_Asian_Hispanic.pickle,"[8.08717684e+01 7.16218237e+04 5.64663547e+02 2.39993904e+02
+ 6.54595890e+01 2.82795126e+02 5.06986275e+01]","[4.71539219e+01 2.50173226e+04 1.47391096e+02 1.52998999e+02
+ 7.33901637e+01 5.67069164e+01 2.26143237e+01]"

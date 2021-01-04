@@ -19,7 +19,7 @@ from statsmodels.iolib.smpickle import load_pickle
 import statsmodels.api as sm
 import statsmodels.regression.linear_model as lm
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, DotProduct, WhiteKernel
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso, Ridge
 
@@ -28,6 +28,7 @@ from sklearn.linear_model import Lasso, Ridge
 # --------------------------
 import managers as managers_lib
 import utils_lib
+from visualization.paper_visuals import calc_weighted_mean, calc_weighted_std
 
 
 def construct_x(X: np.array, metadata_keys: List[str], df: pd.DataFrame,
@@ -218,6 +219,26 @@ def get_best_lasso_model(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray, val_Y:
     return best_score, best_fitted_model
 
 
+def get_best_gp_model(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray, val_Y: np.ndarray) -> Tuple[float, Ridge.fit]:
+    sigma_list = np.logspace(1e-5, 1e5, 40)
+    fitted_model_list, score_list = [], []
+    for sigma in sigma_list:
+        kernel = DotProduct(sigma_0=sigma) + WhiteKernel()  # C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+        model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
+        model.fit(X, Y)
+        Y_pred, std_pred = model.predict(val_X, return_std=True)
+        # Get nrmse and rmse
+        nrmse = calc_nrmse(val_Y, Y_pred)
+        rmse = calc_rmse(val_Y, Y_pred)
+        fitted_model_list.append(model)
+        score_list.append(rmse)
+
+    max_idx = np.argmax(score_list)
+    best_fitted_model = fitted_model_list[max_idx]
+    best_score = score_list[max_idx]
+    return best_score, best_fitted_model
+
+
 def get_best_subset(X: np.ndarray, Y: np.ndarray, tol: float = 0.05) -> Tuple[sm.OLS.fit, List[int]]:
     full_subset = list(range(X.shape[1]))
     delta_metric = float("inf")
@@ -235,7 +256,7 @@ def get_best_subset(X: np.ndarray, Y: np.ndarray, tol: float = 0.05) -> Tuple[sm
 
 
 def get_X(training_data_df: pd.DataFrame, filter_list: List[str], metadata_keys: List[str], metadata_filter: List[str],
-          mu_X: np.array = None, std_X: np.array = None) -> Tuple[np.array, List[str], np.array, np.array]:
+          mu_X: np.array = None, std_X: np.array = None, weight_list: List[float] = []) -> Tuple[np.array, List[str], np.array, np.array]:
     X = np.zeros((training_data_df.shape[0], training_data_df.shape[1] - len(filter_list) + 1))
     X, metadata_keys = construct_x(X=X, metadata_keys=metadata_keys,
                                    df=training_data_df, metadata_filter=metadata_filter)
@@ -403,6 +424,14 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
     training_data_df = load_data_df(state_name=state_name, county_names=county_names,
                                     type=type, ethnicity_filter_list=ethnicity_filter_list)
 
+    if weight_by_time:
+        time_arr = np.array(training_data_df['time'].tolist())
+        max_time = max(time_arr)
+        weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        training_data_df = training_data_df[np.array(weight_list) >= 0.5]
+    else:
+        weight_list = []
+
     # Set Y as mortality rate
     Y = np.array(training_data_df[reg_key])
 
@@ -426,12 +455,31 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
     X, metadata_keys, mu_X, std_X = get_X(
         training_data_df=training_data_df, filter_list=filter_list, metadata_keys=metadata_keys, metadata_filter=metadata_filter)
 
-    kernel = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
-    gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
+    # Get relevant information for the validation set if needed
+    if validate_state_name is not None:
+        val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
+                                   ethnicity_filter_list=ethnicity_filter_list)
 
-    gp.fit(X, Y)
-    Y_pred, std_pred = gp.predict(X, return_std=True)
+        time_arr = np.array(val_data_df['time'].tolist())
+        max_time = max(time_arr)
+        val_weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        val_data_df = val_data_df[np.array(val_weight_list) >= 0.5]
+
+        # Set Y as relevant key
+        val_Y = np.array(val_data_df[reg_key])
+        val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list,
+                                                      metadata_keys=val_metadata_keys,
+                                                      metadata_filter=metadata_filter, mu_X=mu_X, std_X=std_X)
+    else:
+        val_X, val_Y = None, None
+
+    # kernel = kernel = DotProduct() + WhiteKernel() #C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+    # gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
+    # gp.fit(X, Y)
+    # Y_pred, std_pred = gp.predict(X, return_std=True)
+    nrmse, gp = get_best_gp_model(X=X, Y=Y, val_X=val_X, val_Y=val_Y)
     # Get nrmse and rmse
+    Y_pred, std_pred = gp.predict(X, return_std=True)
     nrmse = calc_nrmse(Y, Y_pred)
     rmse = calc_rmse(Y, Y_pred)
 
@@ -482,13 +530,13 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
     val_info_df = None
     val_predictions_df = None
     if validate_state_name is not None:
-        val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
-                                   ethnicity_filter_list=ethnicity_filter_list)
-
-        # Set Y as relevant key
-        val_Y = np.array(val_data_df[reg_key])
-        val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list, metadata_keys=val_metadata_keys,
-                                                      metadata_filter=metadata_filter, mu_X=mu_X, std_X=std_X)
+        # val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
+        #                            ethnicity_filter_list=ethnicity_filter_list)
+        #
+        # # Set Y as relevant key
+        # val_Y = np.array(val_data_df[reg_key])
+        # val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list, metadata_keys=val_metadata_keys,
+        #                                               metadata_filter=metadata_filter, mu_X=mu_X, std_X=std_X)
 
         val_Y_pred = gp.predict(val_X)
         val_nrmse = calc_nrmse(val_Y, val_Y_pred)
@@ -791,9 +839,11 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
     if weight_by_time:
         time_arr = np.array(training_data_df['time'].tolist())
         max_time = max(time_arr)
-        weight_list = list(np.exp((time_arr - max_time)))
+        weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        train_weight_list = list(np.array(weight_list)[np.array(weight_list) >= 0.5])
     else:
         weight_list = []
+        train_weight_list = []
 
     # Set Y as mortality rate
     Y = np.array(training_data_df[reg_key])
@@ -815,6 +865,7 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
     val_metadata_keys = copy.deepcopy(metadata_keys)
 
     # Construct X
+
     X, metadata_keys, mu_X, std_X = get_X(
         training_data_df=training_data_df, filter_list=filter_list, metadata_keys=metadata_keys, metadata_filter=metadata_filter)
 
@@ -822,6 +873,10 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
     if validate_state_name is not None:
         val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
                                    ethnicity_filter_list=ethnicity_filter_list)
+        time_arr = np.array(val_data_df['time'].tolist())
+        max_time = max(time_arr)
+        val_weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        val_data_df = val_data_df[np.array(val_weight_list) >= 0.5]
 
         # Set Y as relevant key
         val_Y = np.array(val_data_df[reg_key])
