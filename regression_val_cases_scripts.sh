@@ -3,13 +3,13 @@
 
 # Training regions list of lists
 train_state="california"
-train_case_counties_array=("None") #("alameda imperial riverside sacramento sanfrancisco sonoma" "None")
-train_death_counties_array=("None") #("alameda imperial sanfrancisco santaclara" "None")
+train_case_counties_array=("alameda losangeles sacramento sanfrancisco" "alameda losangeles sacramento sanfrancisco")
+train_death_counties_array=("santaclara sanfrancisco losangeles" "santaclara sanfrancisco losangeles")
 
 # Validation regions list of lists
 validation_state="california"
-validation_case_counties_array=("losangeles sacramento" "None") # "None")
-validation_death_counties_array=("losangeles santaclara" "None") # "None")
+validation_case_counties_array=("santaclara riverside sonoma" "None") # "None")
+validation_death_counties_array=("sacramento alameda" "None") # "None")
 
 # Regression type list
 regression_type_array="gp" #"multilinear multilinear_ridge multilinear_lasso" #

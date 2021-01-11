@@ -1,3 +1,4 @@
+REGION_LEVEL: True
 ROOT: https://api.census.gov/data/2018/acs/acs5/subject?
 REGION:
   - for=state:06

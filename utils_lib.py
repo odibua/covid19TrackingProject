@@ -528,40 +528,61 @@ def get_yaml_responses(config_dir: str, config_file_list: List[str]) -> Tuple[Li
     return response_list, response_names, request_type
 
 
-def get_metadata_config(config_dir: str, config_file_list: List[str]) -> Dict:
+def get_metadata_config(config_dir: str, config_file_list: List[str]) -> List[Dict]:
+    response_configs_list = []
     for config_file in config_file_list:
         config_file_obj = open(path.join(config_dir, config_file))
         response_config = yaml.safe_load(config_file_obj)
-        if 'ROOT' in response_config.keys():
-            return response_config
+        response_configs_list.append(response_config)
+    return response_configs_list
 
 
 def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[str, Dict[str, float]]:
 
-    metadata_dict = {}
-    response_config = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
+    metadata_dict_by_race, metadata_dict_county_level = {}, {}
+    response_config_list = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
 
-    # Get root and region url components
-    url_base = response_config['ROOT']
-    url_region = response_config['REGION'][0]
-    for region in response_config['REGION'][1:]:
-        url_region = url_region + f'&{region}'
+    for response_config in response_config_list:
+        # Get root and region url components
+        url_base = response_config['ROOT']
+        url_region = response_config['REGION'][0]
+        for region in response_config['REGION'][1:]:
+            url_region = url_region + f'&{region}'
 
-    # Construct metadata dictionary using requests to metadata
-    # url in ACS survey
-    for metadata_name in response_config['METADATA']:
-        metadata_dict[metadata_name] = {}
-        metadata_fields = response_config['METADATA'][metadata_name]
-        for field in metadata_fields:
-            url_use = f'{url_base}get={metadata_fields[field]}&{url_region}&key={response_config["API_KEY"]}'
-            headers = response_config['HEADERS']
-            acs5_response = requests.get(url=url_use, headers=headers)
+        # Construct metadata dictionary using requests to metadata
+        # url in ACS survey
+        for metadata_name in response_config['METADATA']:
+            if 'REGION_LEVEL' not in response_config.keys():
+                metadata_dict_by_race[metadata_name] = {}
+                metadata_fields = response_config['METADATA'][metadata_name]
+                for field in metadata_fields:
+                    url_use = f'{url_base}get={metadata_fields[field]}&{url_region}&key={response_config["API_KEY"]}'
+                    headers = response_config['HEADERS']
+                    acs5_response = requests.get(url=url_use, headers=headers)
 
-            headers, vals = eval(acs5_response.text)
-            for idx, header_val_tuple in enumerate(zip(headers, vals)):
-                if header_val_tuple[0] == metadata_fields[field]:
-                    metadata_dict[metadata_name][field] = float(header_val_tuple[1])
-    return metadata_dict
+                    headers, vals = eval(acs5_response.text)
+                    for idx, header_val_tuple in enumerate(zip(headers, vals)):
+                        if header_val_tuple[0] == metadata_fields[field]:
+                            metadata_dict_by_race[metadata_name][field] = float(header_val_tuple[1])
+            else:
+                metadata_field = response_config['METADATA'][metadata_name]
+                url_use = f'{url_base}get={metadata_field}&{url_region}&key={response_config["API_KEY"]}'
+                headers = response_config['HEADERS']
+                acs5_response = requests.get(url=url_use, headers=headers)
+
+                headers, vals = eval(acs5_response.text)
+                for idx, header_val_tuple in enumerate(zip(headers, vals)):
+                    if header_val_tuple[0] == metadata_field:
+                        metadata_dict_county_level[metadata_name] = float(header_val_tuple[1])
+
+        metadata_name = metadata_dict_by_race.keys()[0]
+        metadata_fields = metadata_dict_by_race[metadata_name].keys()
+        for metadata_name in metadata_dict_county_level.keys():
+            metadata_dict_by_race[metadata_name] = {}
+            for field in metadata_fields:
+                metadata_dict_by_race[metadata_name][field] = metadata_dict_county_level[metadata_name]
+
+    return metadata_dict_by_race
 
 
 def get_raw_metadata_from_config_files(config_dir: str) -> pd.DataFrame:
@@ -591,9 +612,10 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
 
     config_files = os.listdir(config_dir)
     config_file_list = [config_file for config_file in config_files if config_file.endswith('.yaml')]
-    response_config = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
+    response_config_list = get_metadata_config(config_dir=config_dir, config_file_list=config_file_list)
 
-    process_func_dict = response_config['PROCESS_FUNC']
+    process_func_dict = response_config_list[0]['PROCESS_FUNC']
+    process_func_dict.update(response_config_list[1]['PROCESS_FUNC'])
     processed_metadata_df = copy.deepcopy(raw_metadata_df)
     for key in process_func_dict.keys():
         process_func = process_func_dict[key]
