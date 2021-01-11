@@ -6,7 +6,7 @@ REGION:
 METADATA:
   HOUSEHOLD_MEDIAN_INCOME_DOLLARS:
     Total: S1903_C03_010E
-    White: S1903_C03_002E
+    White: S1903_C03_010E
     Black: S1903_C03_003E
     American Indian/Alaska Native: S1903_C03_004E
     Asian: S1903_C03_005E
@@ -58,6 +58,24 @@ METADATA:
     Native Hawaiian/Pacific Islander: S0804_C03_016E
     Multi-Race: S0804_C03_018E
     Hispanic: S0804_C03_019E
+  PERCENT_INSURED:
+    Total: S2701_C03_001E
+    White: S2701_C03_024E
+    Black: S2701_C03_017E
+    American Indian/Alaska Native: S2701_C03_018E
+    Asian: S2701_C03_019E
+    Native Hawaiian/Pacific Islander: 2701_C03_020E
+    Multi-Race: S2701_C03_022E
+    Hispanic: S2701_C03_023E
+  BELOW_POVERTY_LEVEL:
+    Total: S1701_C02_001E
+    White: S1701_C02_021E
+    Black: S1701_C02_014E
+    American Indian/Alaska Native: S1701_C02_015E
+    Asian: S1701_C02_016E
+    Native Hawaiian/Pacific Islander: S1701_C02_016E
+    Multi-Race: S1701_C02_019E
+    Hispanic: S1701_C02_020E
 
 PROCESS_FUNC:
   HOUSEHOLD_MEDIAN_INCOME_DOLLARS: identity
@@ -66,6 +84,8 @@ PROCESS_FUNC:
   PUBLIC_TRANSPORTATION: perc_of_total_per_1000
   CAR_TRUCK_VAN_ALONE: perc_of_total_per_1000
   CAR_TRUCK_VAN_CARPOOL: perc_of_total_per_1000
+  PERCENT_INSURED: perc_of_total_per_1000
+  BELOW_POVERTY_LEVEL: total_per_1000
 
 HEADERS:
   User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
