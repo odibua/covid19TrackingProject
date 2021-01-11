@@ -158,7 +158,7 @@ def plot_correlations(state_name: str, corr_key: str = 'discrepancy', type_: str
 
 
 def plot_nrmse(state_name: str, reg_key: str = 'discrepancy', train_counties: List[str] = ['None'], val_counties: List[str] = ['None'], test_counties: List[str] = ['None'],
-               reg_type: str = 'multilinear_lasso', type_: str = 'cases', ml_mode: str = 'test', delta: float = 0.15):
+               reg_type: str = 'multilinear_lasso', type_: str = 'deaths', ml_mode: str = 'train', delta: float = 0.15):
     title_map = {'discrepancy': 'Discrepancy', 'mortality_rate': 'Mortality Rate (per 1000)'}
     if ml_mode == 'train':
         overall_csv = f'states/california/regression_results_csvs/{reg_type}/{type_}_{reg_key}_{reg_type}_results_Black_White_Asian_Hispanic.csv'
@@ -230,6 +230,7 @@ def plot_nrmse(state_name: str, reg_key: str = 'discrepancy', train_counties: Li
     ax1.set_xticks(ind + delta + delta/2.0)
     ax1.set_xticklabels(unique_county_list, fontsize=14)
     ax1.set_title(f'{title_map[reg_key]}', fontsize=20)
+    ax1.set_ylim((0, 1.0))
 
 
     ax1.legend(ethnicity_list, loc='upper left', fontsize=14)
