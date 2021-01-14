@@ -16,6 +16,8 @@ from typing import List
 # --------------------------
 
 IMAGE_DIR = 'paper_images'
+
+
 def calc_weighted_mean(arr: np.array, weights: np.array) -> float:
     weighted_arr = np.multiply(arr, weights)
     return np.sum(weighted_arr) / np.sum(weights)
@@ -32,6 +34,7 @@ def calc_weighted_std(arr: np.array, weights: np.array, M: int) -> float:
         ipdb.set_trace()
     return std
 
+
 def get_unique_elements_in_order(list_: List[str], exclude_list: List[str] = []):
     unique_list = []
     for item in list_:
@@ -45,7 +48,7 @@ def plot_discrep_mortality(state_name: str, type_: str = 'deaths'):
     data_df = pd.read_csv(csv_file_name)
 
     symbols = ['o', 'X', '^', 'D']
-    ethnicities = ['Black', 'Asian', 'Hispanic', 'White'] #set(data_df['ethnicity'].tolist())
+    ethnicities = ['Black', 'Asian', 'Hispanic', 'White']  # set(data_df['ethnicity'].tolist())
     discrep_list = []
     mortality_list = []
     time_list = []
@@ -79,10 +82,10 @@ def plot_correlations(state_name: str, corr_key: str = 'discrepancy', type_: str
     discrep_distance_corr_csv_name = f'states/{state_name}/correlation_results/distance_corr/{type_}_{corr_key}_distance_corr_corr_results_black_white_asian_hispanic.csv'
 
     metadata_map = {'HOUSEHOLD_MEDIAN_INCOME_DOLLARS': 'Median Income',
-                     'HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL': 'High School Graduate',
-                     'BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL': 'Bachelor Degree',
-                     'PUBLIC_TRANSPORTATION': 'Public Transportation',
-                      'CAR_TRUCK_VAN_ALONE': 'Car/Truck Alone', 'CAR_TRUCK_VAN_CARPOOL': 'Car/Truck Carpool'}
+                    'HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL': 'High School Graduate',
+                    'BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL': 'Bachelor Degree',
+                    'PUBLIC_TRANSPORTATION': 'Public Transportation',
+                    'CAR_TRUCK_VAN_ALONE': 'Car/Truck Alone', 'CAR_TRUCK_VAN_CARPOOL': 'Car/Truck Carpool'}
     spearman_df = pd.read_csv(discrep_spearman_csv_name)
     distance_corr_df = pd.read_csv(discrep_distance_corr_csv_name)
 
@@ -103,7 +106,7 @@ def plot_correlations(state_name: str, corr_key: str = 'discrepancy', type_: str
     patterns = ["|", ".", "*", "x", "o", "O", "+"]
     for county_name in unique_county_list:
         temp_spearman_df = spearman_df[spearman_df['county'] == f'{county_name}']
-        temp_distance_corr_df = distance_corr_df[distance_corr_df ['county'] == f'{county_name}']
+        temp_distance_corr_df = distance_corr_df[distance_corr_df['county'] == f'{county_name}']
 
         spearman_corr = temp_spearman_df['corr'].tolist()
         spearman_corr = [corr for corr in spearman_corr]
@@ -134,18 +137,18 @@ def plot_correlations(state_name: str, corr_key: str = 'discrepancy', type_: str
             else:
                 loc = max(1.2 * height, -1.1)
             ax1.text(rect.get_x() + rect.get_width() / 2., loc,
-                    f'{round(height, 2)}',
-                    ha='center', va='bottom')
+                     f'{round(height, 2)}',
+                     ha='center', va='bottom')
             ax2.text(rect2.get_x() + rect2.get_width() / 2., 1.05 * height2,
-                    f'{round(height2, 2)}',
-                    ha='center', va='bottom')
+                     f'{round(height2, 2)}',
+                     ha='center', va='bottom')
 
     ax1.set_ylabel('Spearman Correlation (Linear)', fontsize=16)
     ax2.set_ylabel('Distance Correlation (Non-Linear)', fontsize=16)
 
     ax2.plot(x_bound, upper_bound, '--')
     ax1.get_xaxis().set_visible(False)
-    ax2.set_xticks(ind + delta + delta/2.0)
+    ax2.set_xticks(ind + delta + delta / 2.0)
     ax2.set_xticklabels(unique_metadata_list, fontsize=14)
     ax1.legend(unique_county_list, loc='upper left', fontsize=14)
 
@@ -169,7 +172,14 @@ def plot_nrmse(state_name: str, reg_key: str = 'discrepancy', train_counties: Li
         if type_ == 'deaths':
             unique_county_list = ["sacramento", "alameda", "losangeles", "sanfrancisco", "santaclara"]
         elif type_ == 'cases':
-            unique_county_list = ["sonoma", "riverside", "sacramento", "alameda", "losangeles", "sanfrancisco", "santaclara"]
+            unique_county_list = [
+                "sonoma",
+                "riverside",
+                "sacramento",
+                "alameda",
+                "losangeles",
+                "sanfrancisco",
+                "santaclara"]
         test_dir = f'states/california/test_results_csvs/{reg_type}/{reg_key}'
         file_name = f'{type_}_train_california_{"_".join(train_counties)}_val_california_{"_".join(val_counties)}_test_california_{"_".join(unique_county_list)}_{reg_key}_Black_White_Asian_Hispanic.csv'
         file_df = pd.read_csv(f'{test_dir}/{file_name}')
@@ -189,7 +199,10 @@ def plot_nrmse(state_name: str, reg_key: str = 'discrepancy', train_counties: Li
             if ml_mode == 'train':
                 temp_nrmse_list = abs((temp_file_df['y'] - temp_file_df['y_pred']) / temp_file_df['y']).tolist()
             elif ml_mode == 'test':
-                temp_nrmse_list = abs((temp_file_df['y_test'] - temp_file_df['y_test_pred']) / temp_file_df['y_test']).tolist()
+                temp_nrmse_list = abs(
+                    (temp_file_df['y_test'] -
+                     temp_file_df['y_test_pred']) /
+                    temp_file_df['y_test']).tolist()
                 # temp_nrmse_list = abs((temp_file_df['y_test'] - temp_file_df['y_test_pred']) / temp_file_df['y_test']).tolist()
 
             # Calculate weight by time
@@ -218,20 +231,20 @@ def plot_nrmse(state_name: str, reg_key: str = 'discrepancy', train_counties: Li
     # import ipdb
     # ipdb.set_trace()
     for idx in range(len(ethnicity_list)):
-        rects = ax1.bar(ind + delta * idx, nrmse_arr[:, idx], yerr=std_nrmse_arr[:, idx], width=delta, hatch=patterns[idx])
+        rects = ax1.bar(ind + delta * idx, nrmse_arr[:, idx],
+                        yerr=std_nrmse_arr[:, idx], width=delta, hatch=patterns[idx])
 
         for rect in rects:
             height = rect.get_height()
             ax1.text(rect.get_x() + rect.get_width() / 2., 1.05 * height,
-                    f'{round(height, 2)}',
-                    ha='center', va='bottom')
+                     f'{round(height, 2)}',
+                     ha='center', va='bottom')
 
     ax1.set_ylabel('NRMSE', fontsize=16)
-    ax1.set_xticks(ind + delta + delta/2.0)
+    ax1.set_xticks(ind + delta + delta / 2.0)
     ax1.set_xticklabels(unique_county_list, fontsize=14)
     ax1.set_title(f'{title_map[reg_key]}', fontsize=20)
     ax1.set_ylim((0, 1.0))
-
 
     ax1.legend(ethnicity_list, loc='upper left', fontsize=14)
 
@@ -240,7 +253,6 @@ def plot_nrmse(state_name: str, reg_key: str = 'discrepancy', train_counties: Li
     plt.gcf()
     plt.savefig(f'{IMAGE_DIR}/nrmse_{type_}_{ml_mode}_{reg_type}_{reg_key}.png', format='png')
     # plt.show()
-
 
 
 def manager(mode: str) -> None:

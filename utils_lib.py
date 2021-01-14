@@ -577,7 +577,6 @@ def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[
                     if header_val_tuple[0] == metadata_field:
                         metadata_dict_county_level[metadata_name] = float(header_val_tuple[1])
 
-
     metadata_fields = list(metadata_dict_by_race.items())[0][1]
     for metadata_name in metadata_dict_county_level.keys():
         metadata_dict_by_race[metadata_name] = {}
@@ -642,7 +641,8 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
         #     import ipdb
         #     ipdb.set_trace()
         #     raise ValueError(
-        #         f'Normalized values per 1000 error for {key}. Following values are greater than 1000 {processed_metadata_df[key][error_bool]}')
+        # f'Normalized values per 1000 error for {key}. Following values are
+        # greater than 1000 {processed_metadata_df[key][error_bool]}')
 
     processed_metadata_df = processed_metadata_df.drop(['Total'])
     return processed_metadata_df

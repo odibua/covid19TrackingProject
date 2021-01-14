@@ -21,7 +21,7 @@ def calc_filtered_dist_corr(X: np.ndarray, Y: np.ndarray) -> Union[float, None]:
     dist_corr = dcor.distance_correlation(x=X, y=Y)
     return dist_corr
     # if dist_corr > 0.4:
-        # return dist_corr
+    # return dist_corr
     return None
 
 

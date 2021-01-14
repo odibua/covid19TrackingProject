@@ -420,12 +420,12 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     mobility_df = mobility_df[region_bool]
     mobility_df['date'] = pd.to_datetime(mobility_df['date'])
     mobility_cols = ["retail_and_recreation_percent_change_from_baseline",
-     "grocery_and_pharmacy_percent_change_from_baseline",
-     "parks_percent_change_from_baseline",
-     "transit_stations_percent_change_from_baseline",
-     "workplaces_percent_change_from_baseline",
-     "residential_percent_change_from_baseline"
-    ]
+                     "grocery_and_pharmacy_percent_change_from_baseline",
+                     "parks_percent_change_from_baseline",
+                     "transit_stations_percent_change_from_baseline",
+                     "workplaces_percent_change_from_baseline",
+                     "residential_percent_change_from_baseline"
+                     ]
     # Get columns that have values that unique values for mortality rates
     # and store them in a dictionary along with relevant regional features
     training_data_dict = {
