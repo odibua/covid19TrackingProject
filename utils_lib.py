@@ -533,7 +533,8 @@ def get_metadata_config(config_dir: str, config_file_list: List[str]) -> List[Di
     for config_file in config_file_list:
         config_file_obj = open(path.join(config_dir, config_file))
         response_config = yaml.safe_load(config_file_obj)
-        response_configs_list.append(response_config)
+        if 'ROOT' in response_config.keys():
+            response_configs_list.append(response_config)
     return response_configs_list
 
 
@@ -551,7 +552,9 @@ def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[
 
         # Construct metadata dictionary using requests to metadata
         # url in ACS survey
+
         for metadata_name in response_config['METADATA']:
+
             if 'REGION_LEVEL' not in response_config.keys():
                 metadata_dict_by_race[metadata_name] = {}
                 metadata_fields = response_config['METADATA'][metadata_name]
@@ -559,7 +562,6 @@ def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[
                     url_use = f'{url_base}get={metadata_fields[field]}&{url_region}&key={response_config["API_KEY"]}'
                     headers = response_config['HEADERS']
                     acs5_response = requests.get(url=url_use, headers=headers)
-
                     headers, vals = eval(acs5_response.text)
                     for idx, header_val_tuple in enumerate(zip(headers, vals)):
                         if header_val_tuple[0] == metadata_fields[field]:
@@ -575,12 +577,12 @@ def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[
                     if header_val_tuple[0] == metadata_field:
                         metadata_dict_county_level[metadata_name] = float(header_val_tuple[1])
 
-        metadata_name = metadata_dict_by_race.keys()[0]
-        metadata_fields = metadata_dict_by_race[metadata_name].keys()
-        for metadata_name in metadata_dict_county_level.keys():
-            metadata_dict_by_race[metadata_name] = {}
-            for field in metadata_fields:
-                metadata_dict_by_race[metadata_name][field] = metadata_dict_county_level[metadata_name]
+
+    metadata_fields = list(metadata_dict_by_race.items())[0][1]
+    for metadata_name in metadata_dict_county_level.keys():
+        metadata_dict_by_race[metadata_name] = {}
+        for field in metadata_fields:
+            metadata_dict_by_race[metadata_name][field] = metadata_dict_county_level[metadata_name]
 
     return metadata_dict_by_race
 
@@ -636,9 +638,11 @@ def process_raw_metadata(raw_metadata_df: pd.DataFrame, config_dir: str, state: 
         else:
             raise ValueError(f'Processing of metadata function {process_func} not implemented')
 
-        if sum(error_bool) > 1:
-            raise ValueError(
-                f'Normalized values per 1000 error for {key}. Following values are greater than 1000 {processed_metadata_df[key][error_bool]}')
+        # if sum(error_bool) > 1:
+        #     import ipdb
+        #     ipdb.set_trace()
+        #     raise ValueError(
+        #         f'Normalized values per 1000 error for {key}. Following values are greater than 1000 {processed_metadata_df[key][error_bool]}')
 
     processed_metadata_df = processed_metadata_df.drop(['Total'])
     return processed_metadata_df

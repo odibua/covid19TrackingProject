@@ -411,6 +411,21 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     # Load aggregated metadata data frame
     aggregated_processed_metadata_df = pd.read_csv(path.join(metadata_path, metadata_file), index_col=0)
 
+    # Load mobility data
+    mobility_df = pd.read_csv("external_data/2020_US_Region_Mobility_Report.csv")
+    state_bools = mobility_df['sub_region_1'].str.lower().tolist().str.contains(state_name).tolist()
+    county_bools = mobility_df['sub_region_2'].str.lower().tolist().str.contains(county_name).tolist()
+    region_bool = [state_bool and county_bool for state_bool, county_bool in zip(state_bools, county_bools)]
+
+    mobility_df = mobility_df[region_bool]
+    mobility_df['date'] = pd.to_datetime(mobility_df['date'])
+    mobility_cols = ["retail_and_recreation_percent_change_from_baseline",
+     "grocery_and_pharmacy_percent_change_from_baseline",
+     "parks_percent_change_from_baseline",
+     "transit_stations_percent_change_from_baseline",
+     "workplaces_percent_change_from_baseline",
+     "residential_percent_change_from_baseline"
+    ]
     # Get columns that have values that unique values for mortality rates
     # and store them in a dictionary along with relevant regional features
     training_data_dict = {
@@ -455,11 +470,19 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             training_data_dict['discrepancy'].extend(discrep_column_df.tolist())
             training_data_dict['time'].extend(time_df[change_bool])
 
-            training_data_dict['date'].extend(date_df[change_bool])
+            date_df = [change_bool]
+            training_data_dict['date'].extend(date_df)
 
             # Fill in ethnicity for the region
             ethnicity_list = [ethnicity] * len(time_df[change_bool])
             training_data_dict['ethnicity'].extend(ethnicity_list)
+
+            # Fill in mobility data with the correct date
+            for date in pd.datetime(date_df).tolist():
+                date_delta = mobility_df['date'] - date
+                min_date_idx = np.argmin(date_delta)
+                for mobility_field in mobility_cols:
+                    training_data_dict[mobility_field].extend([mobility_df[mobility_field][min_date_idx]])
 
             # Fill in metadata for the region
             for metadata_name in aggregated_processed_metadata_df.keys():
