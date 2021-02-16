@@ -574,6 +574,9 @@ def get_metadata_response(config_dir: str, config_file_list: List[str]) -> Dict[
 
                 headers, vals = eval(acs5_response.text)
                 for idx, header_val_tuple in enumerate(zip(headers, vals)):
+                    if np.isnan(float(header_val_tuple[1])):
+                        import ipdb
+                        ipdb.set_trace()
                     if header_val_tuple[0] == metadata_field:
                         metadata_dict_county_level[metadata_name] = float(header_val_tuple[1])
 

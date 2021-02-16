@@ -18,17 +18,19 @@ import pandas as pd
 from statsmodels.iolib.smpickle import load_pickle
 import statsmodels.api as sm
 import statsmodels.regression.linear_model as lm
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, DotProduct, WhiteKernel
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso, Ridge
+from sklearn.neural_network import MLPRegressor
+from sklearn.model_selection import RandomizedSearchCV
 
 # --------------------------
 # covid19Tracking Imports
 # --------------------------
 import managers as managers_lib
 import utils_lib
-from visualization.paper_visuals import calc_weighted_mean, calc_weighted_std
 
 
 def construct_x(X: np.array, metadata_keys: List[str], df: pd.DataFrame,
@@ -151,6 +153,8 @@ def load_data_df(state_name: str, type: str, county_names: List[str], ethnicity_
     """
     # Define path and file for training data
     data_all_df = None
+    if isinstance(county_names, str):
+        county_names = [county_names]
     for county_name in county_names:
         try:
             training_csv_path = path.join('states', state_name, 'training_data_csvs')
@@ -201,39 +205,85 @@ def get_best_ridge_model(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray, val_Y:
 
 def get_best_lasso_model(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray, val_Y: np.ndarray,
                          weight_list: List[float]) -> Tuple[float, Ridge.fit]:
-    alpha_list = np.linspace(0, 1, 20)
+    alpha_list = np.logspace(-3, 0, 30)
     fitted_model_list, score_list = [], []
+
     for alpha in alpha_list:
+        # print(f'Alpha: {alpha}')
         model = Lasso(alpha=alpha)
         fitted_model = model.fit(X, Y, sample_weight=weight_list)
         if val_X is None:
+            Y_pred = model.predict(X)
+            rmse = calc_rmse(Y, Y_pred)
             score = model.score(X, Y)
         else:
+            Y_pred = model.predict(val_X)
+            rmse = calc_rmse(val_Y, Y_pred)
             score = model.score(val_X, val_Y)
         fitted_model_list.append(fitted_model)
-        score_list.append(score)
+        score_list.append(rmse)
+        # print(f'rmse: {rmse} \n')
 
-    max_idx = np.argmax(score_list)
+    max_idx = np.argmin(score_list)
     best_fitted_model = fitted_model_list[max_idx]
     best_score = score_list[max_idx]
     return best_score, best_fitted_model
 
 
 def get_best_gp_model(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray, val_Y: np.ndarray) -> Tuple[float, Ridge.fit]:
-    sigma_list = np.logspace(1e-5, 1e5, 40)
+    sigma_list = np.logspace(-2, 2, 20)
     fitted_model_list, score_list = [], []
     for sigma in sigma_list:
+        print(f'GP fit sigma {sigma}')
         kernel = DotProduct(sigma_0=sigma) + WhiteKernel()  # C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
-        model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, normalize_y=True)
-        model.fit(X, Y)
-        Y_pred, std_pred = model.predict(val_X, return_std=True)
-        # Get nrmse and rmse
-        nrmse = calc_nrmse(val_Y, Y_pred)
-        rmse = calc_rmse(val_Y, Y_pred)
+        # kernel = C(1.0, (1e-3, 1e4)) * RBF(sigma, (1e-3, 1e4))
+        model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10)
+        model = model.fit(X, Y)
+        if val_X is not None:
+            score = model.score(val_X, val_Y)
+            Y_pred, std_pred = model.predict(val_X, return_std=True)
+            # nrmse = calc_nrmse(val_Y, Y_pred)
+            rmse = calc_rmse(val_Y, Y_pred)
+        else:
+            score = model.score(X, Y)
+            # Y_pred, std_pred = model.predict(X, return_std=True)
+            # nrmse = calc_nrmse(Y, Y_pred)
+            # rmse = calc_rmse(Y, Y_pred)
+        print(f'Score {rmse} \n')
         fitted_model_list.append(model)
         score_list.append(rmse)
 
-    max_idx = np.argmax(score_list)
+    max_idx = np.argmin(score_list)
+    best_fitted_model = fitted_model_list[max_idx]
+    best_score = score_list[max_idx]
+    return best_score, best_fitted_model
+
+
+def get_best_mlp_model(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray, val_Y: np.ndarray) -> Tuple[float, Ridge.fit]:
+    sigma_list = np.logspace(-1, 1, 20)
+    max_iter_list = [500, 1000, 2000, 5000]
+    n_hidden_layers_list = [10, 100, 1000]
+    fitted_model_list, score_list = [], []
+    for sigma in sigma_list:
+        for max_iter in [max_iter_list[0]]:
+            for n_hidden_layers in [n_hidden_layers_list[0]]:
+                print(f'Fitting sigma: {sigma} max_iter: {max_iter} hidden layers: {n_hidden_layers}GP')
+                model = MLPRegressor(random_state=1, max_iter=max_iter, alpha=sigma, solver='lbfgs', hidden_layer_sizes=n_hidden_layers)
+                model = model.fit(X, Y)
+
+                if val_X is not None:
+                    Y_pred = model.predict(val_X)
+                    nrmse = calc_nrmse(val_Y, Y_pred)
+                    rmse = calc_rmse(val_Y, Y_pred)
+                else:
+                    Y_pred = model.predict(X)
+                    nrmse = calc_nrmse(Y, Y_pred)
+                    rmse = calc_rmse(Y, Y_pred)
+                print(f'rmse is {rmse} \n')
+                fitted_model_list.append(model)
+                score_list.append(rmse)
+
+    max_idx = np.argmin(score_list)
     best_fitted_model = fitted_model_list[max_idx]
     best_score = score_list[max_idx]
     return best_score, best_fitted_model
@@ -290,7 +340,6 @@ def call_multilinear_ridge_regression(X: np.ndarray, Y: np.ndarray, val_X: np.nd
 
 def call_multilinear_lasso_regression(X: np.ndarray, Y: np.ndarray, val_X: np.ndarray = None,
                                       val_Y: np.ndarray = None, weight_list: List[float] = None) -> Tuple[float, Lasso.fit]:
-    weight_list = list(weight_list)
     score, fitted_model = get_best_lasso_model(X=X, Y=Y, val_X=val_X, val_Y=val_Y, weight_list=weight_list)
     return score, fitted_model
 
@@ -323,11 +372,11 @@ def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, 
     utils_lib.save_df_to_path(df=df, path=regression_results_path, file=results_file)
     utils_lib.save_df_to_path(df=pred_df, path=predictions_path, file=predictions_file)
 
-    if regression_type in managers_lib.RegDefinitions.multilinear_list or regression_type == 'gp':
+    if regression_type in managers_lib.RegDefinitions.multilinear_list or regression_type == 'gp' or regression_type == 'mlp':
         ext = 'pickle'
         model_file = utils_lib.create_files_name_with_ethnicity(file=model_file,
                                                                 ethnicity_filter_list=ethnicity_filter_list, ext=ext)
-        if regression_type == 'gp':
+        if regression_type == 'gp' or regression_type == 'mlp':
             dump(fitted_model, f'{model_path}/{model_file}')
         else:
             fitted_model.save(f'{model_path}/{model_file}')
@@ -365,12 +414,12 @@ def save_regression_results(df: pd.DataFrame, pred_df: pd.DataFrame, type: str, 
         utils_lib.save_df_to_path(df=val_info_df, path=validation_results_path, file=val_results_file)
         utils_lib.save_df_to_path(df=val_predictions_df, path=val_predictions_path, file=val_predictions_file)
 
-        if regression_type in managers_lib.RegDefinitions.multilinear_list or regression_type == 'gp':
+        if regression_type in managers_lib.RegDefinitions.multilinear_list or regression_type == 'gp' or regression_type == 'mlp':
             ext = 'pickle'
             val_model_file = utils_lib.create_files_name_with_ethnicity(file=val_model_file,
                                                                         ethnicity_filter_list=ethnicity_filter_list,
                                                                         ext=ext)
-            if regression_type == 'gp':
+            if regression_type == 'gp' or regression_type == 'mlp':
                 dump(fitted_model, f'{val_model_path}/{val_model_file}')
             else:
                 fitted_model.save(f'{val_model_path}/{val_model_file}')
@@ -427,10 +476,10 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
     if weight_by_time:
         time_arr = np.array(training_data_df['time'].tolist())
         max_time = max(time_arr)
-        weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        weight_list = list(np.exp((time_arr - max_time) * 0))
         training_data_df = training_data_df[np.array(weight_list) >= 0.5]
     else:
-        weight_list = []
+        weight_list = None
 
     # Set Y as mortality rate
     Y = np.array(training_data_df[reg_key])
@@ -446,7 +495,8 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
         'ethnicity',
         'state',
         'county',
-        'date']
+        'date',
+        'POPULATION_GENDER_FEMALE', 'EMPLOYED_POPULATION_CHARACTERISTICS_OVERALL', 'EMPLOYED_POPULATION_CHARACTERISTICS_Private_Wage_Salary', 'EMPLOYED_POPULATION_CHARACTERISTICS_Government', 'EMPLOYED_POPULATION_CHARACTERISTICS_Self Employed', 'EMPLOYED_POPULATION_CHARACTERISTICS_Unpaid Family', 'EMPLOYED_POPULATION_CHARACTERISTICS_Management Business', 'EMPLOYED_POPULATION_CHARACTERISTICS_Service Occupations', 'EMPLOYED_POPULATION_CHARACTERISTICS_Sales', 'EMPLOYED_POPULATION_CHARACTERISTICS_Natural Resources', 'EMPLOYED_POPULATION_CHARACTERISTICS_Production', 'EMPLOYED_POPULATION_CHARACTERISTICS_Agricilture', 'EMPLOYED_POPULATION_CHARACTERISTICS_Construction', 'EMPLOYED_POPULATION_CHARACTERISTICS_Manufacturing', 'EMPLOYED_POPULATION_CHARACTERISTICS_Wholesale_Trade', 'EMPLOYED_POPULATION_CHARACTERISTICS_Retail', 'EMPLOYED_POPULATION_CHARACTERISTICS_Transportation', 'EMPLOYED_POPULATION_CHARACTERISTICS_Information', 'EMPLOYED_POPULATION_CHARACTERISTICS_Finance_and_Insurance', 'EMPLOYED_POPULATION_CHARACTERISTICS_Professional_Scientific_and_Management', 'EMPLOYED_POPULATION_CHARACTERISTICS_Educational_Services_and_Health_Care', 'EMPLOYED_POPULATION_CHARACTERISTICS_Arts_Entertainment_and_Recreation', 'EMPLOYED_POPULATION_CHARACTERISTICS_Other', 'EMPLOYED_POPULATION_CHARACTERISTICS_Public_Administration', 'POPULATION_RACE_BLACK', 'POPULATION_RACE_HISPANIC', 'POPULATION_RACE_WHITE', 'POPULATION_RACE_ASIAN']
     metadata_keys = training_data_df.keys()
     metadata_keys = [key for key in metadata_keys if key not in filter_list]
     val_metadata_keys = copy.deepcopy(metadata_keys)
@@ -462,7 +512,7 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
 
         time_arr = np.array(val_data_df['time'].tolist())
         max_time = max(time_arr)
-        val_weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        val_weight_list = list(np.exp((time_arr - max_time) * 0))
         val_data_df = val_data_df[np.array(val_weight_list) >= 0.5]
 
         # Set Y as relevant key
@@ -482,6 +532,7 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
     Y_pred, std_pred = gp.predict(X, return_std=True)
     nrmse = calc_nrmse(Y, Y_pred)
     rmse = calc_rmse(Y, Y_pred)
+
 
     if len(county_names) == 1:
         county_name = county_names[0]
@@ -551,9 +602,9 @@ def gp_reg(state_name: str, county_names: List[str], type: str,
     return regression_info_df, predictions_df, gp, val_info_df, val_predictions_df
 
 
-def multilinear_reg(state_name: str, county_names: List[str], type: str,
-                    ethnicity_filter_list: List[str], reg_key: str, metadata_filter: List[str], validate_state_name: str, validate_county_names: List[str],
-                    bootstrap_bool: bool = True, N: int = 100, weight_by_time: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame, sm.OLS, pd.DataFrame, pd.DataFrame]:
+def mlp_reg(state_name: str, county_names: List[str], type: str,
+            ethnicity_filter_list: List[str], reg_key: str, metadata_filter: List[str], validate_state_name: str, validate_county_names: List[str],
+            bootstrap_bool: bool = False, N: int = 3, weight_by_time: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, sm.OLS, pd.DataFrame, pd.DataFrame]:
 
     training_data_df = load_data_df(state_name=state_name, county_names=county_names,
                                     type=type, ethnicity_filter_list=ethnicity_filter_list)
@@ -561,7 +612,150 @@ def multilinear_reg(state_name: str, county_names: List[str], type: str,
     if weight_by_time:
         time_arr = np.array(training_data_df['time'].tolist())
         max_time = max(time_arr)
-        weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        weight_list = list(np.exp((time_arr - max_time) * 0))
+        training_data_df = training_data_df[np.array(weight_list) >= 0.5]
+    else:
+        weight_list = None
+
+    # Set Y as mortality rate
+    Y = np.array(training_data_df[reg_key])
+
+    # Populate remaining columns with corresponding metadata
+    filter_list = [
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity',
+        'state',
+        'county',
+        'date']
+    metadata_keys = training_data_df.keys()
+    metadata_keys = [key for key in metadata_keys if key not in filter_list]
+    val_metadata_keys = copy.deepcopy(metadata_keys)
+
+    # Construct X
+    X, metadata_keys, mu_X, std_X = get_X(
+        training_data_df=training_data_df, filter_list=filter_list, metadata_keys=metadata_keys, metadata_filter=metadata_filter)
+
+    # Get relevant information for the validation set if needed
+    if validate_state_name is not None:
+        val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
+                                   ethnicity_filter_list=ethnicity_filter_list)
+
+        time_arr = np.array(val_data_df['time'].tolist())
+        max_time = max(time_arr)
+        val_weight_list = list(np.exp((time_arr - max_time) * 0))
+        val_data_df = val_data_df[np.array(val_weight_list) >= 0.5]
+
+        # Set Y as relevant key
+        val_Y = np.array(val_data_df[reg_key])
+        val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list,
+                                                      metadata_keys=val_metadata_keys,
+                                                      metadata_filter=metadata_filter, mu_X=mu_X, std_X=std_X)
+    else:
+        val_X, val_Y = None, None
+    if val_X is None:
+        ln = X.shape[0]
+        training_data_df_1 = training_data_df[0:int(0.8 * ln)]
+        X1, Y1 = X[0:int(0.8 * ln), :], Y[0:int(0.8 * ln)]
+        training_data_df_2 = training_data_df[int(0.8 * ln):]
+        X2, Y2 = X[int(0.8 * ln):, :], Y[int(0.8 * ln):]
+
+        X, Y = X2, Y2
+        training_data_df = training_data_df_2
+
+    nrmse, mlp = get_best_mlp_model(X=X1, Y=Y1, val_X=val_X, val_Y=val_Y)
+
+
+    # Get nrmse and rmse
+    Y_pred = mlp.predict(X)
+    std_pred = np.ones(np.shape(Y_pred))
+    nrmse = calc_nrmse(Y, Y_pred)
+    rmse = calc_rmse(Y, Y_pred)
+    import ipdb
+    ipdb.set_trace()
+    if len(county_names) == 1:
+        county_name = county_names[0]
+        regression_info_dict = {'state': [state_name], 'county': [county_name], 'n': [Y.shape[0]]}
+    else:
+        regression_info_dict = {'state': [state_name], 'county': [','.join(county_names)], 'n': [Y.shape[0]]}
+
+    regression_info_dict['nrmse'] = [nrmse]
+    regression_info_dict['rmse'] = [rmse]
+
+    # Get bootstrap values of nrms and rmse if prescribed
+    if bootstrap_bool:
+        def bs_mlp_fit(X_bs, Y_bs):
+            kernel_bs = C(1.0, (1e-3, 1e4)) * RBF(1.0, (1e-3, 1e4))
+            mlp_bs = GaussianProcessRegressor(kernel=kernel_bs, n_restarts_optimizer=10, normalize_y=True)
+            mlp_bs.fit(X_bs, Y_bs)
+            return mlp_bs
+
+        n = list(range(X.shape[0]))
+        frac = 0.5
+        nrmse_list, rmse_list, indices_list = [], [], []
+        for idx in range(N):
+            indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
+            indices_list.append(indices)
+
+        regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(
+            bs_mlp_fit)(X_bs=X[indices, :], Y_bs=Y[indices]) for indices in indices_list)
+        gp_list = regr_results
+
+        for idx in range(N):
+            Y_pred_bs = gp_list[idx].predict(X[indices_list[idx], :])
+            nrmse_bootstrap = calc_nrmse(Y[indices_list[idx]], Y_pred_bs)
+            rmse_bootstrap = calc_rmse(Y[indices_list[idx]], Y_pred_bs)
+            nrmse_list.append(nrmse_bootstrap)
+            rmse_list.append(rmse_bootstrap)
+        low_nrmse, up_nrmse = np.percentile(nrmse_list, 2.5), np.percentile(nrmse_list, 97.5)
+        low_rmse, up_rmse = np.percentile(rmse_list, 2.5), np.percentile(rmse_list, 97.5)
+        regression_info_dict['low_nrmse'], regression_info_dict['up_nrmse'] = [low_nrmse], [up_nrmse]
+        regression_info_dict['low_rmse'], regression_info_dict['up_rmse'] = [low_rmse], [up_rmse]
+
+    regression_info_df = pd.DataFrame(regression_info_dict)
+    predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(
+    ), 'date': training_data_df['date'].tolist(), 'y': list(Y), 'y_pred': list(Y_pred), 'std_pred': list(std_pred), 'state': training_data_df['state'].tolist(), 'county': training_data_df['county'].tolist(),
+        'ethnicity': training_data_df['ethnicity'].tolist()})
+
+    val_info_df = None
+    val_predictions_df = None
+    if validate_state_name is not None:
+        # val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
+        #                            ethnicity_filter_list=ethnicity_filter_list)
+        #
+        # # Set Y as relevant key
+        # val_Y = np.array(val_data_df[reg_key])
+        # val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list, metadata_keys=val_metadata_keys,
+        #                                               metadata_filter=metadata_filter, mu_X=mu_X, std_X=std_X)
+
+        val_Y_pred = mlp.predict(val_X)
+        val_nrmse = calc_nrmse(val_Y, val_Y_pred)
+        val_rmse = calc_rmse(val_Y, val_Y_pred)
+        val_info_df = pd.DataFrame({'nrmse': [val_nrmse], 'rmse': [val_rmse], 'state': ','.join(set(val_data_df['state'].tolist())), 'county':
+                                    ','.join(set(val_data_df['county'].tolist())), 'train_state': ','.join(set(training_data_df['state'].tolist())), 'train_county':
+                                    ','.join(set(training_data_df['county'].tolist())), 'mu_X': [mu_X], 'std_X': [std_X]})
+        val_predictions_df = pd.DataFrame({'time': val_data_df['time'].tolist(
+        ), 'date': val_data_df['date'].tolist(), 'y_val': list(val_Y), 'y_val_pred': list(val_Y_pred), 'state': val_data_df['state'].tolist(),
+            'county': val_data_df['county'].tolist(), 'ethnicity': val_data_df['ethnicity'].tolist()})
+
+    return regression_info_df, predictions_df, mlp, val_info_df, val_predictions_df
+
+
+def multilinear_reg(state_name: str, county_names: List[str], type: str,
+                    ethnicity_filter_list: List[str], reg_key: str, metadata_filter: List[str], validate_state_name: str, validate_county_names: List[str],
+                    bootstrap_bool: bool = True, N: int = 1000, weight_by_time: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame, sm.OLS, pd.DataFrame, pd.DataFrame]:
+
+    training_data_df = load_data_df(state_name=state_name, county_names=county_names,
+                                    type=type, ethnicity_filter_list=ethnicity_filter_list)
+
+    if weight_by_time:
+        time_arr = np.array(training_data_df['time'].tolist())
+        max_time = max(time_arr)
+        weight_list = list(np.exp((time_arr - max_time) * 0))
     else:
         weight_list = []
 
@@ -592,6 +786,7 @@ def multilinear_reg(state_name: str, county_names: List[str], type: str,
     # Get nrmse and rmse
     nrmse = calc_nrmse(Y, fitted_model.fittedvalues)
     rmse = calc_rmse(Y, fitted_model.fittedvalues)
+
     features = [metadata_keys[idx] for idx in feature_subset]
     stat_table = fitted_model.summary().tables[-1]
 
@@ -602,10 +797,10 @@ def multilinear_reg(state_name: str, county_names: List[str], type: str,
         regression_info_dict = {'state': state_name, 'county': ','.join(county_names), 'n': Y.shape[0]}
 
     regression_info_dict['features'] = features
-    regression_info_dict['coef'] = fitted_model.params
-    regression_info_dict['lower_coef'] = regression_info_dict['coef'] - \
+    regression_info_dict['coef'] = np.abs(fitted_model.params)
+    regression_info_dict['lower_coef'] = np.abs(regression_info_dict['coef']) - \
         1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
-    regression_info_dict['upper_coef'] = regression_info_dict['coef'] + \
+    regression_info_dict['upper_coef'] = np.abs(regression_info_dict['coef']) + \
         1.96 * np.sqrt(np.diag(fitted_model.cov_params()))
     # regression_info_dict['vif'] = vif_list
     regression_info_dict['std_err'] = np.sqrt(np.diag(fitted_model.cov_params()))
@@ -621,13 +816,18 @@ def multilinear_reg(state_name: str, county_names: List[str], type: str,
     # Get bootstrap values of nrms and rmse if prescribed
     if bootstrap_bool:
         n = list(range(X.shape[0]))
-        frac = 0.5
+        frac = 1.0
         nrmse_list, rmse_list, indices_list = [], [], []
         for idx in range(N):
             indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
             indices_list.append(indices)
-        regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(
-            call_multilinear_regression)(X=X[indices, :], Y=Y[indices], weight_list=np.array(weight_list)[indices]) for indices in indices_list)
+        if len(weight_list) > 0:
+            regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(
+                call_multilinear_regression)(X=X[indices, :], Y=Y[indices], weight_list=np.array(weight_list)[indices]) for indices in indices_list)
+        else:
+            regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(
+                call_multilinear_regression)(X=X[indices, :], Y=Y[indices])
+                                                                               for indices in indices_list)
         fitted_model_list, _ = zip(*regr_results)
 
         for idx in range(N):
@@ -644,6 +844,157 @@ def multilinear_reg(state_name: str, county_names: List[str], type: str,
 
     predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(
     ), 'date': training_data_df['date'].tolist(), 'y': list(Y), 'y_pred': list(fitted_model.fittedvalues), 'state': training_data_df['state'].tolist(), 'county': training_data_df['county'].tolist(),
+        'ethnicity': training_data_df['ethnicity'].tolist()})
+
+    val_info_df = None
+    val_predictions_df = None
+    if validate_state_name is not None:
+        val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
+                                   ethnicity_filter_list=ethnicity_filter_list)
+
+        # Set Y as relevant key
+        val_Y = np.array(val_data_df[reg_key])
+        val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list, metadata_keys=val_metadata_keys,
+                                                      metadata_filter=metadata_filter, mu_X=mu_X, std_X=std_X)
+
+        val_Y_pred = fitted_model.predict(val_X)
+        val_nrmse = calc_nrmse(val_Y, val_Y_pred)
+        val_rmse = calc_rmse(val_Y, val_Y_pred)
+        val_info_df = pd.DataFrame({'nrmse': [val_nrmse], 'rmse': [val_rmse], 'state': ','.join(set(val_data_df['state'].tolist())), 'county':
+                                    ','.join(set(val_data_df['county'].tolist())), 'train_state': ','.join(set(training_data_df['state'].tolist())), 'train_county':
+                                    ','.join(set(training_data_df['county'].tolist())), 'mu_X': [mu_X], 'std_X': [std_X]})
+        val_predictions_df = pd.DataFrame({'time': val_data_df['time'].tolist(
+        ), 'date': val_data_df['date'].tolist(), 'y_val': list(val_Y), 'y_val_pred': list(val_Y_pred), 'state': val_data_df['state'].tolist(),
+            'county': val_data_df['county'].tolist(), 'ethnicity': val_data_df['ethnicity'].tolist()})
+
+    return regression_info_df, predictions_df, fitted_model, val_info_df, val_predictions_df
+
+
+def random_forest_reg(state_name: str, county_names: List[str], type: str,
+                    ethnicity_filter_list: List[str], reg_key: str, metadata_filter: List[str], validate_state_name: str, validate_county_names: List[str],
+                    bootstrap_bool: bool = True, N: int = 1000, weight_by_time: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, sm.OLS, pd.DataFrame, pd.DataFrame]:
+
+    training_data_df = load_data_df(state_name=state_name, county_names=county_names,
+                                    type=type, ethnicity_filter_list=ethnicity_filter_list)
+
+    if weight_by_time:
+        time_arr = np.array(training_data_df['time'].tolist())
+        max_time = max(time_arr)
+        weight_list = list(np.exp((time_arr - max_time) * 0))
+    else:
+        weight_list = []
+
+    # Set Y as relevant key
+    Y = np.array(training_data_df[reg_key])
+
+    # Populate remaining columns with corresponding metadata
+    filter_list = [
+        'covid_perc',
+        'dem_perc',
+        'mortality_rate',
+        'detrended_mortality_rate',
+        'discrepancy',
+        'y_pred',
+        'ethnicity',
+        'state',
+        'county',
+        'date']
+    metadata_keys = training_data_df.keys()
+    metadata_keys = [key for key in metadata_keys if key not in filter_list]
+    val_metadata_keys = copy.deepcopy(metadata_keys)
+
+    # Construct X
+    X, metadata_keys, mu_X, std_X = get_X(
+        training_data_df=training_data_df, filter_list=filter_list, metadata_keys=metadata_keys, metadata_filter=metadata_filter)
+
+    # ###############################
+    # Number of trees in random forest
+    n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=3)]
+    # Number of features to consider at every split
+    max_features = ['auto', 'sqrt']
+    # Maximum number of levels in tree
+    max_depth = [int(x) for x in np.linspace(10, 110, num=3)]
+    max_depth.append(None)
+    # Minimum number of samples required to split a node
+    min_samples_split = [2, 5, 10]
+    # Minimum number of samples required at each leaf node
+    min_samples_leaf = [1, 2, 4]
+    # Method of selecting samples for training each tree
+    bootstrap = [True, False]
+    # Create the random grid
+    random_grid = {'n_estimators': n_estimators,
+                   'max_features': max_features,
+                   'max_depth': max_depth,
+                   'min_samples_split': min_samples_split,
+                   'min_samples_leaf': min_samples_leaf,
+                   'bootstrap': bootstrap}
+
+    fitted_model = RandomForestRegressor()
+    fitted_model = RandomizedSearchCV(estimator=fitted_model, param_distributions=random_grid, n_iter=100, cv=20, verbose=2,
+                                   random_state=42, n_jobs=-1)
+
+    fitted_model.fit(X, Y)
+    fitted_model = fitted_model.best_estimator_
+    # import ipdb
+    # ipdb.set_trace()
+
+
+    # fitted_model = RandomForestRegressor(random_state=0)
+    # fitted_model.fit(X, Y)
+
+    Y_pred = fitted_model.predict(X)
+
+    # get importance
+    importance = list(fitted_model.feature_importances_)
+    # Get nrmse and rmse
+    nrmse = calc_nrmse(Y, Y_pred)
+    rmse = calc_rmse(Y, Y_pred)
+
+    if len(county_names) == 1:
+        county_name = county_names[0]
+        regression_info_dict = {'state': state_name, 'county': county_name, 'n': Y.shape[0]}
+    else:
+        regression_info_dict = {'state': state_name, 'county': ','.join(county_names), 'n': Y.shape[0]}
+
+    regression_info_dict['features'] = metadata_keys
+    regression_info_dict['coef'] = importance
+
+    regression_info_dict['nrmse'] = nrmse
+    regression_info_dict['rmse'] = rmse
+
+    # Get bootstrap values of nrms and rmse if prescribed
+    if bootstrap_bool:
+        n = list(range(X.shape[0]))
+        frac = 1.0
+        nrmse_list, rmse_list, indices_list, coeff_list = [], [], [], []
+        for idx in range(N):
+            indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
+            indices_list.append(indices)
+
+        fitted_model_bs = RandomForestRegressor(random_state=0).fit
+        regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(joblib.delayed(
+            fitted_model_bs)(X[indices, :], Y[indices]) for indices in indices_list)
+
+        fitted_model_list = regr_results
+
+        for idx in range(N):
+            Y_pred_bs = fitted_model_list[idx].predict(X[indices_list[idx], :])
+            coeff_bs = fitted_model_list[idx].feature_importances_
+            nrmse_bootstrap = calc_nrmse(Y[indices_list[idx]], Y_pred_bs)
+            rmse_bootstrap = calc_rmse(Y[indices_list[idx]], Y_pred_bs)
+            nrmse_list.append(nrmse_bootstrap)
+            rmse_list.append(rmse_bootstrap)
+            coeff_list.append(coeff_bs)
+        coeff_list = np.array(coeff_list)
+        low_nrmse, up_nrmse = np.percentile(nrmse_list, 2.5), np.percentile(nrmse_list, 97.5)
+        low_coeff, up_coeff = np.percentile(coeff_list, 2.5, axis=0), np.percentile(coeff_list, 97.5, axis=0)
+        regression_info_dict['low_nrmse'], regression_info_dict['up_nrmse'] = low_nrmse, up_nrmse
+        regression_info_dict['low_coef'], regression_info_dict['up_coef'] = low_coeff, up_coeff
+
+    regression_info_df = pd.DataFrame(regression_info_dict)
+
+    predictions_df = pd.DataFrame({'time': training_data_df['time'].tolist(
+    ), 'date': training_data_df['date'].tolist(), 'y': list(Y), 'y_pred': list(Y_pred), 'state': training_data_df['state'].tolist(), 'county': training_data_df['county'].tolist(),
         'ethnicity': training_data_df['ethnicity'].tolist()})
 
     val_info_df = None
@@ -832,18 +1183,18 @@ def multilinear_pca_reg(state_name: str, type: str, county_name: str,
 
 def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[str], ethnicity_filter_list:
                                 List[str], reg_key: str, metadata_filter: List[str], validate_state_name: str, validate_county_names: List[str],
-                                bootstrap_bool: bool = True, N: int = 100, regularizer_type: str = 'ridge', weight_by_time: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame, sm.OLS, pd.DataFrame, pd.DataFrame]:
+                                bootstrap_bool: bool = True, N: int = 100, regularizer_type: str = 'ridge', weight_by_time: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, sm.OLS, pd.DataFrame, pd.DataFrame]:
     training_data_df = load_data_df(state_name=state_name, county_names=county_names,
                                     type=type, ethnicity_filter_list=ethnicity_filter_list)
 
     if weight_by_time:
         time_arr = np.array(training_data_df['time'].tolist())
         max_time = max(time_arr)
-        weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        weight_list = list(np.exp((time_arr - max_time) * 0))
         train_weight_list = list(np.array(weight_list)[np.array(weight_list) >= 0.5])
     else:
-        weight_list = []
-        train_weight_list = []
+        weight_list = None
+        train_weight_list = None
 
     # Set Y as mortality rate
     Y = np.array(training_data_df[reg_key])
@@ -859,7 +1210,23 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
         'ethnicity',
         'state',
         'county',
-        'date']
+        'date',
+        'POPULATION_GENDER_FEMALE', 'EMPLOYED_POPULATION_CHARACTERISTICS_OVERALL',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Private_Wage_Salary', 'EMPLOYED_POPULATION_CHARACTERISTICS_Government',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Self Employed', 'EMPLOYED_POPULATION_CHARACTERISTICS_Unpaid Family',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Management Business',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Service Occupations', 'EMPLOYED_POPULATION_CHARACTERISTICS_Sales',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Natural Resources', 'EMPLOYED_POPULATION_CHARACTERISTICS_Production',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Agricilture', 'EMPLOYED_POPULATION_CHARACTERISTICS_Construction',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Manufacturing', 'EMPLOYED_POPULATION_CHARACTERISTICS_Wholesale_Trade',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Retail', 'EMPLOYED_POPULATION_CHARACTERISTICS_Transportation',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Information', 'EMPLOYED_POPULATION_CHARACTERISTICS_Finance_and_Insurance',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Professional_Scientific_and_Management',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Educational_Services_and_Health_Care',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Arts_Entertainment_and_Recreation',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Other', 'EMPLOYED_POPULATION_CHARACTERISTICS_Public_Administration',
+        'POPULATION_RACE_BLACK', 'POPULATION_RACE_HISPANIC', 'POPULATION_RACE_WHITE', 'POPULATION_RACE_ASIAN']
+
     metadata_keys = training_data_df.keys()
     metadata_keys = [key for key in metadata_keys if key not in filter_list]
     val_metadata_keys = copy.deepcopy(metadata_keys)
@@ -875,9 +1242,8 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
                                    ethnicity_filter_list=ethnicity_filter_list)
         time_arr = np.array(val_data_df['time'].tolist())
         max_time = max(time_arr)
-        val_weight_list = list(np.exp((time_arr - max_time) * 5e-2))
+        val_weight_list = list(np.exp((time_arr - max_time) * 0))
         val_data_df = val_data_df[np.array(val_weight_list) >= 0.5]
-
         # Set Y as relevant key
         val_Y = np.array(val_data_df[reg_key])
         val_X, val_metadata_keys, mu_X, std_X = get_X(training_data_df=val_data_df, filter_list=filter_list,
@@ -925,32 +1291,44 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
     if bootstrap_bool:
         n = list(range(X.shape[0]))
         frac = 0.5
-        nrmse_list, rmse_list, indices_list = [], [], []
+        nrmse_list, rmse_list, indices_list, coef_list = [], [], [], []
         for idx in range(N):
             indices = np.random.choice(n, size=int(frac * len(n)), replace=True)
             indices_list.append(indices)
+
         if regularizer_type == 'ridge':
             regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
                 joblib.delayed(call_multilinear_ridge_regression)(X=X[indices, :], Y=Y[indices], weight_list=np.array(weight_list)[indices]) for indices in indices_list)
         elif regularizer_type == 'lasso':
-            regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
-                joblib.delayed(call_multilinear_lasso_regression)(X=X[indices, :], Y=Y[indices], weight_list=np.array(weight_list)[indices]) for indices in indices_list)
-
+            if weight_list is not None and len(weight_list) != 0:
+                regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
+                    joblib.delayed(call_multilinear_lasso_regression)(X=X[indices, :], Y=Y[indices], weight_list=np.array(weight_list)[indices]) for indices in indices_list)
+            else:
+                regr_results = joblib.Parallel(n_jobs=multiprocessing.cpu_count())(
+                    joblib.delayed(call_multilinear_lasso_regression)(X=X[indices, :], Y=Y[indices]) for indices in indices_list)
         _, fitted_model_list = zip(*regr_results)
 
         for idx in range(N):
             X_bs = X[indices_list[idx], :]
             Y_pred_bs = fitted_model_list[idx].predict(X_bs)
+            coef_bs = fitted_model_list[idx].coef_
             nrmse_bootstrap = calc_nrmse(Y[indices_list[idx]], Y_pred_bs)
             rmse_bootstrap = calc_rmse(Y[indices_list[idx]], Y_pred_bs)
             nrmse_list.append(nrmse_bootstrap)
             rmse_list.append(rmse_bootstrap)
+            coef_list.append(coef_bs)
+        import ipdb
+        ipdb.set_trace()
+        coef_list = np.array(coef_list)
         low_nrmse, up_nrmse = np.percentile(nrmse_list, 2.5), np.percentile(nrmse_list, 97.5)
         low_rmse, up_rmse = np.percentile(rmse_list, 2.5), np.percentile(rmse_list, 97.5)
+        low_coef, up_coef = list(np.percentile(coef_list, 2.5, axis=0)), list(np.percentile(coef_list, 97.5, axis=0))
+
         regression_info_dict['low_nrmse'], regression_info_dict['up_nrmse'] = [
             low_nrmse] * len(metadata_keys), [up_nrmse] * len(metadata_keys)
         regression_info_dict['low_rmse'], regression_info_dict['up_rmse'] = [
             low_rmse] * len(metadata_keys), [up_rmse] * len(metadata_keys)
+        regression_info_dict['low_coef'], regression_info_dict['up_coef'] = low_coef, up_coef
 
     regression_info_df = pd.DataFrame(regression_info_dict)
 
@@ -960,20 +1338,10 @@ def multilinear_ridge_lasso_reg(state_name: str, type: str, county_names: List[s
     val_info_df = None
     val_predictions_df = None
     if validate_state_name is not None:
-        # val_data_df = load_data_df(state_name=validate_state_name, county_names=validate_county_names, type=type,
-        #                                     ethnicity_filter_list=ethnicity_filter_list)
-        #
-        # # Set Y as relevant key
-        # val_Y = np.array(val_data_df[reg_key])
-        # val_X, val_metadata_keys = get_X(training_data_df=val_data_df, filter_list=filter_list, metadata_keys=val_metadata_keys,
-        #           metadata_filter=metadata_filter)
-
         val_Y_pred = fitted_model.predict(val_X)
         val_nrmse = calc_nrmse(val_Y, val_Y_pred)
         val_rmse = calc_rmse(val_Y, val_Y_pred)
 
-        # val_info_df = pd.DataFrame({'nrmse': [val_nrmse], 'rmse': [val_rmse], 'state': [val_data_df['state'][0]], 'county':
-        #                             [val_data_df['county'][0]], 'train_state'})
         val_info_df = pd.DataFrame({'nrmse': [val_nrmse], 'rmse': [val_rmse], 'state': ','.join(set(val_data_df['state'].tolist())), 'county':
                                     ','.join(set(val_data_df['county'].tolist())), 'train_state': ','.join(set(training_data_df['state'].tolist())), 'train_county':
                                     ','.join(set(training_data_df['county'].tolist())), 'mu_X': [mu_X], 'std_X': [std_X]})
