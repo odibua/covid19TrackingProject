@@ -1,0 +1,14 @@
+nrmse,rmse,state,county,model,mu_X,std_X
+0.20768533524773256,0.21126146297322465,"0    california
+0    california
+0    california
+0    california
+0    california
+Name: state, dtype: object","0      sacramento
+0         alameda
+0      losangeles
+0    sanfrancisco
+0      santaclara
+Name: county, dtype: object",states/california/val_results_csvs/multilinear_lasso/discrepancy/model/deaths_california_None_train_california_alameda_imperial_riverside_sacramento_sanfrancisco_sonoma_discrepancy_Black_White_Asian_Hispanic.sav,"[9.24000000e+01 7.37041149e+04 5.72816197e+02 2.50087405e+02
+ 6.38426125e+01 2.99842541e+02 5.02536985e+01]","[4.43970207e+01 2.44937565e+04 1.38792827e+02 1.43642641e+02
+ 6.53997569e+01 6.02499871e+01 1.97912225e+01]"

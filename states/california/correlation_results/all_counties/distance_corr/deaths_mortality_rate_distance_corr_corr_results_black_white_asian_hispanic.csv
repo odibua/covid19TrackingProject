@@ -1,0 +1,15 @@
+corr,Y,X,low_corr,up_corr,state,county,n
+0.5001180104423094,mortality_rate,retail_and_recreation_percent_change_from_baseline,0.4498965326997369,0.5525469503020767,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.29868206935552766,mortality_rate,grocery_and_pharmacy_percent_change_from_baseline,0.263548138781799,0.348374516279481,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.5208284204934264,mortality_rate,parks_percent_change_from_baseline,0.47158883620992653,0.5771719961359318,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.5462196873178522,mortality_rate,transit_stations_percent_change_from_baseline,0.4964063182557534,0.596496124062415,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.38956078574322717,mortality_rate,workplaces_percent_change_from_baseline,0.33483295473600516,0.4509575707231205,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.3995801566571982,mortality_rate,residential_percent_change_from_baseline,0.3523386313060781,0.46062562908065335,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.4856721559815579,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,0.4386403765403124,0.5386275483883316,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.16503100330486337,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,0.15763966603700053,0.20225425174535666,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.2553348754471534,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,0.21858076552507097,0.3131104705070775,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.34111177075283927,mortality_rate,PUBLIC_TRANSPORTATION,0.299222509181483,0.3894849872845757,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.2247121287936768,mortality_rate,CAR_TRUCK_VAN_ALONE,0.20615104055704214,0.2640322127971177,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.37002830168360906,mortality_rate,CAR_TRUCK_VAN_CARPOOL,0.3282918990626362,0.42290967477319347,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.5046879818355336,mortality_rate,PERCENT_INSURED,0.4558930508892498,0.5637280507916036,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156
+0.41945193376179135,mortality_rate,BELOW_POVERTY_LEVEL,0.36414698235157855,0.4796888330688704,california,"['alameda', 'sacramento', 'sanfrancisco', 'losangeles', 'santaclara']",1156

@@ -10,3 +10,4 @@ dist/
 files.txt
 venv/
 iframetest/*
+external_data/
