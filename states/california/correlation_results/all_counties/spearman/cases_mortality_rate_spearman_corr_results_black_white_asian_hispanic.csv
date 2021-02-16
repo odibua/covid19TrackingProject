@@ -1,0 +1,15 @@
+corr,Y,X,low_corr,up_corr,state,county,n
+0.07798333340851492,mortality_rate,retail_and_recreation_percent_change_from_baseline,0.021194108023409985,0.13276995496478733,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.17795076340118243,mortality_rate,grocery_and_pharmacy_percent_change_from_baseline,-0.22939605970951138,-0.12103126726029957,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.3907530321797654,mortality_rate,parks_percent_change_from_baseline,-0.4359890324794897,-0.3443684008755952,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.022759051492973144,mortality_rate,transit_stations_percent_change_from_baseline,-0.07765265380495172,0.026661889672849635,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+0.05378155434392251,mortality_rate,workplaces_percent_change_from_baseline,-0.002565868011560127,0.1110837290289798,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.06100697416895564,mortality_rate,residential_percent_change_from_baseline,-0.11785343526250038,-0.003488055494140838,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.43889751761825596,mortality_rate,HOUSEHOLD_MEDIAN_INCOME_DOLLARS,-0.4798649783081948,-0.3954724716585174,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.4685205283460198,mortality_rate,HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL,-0.5099691310928007,-0.42646271356949467,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.561695272165127,mortality_rate,BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL,-0.5967653261505493,-0.5256990197575437,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+0.05699857525658122,mortality_rate,PUBLIC_TRANSPORTATION,0.0015949997316917906,0.11065206282788753,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+-0.03582902793841244,mortality_rate,CAR_TRUCK_VAN_ALONE,-0.08453847089869536,0.01469445198737105,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+0.22133475808904882,mortality_rate,CAR_TRUCK_VAN_CARPOOL,0.16767710388288323,0.27485664194000975,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+0.08735140959332757,mortality_rate,PERCENT_INSURED,0.033349846333302846,0.13986181527920455,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793
+0.48293142686039287,mortality_rate,BELOW_POVERTY_LEVEL,0.4433579658042047,0.522914545744694,california,"['alameda', 'losangeles', 'sacramento', 'sanfrancisco', 'riverside', 'sonoma', 'santaclara']",2793

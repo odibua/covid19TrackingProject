@@ -10,24 +10,24 @@
 
 # Training regions list of lists
 train_state="california"
-train_case_counties_array=("alameda imperial riverside sacramento sanfrancisco sonoma" "None")
-train_death_counties_array=("alameda imperial sanfrancisco santaclara" "None")
+train_case_counties_array=("None") #("alameda imperial riverside sacramento sanfrancisco sonoma" "None")
+train_death_counties_array=("None") #("alameda imperial sanfrancisco santaclara" "None")
 
 # Validation regions list of lists
 validation_state="california"
-validation_case_counties_array=("losangeles santaclara" "None")
-validation_death_counties_array=("losangeles sacramento" "None")
+validation_case_counties_array=("None") #("losangeles santaclara" "None")
+validation_death_counties_array=("None") #("losangeles sacramento" "None")
 
 # Test regions list
 test_state="california"
-test_case_counties_array=("None" "losangeles santaclara")
-test_death_counties_array=("None" "losangeles sacramento")
+test_case_counties_array=("sonoma riverside sacramento alameda losangeles sanfrancisco santaclara") #("None" "losangeles santaclara")
+test_death_counties_array=("sacramento alameda losangeles sanfrancisco santaclara") #("None" "losangeles sacramento")
 
 # Regression type list
-regression_type_array="gp" #"multilinear multilinear_ridge multilinear_lasso"
+regression_type_array="gp" #"multilinear_lasso"
 
 # Regression key list
-regression_key_str="--reg_key discrepancy"
+regression_key_str="--reg_key discrepancy" #"--reg_key discrepancy"
 
 # Mode list
 mode_array="test_cases_model test_deaths_model"

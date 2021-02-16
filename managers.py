@@ -27,7 +27,7 @@ import utils_lib
 
 
 class RegDefinitions:
-    reg_list = ['multilinear', 'multilinear_ridge', 'multilinear_lasso', 'gp']
+    reg_list = ['multilinear', 'multilinear_ridge', 'multilinear_lasso', 'gp', 'mlp', 'rf_reg']
     spearman_reg_list = ['multilinear_spearman', 'multilinear_ridge_spearman', 'multilinear_lasso_spearman']
     dist_reg_list = ['multilinear_distance_corr', 'multilinear_ridge_distance_corr', 'multilinear_lasso_distance_corr']
 
@@ -243,44 +243,45 @@ def metadata_manager(state_name: str, county_name: str = None) -> None:
     # Get dataframe of raw metadata for a state and/or county and save the data to
     # a csv file
     metadata_df = utils_lib.get_raw_metadata_from_config_files(config_dir=state_config_path)
-    utils_lib.save_data(
-        state_name=state_name,
-        county_name=county_name,
-        data_df=metadata_df,
-        data_dir='meta_data_csv',
-        data_suffix='metadata')
 
-    # Process raw metadata and save processed medatada and save data to a csv file
+    # utils_lib.save_data(
+    #     state_name=state_name,
+    #     county_name=county_name,
+    #     data_df=metadata_df,
+    #     data_dir='meta_data_csv',
+    #     data_suffix='metadata')
+    #
+    # # Process raw metadata and save processed medatada and save data to a csv file
     processed_metadata_df = utils_lib.process_raw_metadata(
         raw_metadata_df=metadata_df,
         config_dir=state_config_path,
         state=state_name,
         county=county_name,
         state_county_dir=state_county_dir)
-    utils_lib.save_data(
-        state_name=state_name,
-        county_name=county_name,
-        data_df=processed_metadata_df,
-        data_dir='processed_meta_data_csv',
-        data_suffix='processed_metadata')
-
-    # Aggregate processed metadata based on mapping of regionally defined ethnicities
-    # to ACS ethnicities.
+    # utils_lib.save_data(
+    #     state_name=state_name,
+    #     county_name=county_name,
+    #     data_df=processed_metadata_df,
+    #     data_dir='processed_meta_data_csv',
+    #     data_suffix='processed_metadata')
+    #
+    # # Aggregate processed metadata based on mapping of regionally defined ethnicities
+    # # to ACS ethnicities.
     aggregated_processed_metadata_df = utils_lib.aggregate_processed_raw_metadata(
         processed_metadata_df=processed_metadata_df,
         state=state_name,
         county=county_name,
         state_county_dir=state_county_dir)
-    utils_lib.save_data(
-        state_name=state_name,
-        county_name=county_name,
-        data_df=aggregated_processed_metadata_df,
-        data_dir='aggregated_processed_meta_data_csv',
-        data_suffix='aggregated_processed_metadata')
+    # utils_lib.save_data(
+    #     state_name=state_name,
+    #     county_name=county_name,
+    #     data_df=aggregated_processed_metadata_df,
+    #     data_dir='aggregated_processed_meta_data_csv',
+    #     data_suffix='aggregated_processed_metadata')
 
 
 def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
-                        ethnicity_filter_list: List = [], county_name: str = None) -> None:
+                        ethnicity_filter_list: List = [], county_name: List[str] = [None]) -> None:
     """
     Runs correlation between metadata of different ethnicities and a quantity (such as mortality rate,
     discrepancy, etc....)
@@ -292,6 +293,8 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
     ethnicity_filter_list: List of ethnicities for which correlation between metadata and key value will be run
     county_name: County for which correlation is run
     """
+    # import ipdb
+    # ipdb.set_trace()
     # Define path and file for training data
     training_csv_path = path.join('states', state_name, 'training_data_csvs')
     correlation_results_path = path.join('states', state_name, 'correlation_results', corr_type)
@@ -299,9 +302,15 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
     if county_name is None:
         training_file = f'{state_name}_training_{type}.csv'
     else:
-        training_file = f'{state_name}_{county_name}_training_{type}.csv'
+        if isinstance(county_name, list):
+            training_file = f'{state_name}_{",".join(county_name)}_training_{type}.csv'
+        else:
+            training_file = f'{state_name}_{county_name}_training_{type}.csv'
 
-    training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
+
+    training_data_df = regression_utils.load_data_df(state_name=state_name, county_names=county_name,
+                                    type=type, ethnicity_filter_list=ethnicity_filter_list)
+    # training_data_df = pd.read_csv(path.join(training_csv_path, training_file), index_col=0)
 
     # Filter to specific ethnicities
     if len(ethnicity_filter_list) > 0:
@@ -319,12 +328,54 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
         'detrended_mortality_rate',
         'discrepancy',
         'y_pred',
-        'ethnicity']
+        'ethnicity',
+        'date',
+        'state',
+        'county',
+        'HOUSEHOLD_MEDIAN_INCOME_DOLLARS_OVERALL',
+        'HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL_OVERALL',
+        'BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL_OVERALL',
+        'PUBLIC_TRANSPORTATION_OVERALL', 'CAR_TRUCK_VAN_ALONE_OVERALL',
+        'CAR_TRUCK_VAN_CARPOOL_OVERALL', 'PERCENT_INSURED_OVERALL',
+        'BELOW_POVERTY_LEVEL_OVERALL', 'POPULATION_GENDER_MALE',
+        'POPULATION_GENDER_FEMALE',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_OVERALL',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Private_Wage_Salary',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Government',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Self Employed',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Unpaid Family',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Management Business',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Service Occupations',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Sales',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Natural Resources',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Production',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Agricilture',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Construction',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Manufacturing',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Wholesale_Trade',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Retail',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Transportation',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Information',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Finance_and_Insurance',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Professional_Scientific_and_Management',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Educational_Services_and_Health_Care',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Arts_Entertainment_and_Recreation',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Other',
+        'EMPLOYED_POPULATION_CHARACTERISTICS_Public_Administration',
+        'POPULATION_RACE_BLACK', 'POPULATION_RACE_HISPANIC',
+        'POPULATION_RACE_WHITE', 'POPULATION_RACE_ASIAN',
+        'HOUSEHOLD_MEDIAN_INCOME_DOLLARS_OVERALL',
+        'HIGH_SCHOOL_GRADUATE_OR_HIGHER_25_PLUS_TOTAL_OVERALL',
+        'BACHELOR_DEGREE_OR_HIGHER_25_PLUS_TOTAL_OVERALL',
+        'PUBLIC_TRANSPORTATION_OVERALL', 'CAR_TRUCK_VAN_ALONE_OVERALL',
+        'CAR_TRUCK_VAN_CARPOOL_OVERALL', 'PERCENT_INSURED_OVERALL',
+        'BELOW_POVERTY_LEVEL_OVERALL'
+    ]
     corr_keys = [feat_key for feat_key in training_data_df.keys() if feat_key not in keys_to_filter]
 
-    corr_dict = {'corr': [], 'Y': [], 'X': [], 'p_val': [], 'state': [], 'county': [], 'n': []}
-
+    corr_dict = {'corr': [], 'Y': [], 'X': [], 'low_corr': [], 'up_corr': [], 'state': [], 'county': [], 'n': []}
     for corr_key in corr_keys:
+        print(f'Performing correlation {corr_key}')
         X = np.array(training_data_df[corr_key].tolist())
         if corr_type == 'spearman':
             correlation_utils.populate_spearman_corr_dict(corr_dict=corr_dict, y_key=key, x_key=corr_key, state=state_name, county=county_name, n=len(Y),
@@ -335,7 +386,8 @@ def correlation_manager(state_name: str, type: str, key: str, corr_type: str,
                                                       X=X, Y=Y)
     filter_empty_list(dict=corr_dict)
     corr_df = pd.DataFrame(corr_dict)
-
+    # import ipdb
+    # ipdb.set_trace()
     if len(corr_df) > 0:
         if len(ethnicity_filter_list) == 0:
             results_file = f'{type}_{key}_{corr_type}_corr_results.csv'
@@ -410,6 +462,24 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     # Load aggregated metadata data frame
     aggregated_processed_metadata_df = pd.read_csv(path.join(metadata_path, metadata_file), index_col=0)
 
+    # Load mobility data
+    mobility_df = pd.read_csv("external_data/2020_US_Region_Mobility_Report.csv")
+    state_bools = mobility_df['sub_region_1'].str.lower().str.replace(" ", "").str.contains(state_name).tolist()
+    if county_name is not None:
+        county_bools = mobility_df['sub_region_2'].str.lower().str.replace(" ", "").str.contains(county_name).tolist()
+    else:
+        county_bools = pd.isnull(mobility_df['sub_region_2']).tolist()
+    region_bools = [state_bool and county_bool if not np.isnan(state_bool) and not np.isnan(
+        county_bool) else False for state_bool, county_bool in zip(state_bools, county_bools)]
+    mobility_df = mobility_df[region_bools]
+    mobility_df['date'] = pd.to_datetime(mobility_df['date'])
+    mobility_cols = ["retail_and_recreation_percent_change_from_baseline",
+                     "grocery_and_pharmacy_percent_change_from_baseline",
+                     "parks_percent_change_from_baseline",
+                     "transit_stations_percent_change_from_baseline",
+                     "workplaces_percent_change_from_baseline",
+                     "residential_percent_change_from_baseline"
+                     ]
     # Get columns that have values that unique values for mortality rates
     # and store them in a dictionary along with relevant regional features
     training_data_dict = {
@@ -420,8 +490,12 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
         'discrepancy': [],
         'ethnicity': [],
         'date': []}
+    for mobility_col in mobility_cols:
+        training_data_dict[mobility_col] = []
+
     for metadata_name in aggregated_processed_metadata_df.keys():
         training_data_dict[metadata_name] = []
+
     for column in rate_df.keys():
         ethnicity = column.split('_rates')[0]
         if column != 'date' and column != 'time' and ethnicity.lower() != 'other':
@@ -454,11 +528,23 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
             training_data_dict['discrepancy'].extend(discrep_column_df.tolist())
             training_data_dict['time'].extend(time_df[change_bool])
 
-            training_data_dict['date'].extend(date_df[change_bool])
+            date_df = date_df[change_bool]
+            training_data_dict['date'].extend(date_df)
 
             # Fill in ethnicity for the region
             ethnicity_list = [ethnicity] * len(time_df[change_bool])
             training_data_dict['ethnicity'].extend(ethnicity_list)
+
+            # Fill in mobility data with the correct date
+            for date in pd.to_datetime(date_df).tolist():
+                date_delta = (mobility_df['date'] - date).abs()
+                min_date_idx = np.argmin(date_delta)
+
+                for mobility_col in mobility_cols:
+                    min_date_idx_use = min_date_idx
+                    while np.isnan(mobility_df[mobility_col].iloc[min_date_idx_use]):
+                        min_date_idx_use = min_date_idx_use - 1
+                    training_data_dict[mobility_col].extend([mobility_df[mobility_col].iloc[min_date_idx_use]])
 
             # Fill in metadata for the region
             for metadata_name in aggregated_processed_metadata_df.keys():
@@ -478,7 +564,6 @@ def training_data_manager(state_name: str, type: str, county_name: str = None) -
     training_data_dict['y_pred'] = list(y_pred[:, 0])
 
     training_data_df = pd.DataFrame(training_data_dict)
-
     if not os.path.exists(training_csv_path):
         os.mkdir(training_csv_path)
 
@@ -544,6 +629,26 @@ def regression_manager(state_name: str, type: str, validate_state_name: str, val
             metadata_filter=metadata_filter,
             validate_state_name=validate_state_name,
             validate_county_names=validate_county_names)
+    elif regression_type == 'mlp':
+        regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.mlp_reg(
+            state_name=state_name,
+            type=type,
+            county_names=county_names,
+            reg_key=reg_key,
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names)
+    elif regression_type == 'rf_reg':
+        regression_results_df, predictions_df, fitted_model, val_info_df, val_predictions_df = regression_utils.random_forest_reg(
+            state_name=state_name,
+            type=type,
+            county_names=county_names,
+            reg_key=reg_key,
+            ethnicity_filter_list=ethnicity_filter_list,
+            metadata_filter=metadata_filter,
+            validate_state_name=validate_state_name,
+            validate_county_names=validate_county_names)
     else:
         raise ValueError(f'{regression_type} regression logic not implemented')
 
@@ -588,7 +693,7 @@ def test_manager(state_name: str, county_names: List[str], type: str, validate_s
         metadata_filter = []
 
     if regression_type in RegDefinitions.multilinear_list or regression_type in RegDefinitions.multilinear_ridge_list \
-            or regression_type in RegDefinitions.multilinear_lasso_list:
+            or regression_type in RegDefinitions.multilinear_lasso_list or regression_type == 'gp':
         test_info_df, test_predictions_df = regression_utils.test_multilinear_regs(
             state_name=state_name, type=type, reg_key=reg_key, county_names=county_names, validate_state_name=validate_state_name, validate_county_names=validate_county_names,
             test_state_name=test_state_name, test_county_names=test_county_names, ethnicity_filter_list=ethnicity_filter_list, metadata_filter=metadata_filter, regression_type=regression_type)
@@ -644,7 +749,6 @@ def main(state_name: str, regression_type: str, corr_key: str,
     county_names: List of counties on which to run a particulcar mode
     mode: Mode being run
     """
-
     if isinstance(county_names, list):
         if len(county_names) == 1:
             county_name = county_names[0]

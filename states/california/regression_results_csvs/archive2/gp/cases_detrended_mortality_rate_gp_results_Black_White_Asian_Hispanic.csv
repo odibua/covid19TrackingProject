@@ -1,0 +1,5 @@
+state,county,n,nrmse,rmse
+california,"alameda,imperial,riverside,sacramento,sanfrancisco,sonoma",1934,523420126267.4181,3.976172292180623
+california,"alameda,imperial,riverside,sacramento,sanfrancisco,sonoma",1934,523420126271.7485,3.9761722921823033
+california,None,460,2.625011064881784,1.8252694336606183
+california,None,460,2.625011064885594,1.8252694336604733
