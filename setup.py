@@ -87,6 +87,7 @@ setup(
         'html5lib',
         'numpy>=1.9.0',
         'pandas',
+        'pingouin',
          'pytest',
         'requests',
         'requests_html',
