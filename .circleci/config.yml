@@ -45,7 +45,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            git config user.email odibua@gmail.com
+            git config user.email oldibua@gmail.com
             git config user.name odibua
             python -m venv venv
             . venv/bin/activate
